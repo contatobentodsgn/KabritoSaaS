@@ -46,7 +46,7 @@ infra no deploy (Supabase/Vercel/Sentry) · `[ ]` pendente.
 - [x] Retenção automática de logs e conteúdo **(auditado)** — `runLifecycle` arquiva expirados, limpa `raw_signals` (7d) e `access_logs`/`audit_logs` (180d).
 
 ## Operacional (exige config no deploy)
-- [~] Sentry capturando erros de servidor e do pipeline — `SENTRY_DSN` previsto; erros em `console.error`; instalar/instrumentar `@sentry/nextjs` no deploy.
-- [~] Alertas de falha do pipeline chegam à equipe — `run` marca `generation_runs.status='failed'`; conectar Sentry/e-mail interno no caminho de falha no deploy.
-- [~] Backup do banco configurado — habilitar PITR/backup automático no projeto Supabase (painel).
+- [x] Sentry capturando erros de servidor e do pipeline — `@sentry/nextjs` integrado: `instrumentation.ts` + `sentry.{server,edge}.config.ts` + `instrumentation-client.ts` + `onRequestError`; `withSentryConfig` no `next.config.mjs`. **Gated no DSN** (no-op sem `SENTRY_DSN`). Deploy: criar projeto no Sentry e setar `SENTRY_DSN` (+ `NEXT_PUBLIC_SENTRY_DSN`) na Vercel.
+- [x] Alertas de falha do pipeline chegam à equipe — `Sentry.captureException` no catch do pipeline (`server/pipeline/run.ts`, tag `area:pipeline`) e nas crons (`app/api/cron/*`). Chega no Sentry quando o DSN está setado (configurar alertas no painel Sentry).
+- [~] Backup do banco configurado — habilitar PITR/backup automático no projeto Supabase (painel). **Ação sua** — ver instruções abaixo.
 - [x] Rate limiting ativo em login/cadastro/geração sob demanda **(auditado)** — `server/rate-limit` aplicado em `signIn`/`signUp`/`generation`; `tests/unit/rate-limit.test.ts`. *(Recuperação de senha: slot existe mas o fluxo ainda não existe no app. Limiter em memória — trocar por Upstash para limite distribuído multi-instância.)*

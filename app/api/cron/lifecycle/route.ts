@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { isCronAuthorized } from "@/server/pipeline/cron";
 import { runLifecycle } from "@/server/pipeline/lifecycle";
 
@@ -21,6 +22,7 @@ async function handle(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[cron/lifecycle] erro:", message);
+    Sentry.captureException(err, { tags: { area: "cron", job: "lifecycle" } });
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

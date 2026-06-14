@@ -1,4 +1,5 @@
 import "server-only";
+import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
 import { getServiceDbClient } from "@/server/db/service-client";
 import {
@@ -251,6 +252,11 @@ export async function runDailyGeneration(opts: {
       .where(eq(generationRuns.id, runId));
     // FALHA NÃO PUBLICA: nenhuma edição foi persistida (ou a tx fez rollback).
     console.error("[pipeline] run falhou:", message);
+    // Alerta para a equipe (Sentry, se configurado) — falha de geração é crítica.
+    Sentry.captureException(err, {
+      tags: { area: "pipeline", kind },
+      extra: { runId, editionDate: opts.editionDate, platform: opts.platformSlug },
+    });
     return { ok: false, runId, error: message };
   }
 }

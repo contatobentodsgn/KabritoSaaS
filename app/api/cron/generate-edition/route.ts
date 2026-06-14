@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import {
   isCronAuthorized,
   generateForActivePlatforms,
@@ -27,6 +28,7 @@ async function handle(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[cron/generate-edition] erro:", message);
+    Sentry.captureException(err, { tags: { area: "cron", job: "generate-edition" } });
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

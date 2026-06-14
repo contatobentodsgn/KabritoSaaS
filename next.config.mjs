@@ -1,3 +1,5 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -31,4 +33,14 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// withSentryConfig injeta o SDK e instrumenta o build. O upload de sourcemaps só
+// acontece quando SENTRY_AUTH_TOKEN/ORG/PROJECT existem — sem eles, o build segue
+// normal (sem upload). silent evita ruído no log da Vercel.
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+  // Evita expor o nome do projeto em rotas e desabilita telemetria do plugin.
+  telemetry: false,
+});
