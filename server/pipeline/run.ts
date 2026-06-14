@@ -253,10 +253,14 @@ export async function runDailyGeneration(opts: {
     // FALHA NÃO PUBLICA: nenhuma edição foi persistida (ou a tx fez rollback).
     console.error("[pipeline] run falhou:", message);
     // Alerta para a equipe (Sentry, se configurado) — falha de geração é crítica.
-    Sentry.captureException(err, {
-      tags: { area: "pipeline", kind },
-      extra: { runId, editionDate: opts.editionDate, platform: opts.platformSlug },
-    });
+    // Guard: no runtime do CLI (tsx + react-server) captureException pode não
+    // existir; no cron (Next/Node) existe. Nunca deixar o alerta quebrar o run.
+    if (typeof Sentry.captureException === "function") {
+      Sentry.captureException(err, {
+        tags: { area: "pipeline", kind },
+        extra: { runId, editionDate: opts.editionDate, platform: opts.platformSlug },
+      });
+    }
     return { ok: false, runId, error: message };
   }
 }

@@ -75,43 +75,58 @@ class RealAnthropicProvider implements AiProvider {
   }
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /* -------------------------------------------------------------------------- */
 /** Provider OpenAI-compatible (Chat Completions). Funciona com qualquer base que
- *  fale o protocolo da OpenAI: OpenAI, OpenRouter, Groq, Gemini (compat), etc. */
+ *  fale o protocolo da OpenAI: OpenAI, OpenRouter, Groq, Gemini (compat), etc.
+ *  Trata 429 (rate limit) com retry/backoff — essencial p/ tiers grátis (Groq). */
 class OpenAiCompatibleProvider implements AiProvider {
   name = "openai-compatible";
   model = serverEnv.AI_MODEL;
   private baseUrl = (serverEnv.AI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/$/, "");
 
   async generateModule(_m: GenModule, userPrompt: string): Promise<ModelCall> {
-    const res = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${serverEnv.AI_API_KEY!}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: this.model,
-        max_tokens: 4096,
-        messages: [
-          { role: "system", content: SYSTEM_BASE },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    });
-    if (!res.ok) {
-      throw new Error(`AI API ${res.status}: ${await res.text()}`);
+    const maxRetries = 4;
+    for (let attempt = 0; ; attempt++) {
+      const res = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${serverEnv.AI_API_KEY!}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: this.model,
+          // max_tokens conta no TPM dos provedores; 2048 cobre os módulos e reduz
+          // 429 no tier grátis (vs. 4096). Suba se algum módulo truncar.
+          max_tokens: 2048,
+          messages: [
+            { role: "system", content: SYSTEM_BASE },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+      });
+      // 429: respeita Retry-After (tier grátis tem TPM baixo) e tenta de novo.
+      if (res.status === 429 && attempt < maxRetries) {
+        const ra = Number(res.headers.get("retry-after"));
+        const waitS = Number.isFinite(ra) && ra > 0 ? ra : 2 ** attempt;
+        await sleep(Math.min(waitS, 20) * 1000);
+        continue;
+      }
+      if (!res.ok) {
+        throw new Error(`AI API ${res.status}: ${await res.text()}`);
+      }
+      const data = (await res.json()) as {
+        choices?: { message?: { content?: string } }[];
+        usage?: { prompt_tokens?: number; completion_tokens?: number };
+      };
+      const raw = data.choices?.[0]?.message?.content ?? "";
+      return {
+        raw,
+        inputTokens: data.usage?.prompt_tokens ?? 0,
+        outputTokens: data.usage?.completion_tokens ?? 0,
+      };
     }
-    const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-      usage?: { prompt_tokens?: number; completion_tokens?: number };
-    };
-    const raw = data.choices?.[0]?.message?.content ?? "";
-    return {
-      raw,
-      inputTokens: data.usage?.prompt_tokens ?? 0,
-      outputTokens: data.usage?.completion_tokens ?? 0,
-    };
   }
 }
 

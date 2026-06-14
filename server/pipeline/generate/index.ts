@@ -66,7 +66,9 @@ async function genModule<T>(
 ): Promise<T> {
   let lastError = "";
   for (let attempt = 1; attempt <= 2; attempt++) {
-    const call = await provider.generateModule(module, buildUserPrompt(module, vars), vars);
+    // No retry, realimenta o erro de validação para o modelo se autocorrigir.
+    const userPrompt = buildUserPrompt(module, vars, attempt > 1 ? lastError : undefined);
+    const call = await provider.generateModule(module, userPrompt, vars);
     acc.inputTokens += call.inputTokens;
     acc.outputTokens += call.outputTokens;
     acc.costUsd += estimateCostUsd(provider.model, call.inputTokens, call.outputTokens);

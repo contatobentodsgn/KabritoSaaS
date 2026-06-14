@@ -101,6 +101,31 @@ export const tagSlug = z
   .max(40)
   .regex(/^[a-z0-9-]+$/, "use slug em minúsculas, hífens, sem acento");
 
+/* ---------------------------------------------------------------------------
+ * NORMALIZAÇÃO DEFENSIVA (tolerância a modelos, sobretudo menores/grátis)
+ * ---------------------------------------------------------------------------
+ * Modelos erram o FORMATO dos enums/slugs ("prova social" → "prova_social",
+ * "Quebra de Crença" → "quebra_de_crenca", tags com acento/maiúscula). Aqui
+ * normalizamos ANTES de validar. Valor fora do vocabulário ainda falha (isso é
+ * corrigido instruindo os valores permitidos no prompt) — só o formato é coagido.
+ */
+const stripAccents = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+const normEnumStr = (s: string) =>
+  stripAccents(s.trim().toLowerCase()).replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+const toSlugStr = (s: string) =>
+  stripAccents(s.trim().toLowerCase()).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const preNorm = (v: unknown) => (typeof v === "string" ? normEnumStr(v) : v);
+const preSlug = (v: unknown) => (typeof v === "string" ? toSlugStr(v) : v);
+/**
+ * Enum/slug TOLERANTE: normaliza o FORMATO antes de validar (corrige "prova social"
+ * → "prova_social", acentos, etc.). Valor fora do vocabulário ainda falha (resolvido
+ * via prompt). O cast para o schema original preserva o tipo de saída (union/slug) —
+ * o z.preprocess sozinho infere `unknown` e quebra a tipagem em run.ts.
+ */
+const loose = <T extends z.ZodTypeAny>(e: T): T => z.preprocess(preNorm, e) as unknown as T;
+const tagSlugLoose = z.preprocess(preSlug, tagSlug) as unknown as typeof tagSlug;
+const nicheSlugLoose = z.preprocess(preSlug, nicheSlug) as unknown as typeof nicheSlug;
+
 /* ===========================================================================
  * 2) PRIMITIVOS REUTILIZÁVEIS
  * ===========================================================================
@@ -112,7 +137,7 @@ const longText = z.string().trim().min(10).max(2000);
 
 /** Exemplos de adaptação de uma estrutura para nichos diferentes. */
 const adaptationExample = z.object({
-  niche: nicheSlug,
+  niche: nicheSlugLoose,
   example: shortText,
 });
 
@@ -129,7 +154,7 @@ export const briefingSchema = z.object({
   whats_growing: z.array(shortText).min(1).max(6),
   whats_saturated: z.array(shortText).min(0).max(6),
   opportunities: z.array(shortText).min(1).max(6),
-  recommended_formats: z.array(contentFormat).min(1).max(6),
+  recommended_formats: z.array(loose(contentFormat)).min(1).max(6),
   practical_recommendations: z.array(shortText).min(1).max(6),
 });
 export type Briefing = z.infer<typeof briefingSchema>;
@@ -140,11 +165,11 @@ export const trendItemSchema = z.object({
   context: mediumText, // o que é / por que surgiu
   why_it_matters: mediumText,
   adaptation_tips: longText, // como virar conteúdo
-  risk_level: riskLevel,
-  saturation_level: saturationLevel,
+  risk_level: loose(riskLevel),
+  saturation_level: loose(saturationLevel),
   opportunity_score: score0to100,
-  content_format: z.array(contentFormat).min(1).max(5),
-  recommended_niches: z.array(nicheSlug).min(1).max(12),
+  content_format: z.array(loose(contentFormat)).min(1).max(5),
+  recommended_niches: z.array(nicheSlugLoose).min(1).max(12),
   adaptation_examples: z.array(adaptationExample).min(1).max(6),
 });
 export type TrendItem = z.infer<typeof trendItemSchema>;
@@ -164,13 +189,13 @@ export type ExploreReport = z.infer<typeof exploreReportSchema>;
 export const copyPatternSchema = z.object({
   title: shortText,
   observed_headline: shortText,
-  category: copyCategory,
+  category: loose(copyCategory),
   hook_type: shortText, // ex.: "pergunta provocativa"
-  trigger_type: triggerType,
+  trigger_type: loose(triggerType),
   explanation: mediumText, // por que chama atenção
   structure: shortText, // ex.: "Você está fazendo X do jeito errado"
   adaptation_examples: z.array(adaptationExample).min(2).max(8),
-  tags: z.array(tagSlug).min(1).max(8),
+  tags: z.array(tagSlugLoose).min(1).max(8),
 });
 export type CopyPattern = z.infer<typeof copyPatternSchema>;
 
@@ -183,7 +208,7 @@ export const visualPatternSchema = z.object({
   composition_notes: mediumText,
   why_it_works: mediumText,
   how_to_adapt: mediumText,
-  tags: z.array(tagSlug).min(1).max(8),
+  tags: z.array(tagSlugLoose).min(1).max(8),
 });
 export type VisualPattern = z.infer<typeof visualPatternSchema>;
 
@@ -191,11 +216,11 @@ export type VisualPattern = z.infer<typeof visualPatternSchema>;
 export const headlineSchema = z.object({
   headline: shortText,
   category: shortText, // ex.: "alerta / quebra de padrão"
-  trigger_type: triggerType,
+  trigger_type: loose(triggerType),
   why_it_works: mediumText,
   adaptations: z.array(shortText).min(2).max(10),
-  saturation_level: saturationLevel,
-  recommended_niches: z.array(nicheSlug).min(1).max(12),
+  saturation_level: loose(saturationLevel),
+  recommended_niches: z.array(nicheSlugLoose).min(1).max(12),
 });
 export type Headline = z.infer<typeof headlineSchema>;
 
@@ -203,13 +228,13 @@ export type Headline = z.infer<typeof headlineSchema>;
 export const contentSuggestionSchema = z.object({
   title: shortText,
   central_idea: mediumText,
-  recommended_format: contentFormat,
+  recommended_format: loose(contentFormat),
   suggested_headline: shortText,
   post_structure: longText, // estrutura passo a passo / slides
   caption_base: longText, // legenda base
   cta: shortText,
-  recommended_niches: z.array(nicheSlug).min(1).max(12),
-  difficulty_level: difficultyLevel,
+  recommended_niches: z.array(nicheSlugLoose).min(1).max(12),
+  difficulty_level: loose(difficultyLevel),
   opportunity_score: score0to100,
   personalization_prompt: mediumText, // prompt p/ o usuário adaptar ao nicho
 });
@@ -226,7 +251,7 @@ export const promptTemplateSchema = z.object({
   required_input: z.array(shortText).min(0).max(8),
   prompt_body: longText,
   example_output: longText,
-  tags: z.array(tagSlug).min(1).max(8),
+  tags: z.array(tagSlugLoose).min(1).max(8),
 });
 export type PromptTemplate = z.infer<typeof promptTemplateSchema>;
 

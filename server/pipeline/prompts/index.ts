@@ -34,21 +34,40 @@ export type GenModule =
 const COMMON = (v: PromptVars) =>
   `Plataforma: ${v.platform} | Data: ${v.editionDate}\nSinais do dia:\n${v.signals || "(sem sinais coletados; use padrões atemporais de copy/design)"}\nNichos válidos: ${v.niches.join(", ") || "(livre)"} | Formatos válidos: ${v.formats.join(", ")}`;
 
-export function buildUserPrompt(module: GenModule, v: PromptVars): string {
+// Vocabulário fechado dos enums (DEVE bater com generation-schemas.ts). Listar
+// no prompt é o que evita o modelo inventar valor (ex.: "marketing" como category).
+const FORMAT_VALUES =
+  "carrossel, reels, post_unico, thread, post_linkedin, story, sequencia_stories, roteiro_curto, post_opiniao, post_educativo, post_venda";
+const COPY_CATEGORY_VALUES =
+  "autoridade, identificacao, polemica, quebra_de_crenca, tutorial, lista, bastidor, opiniao, venda";
+const TRIGGER_VALUES =
+  "curiosidade, medo_de_errar, prova_social, urgencia, novidade, identificacao, autoridade, polemica, ganho, perda";
+
+function bodyFor(module: GenModule, v: PromptVars): string {
   switch (module) {
     case "briefing":
-      return `${COMMON(v)}\n\nGere o briefing diário com: summary (1–3 frases), whats_growing, whats_saturated, opportunities, recommended_formats (use apenas os formatos válidos), practical_recommendations. Foque no que é acionável hoje.\nSaída: JSON conforme briefingSchema.`;
+      return `${COMMON(v)}\n\nGere o briefing diário com: summary (1–3 frases), whats_growing, whats_saturated, opportunities, recommended_formats (use SOMENTE: ${FORMAT_VALUES}), practical_recommendations. Foque no que é acionável hoje.\nSaída: JSON conforme briefingSchema.`;
     case "trend_items":
-      return `${COMMON(v)}\n\nGere de 3 a 6 pautas quentes. Cada uma: title, context, why_it_matters, adaptation_tips, risk_level (baixo|medio|alto), saturation_level (emergente|baixo|medio|alto|saturado), opportunity_score (0–100), content_format (subset válido), recommended_niches (subset válido), adaptation_examples (2–6 niche+example). Inclua ao menos uma pauta "emergente".\nSaída: JSON array conforme trendItemSchema.`;
+      return `${COMMON(v)}\n\nGere de 3 a 6 pautas quentes. Cada uma: title, context, why_it_matters, adaptation_tips, risk_level (baixo|medio|alto), saturation_level (emergente|baixo|medio|alto|saturado), opportunity_score (0–100), content_format (SOMENTE: ${FORMAT_VALUES}), recommended_niches (slugs minúsculos com hífen, sem acento), adaptation_examples (2–6 niche+example). Inclua ao menos uma pauta "emergente".\nSaída: JSON array conforme trendItemSchema.`;
     case "explore_reports":
       return `${COMMON(v)}\n\nGere de 1 a 3 análises de padrões observados (formatos, ganchos, estilos), SEM afirmar captura automática de redes. Cada uma: title, summary, observed_patterns (2–10), recommendation.\nSaída: JSON array conforme exploreReportSchema.`;
     case "copy_patterns":
-      return `${COMMON(v)}\n\nGere de 2 a 5 análises de copy. Cada uma: title, observed_headline, category, hook_type, trigger_type, explanation, structure (molde reutilizável), adaptation_examples (2–8 niche+example), tags.\nSaída: JSON array conforme copyPatternSchema.`;
+      return `${COMMON(v)}\n\nGere de 2 a 5 análises de copy. Cada uma: title, observed_headline, category (use EXATAMENTE um de: ${COPY_CATEGORY_VALUES}), hook_type (texto livre), trigger_type (use EXATAMENTE um de: ${TRIGGER_VALUES}), explanation, structure (molde reutilizável), adaptation_examples (2–8 niche+example), tags (slugs minúsculos com hífen, sem acento, ex.: "copy", "gancho-curiosidade").\nSaída: JSON array conforme copyPatternSchema.`;
     case "visual_patterns":
-      return `${COMMON(v)}\n\nGere de 1 a 4 padrões visuais. Cada um: title, visual_style, colors (descrições), typography_notes, composition_notes, why_it_works, how_to_adapt, tags. Foque em reproduzível por não-designers.\nSaída: JSON array conforme visualPatternSchema.`;
+      return `${COMMON(v)}\n\nGere de 1 a 4 padrões visuais. Cada um: title, visual_style, colors (descrições), typography_notes, composition_notes, why_it_works, how_to_adapt, tags (slugs minúsculos com hífen, sem acento). Foque em reproduzível por não-designers.\nSaída: JSON array conforme visualPatternSchema.`;
     case "headlines":
-      return `${COMMON(v)}\n\nGere de 5 a 12 headlines. Cada uma: headline, category, trigger_type, why_it_works, adaptations (2–10), saturation_level, recommended_niches. Varie os gatilhos.\nSaída: JSON array conforme headlineSchema.`;
+      return `${COMMON(v)}\n\nGere de 5 a 12 headlines. Cada uma: headline, category (texto livre curto), trigger_type (use EXATAMENTE um de: ${TRIGGER_VALUES}), why_it_works, adaptations (2–10), saturation_level (emergente|baixo|medio|alto|saturado), recommended_niches (slugs). Varie os gatilhos.\nSaída: JSON array conforme headlineSchema.`;
     case "content_suggestions":
-      return `${COMMON(v)}\n\nGere de 3 a 6 sugestões de post. Cada uma: title, central_idea, recommended_format, suggested_headline, post_structure, caption_base, cta, recommended_niches, difficulty_level (facil|medio|dificil), opportunity_score (0–100), personalization_prompt.\nSaída: JSON array conforme contentSuggestionSchema.`;
+      return `${COMMON(v)}\n\nGere de 3 a 6 sugestões de post. Cada uma: title, central_idea, recommended_format (SOMENTE um de: ${FORMAT_VALUES}), suggested_headline, post_structure, caption_base, cta, recommended_niches (slugs), difficulty_level (facil|medio|dificil), opportunity_score (0–100), personalization_prompt.\nSaída: JSON array conforme contentSuggestionSchema.`;
   }
+}
+
+/**
+ * Monta o prompt do módulo. Em retry (retryError preenchido), realimenta os erros
+ * de validação para o modelo se autocorrigir — crucial p/ modelos menores/grátis.
+ */
+export function buildUserPrompt(module: GenModule, v: PromptVars, retryError?: string): string {
+  const body = bodyFor(module, v);
+  if (!retryError) return body;
+  return `${body}\n\nATENÇÃO: sua resposta anterior foi REJEITADA pela validação com estes erros:\n${retryError}\nCorrija EXATAMENTE esses pontos. Use somente os valores de enum permitidos (em snake_case, minúsculas, sem acento) e slugs válidos.`;
 }
