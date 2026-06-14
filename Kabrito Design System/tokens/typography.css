@@ -1,0 +1,92 @@
+/* ─────────────────────────────────────────────────────────────
+   Kabrito — Typography Tokens
+   Editorial pairing: Newsreader (serif display) over Inter (UI/body).
+   Scale & weights inherited from the structural base; serif display
+   roles use gentler tracking than a sans would.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Families ── */
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-sans:  "Inter", -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono:  ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+
+  /* ── Weights ── */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold:600;
+  --weight-bold:    700;
+
+  /* ── Display (serif, editorial) ── */
+  --text-display-1-family: var(--font-serif);
+  --text-display-1-size:   64px;
+  --text-display-1-weight: 500;
+  --text-display-1-line:   1.04;
+  --text-display-1-track:  -1.5px;
+
+  --text-display-2-family: var(--font-serif);
+  --text-display-2-size:   52px;
+  --text-display-2-weight: 500;
+  --text-display-2-line:   1.06;
+  --text-display-2-track:  -1.2px;
+
+  /* ── Headings (serif for editorial weight) ── */
+  --text-heading-1-family: var(--font-serif);
+  --text-heading-1-size:   40px;
+  --text-heading-1-weight: 500;
+  --text-heading-1-line:   1.1;
+  --text-heading-1-track:  -0.8px;
+
+  --text-heading-2-family: var(--font-serif);
+  --text-heading-2-size:   28px;
+  --text-heading-2-weight: 500;
+  --text-heading-2-line:   1.22;
+  --text-heading-2-track:  -0.4px;
+
+  --text-heading-3-family: var(--font-sans);
+  --text-heading-3-size:   22px;
+  --text-heading-3-weight: 600;
+  --text-heading-3-line:   1.27;
+  --text-heading-3-track:  -0.25px;
+
+  /* ── Title / UI ── */
+  --text-title-family: var(--font-sans);
+  --text-title-size:   20px;
+  --text-title-weight: 600;
+  --text-title-line:   1.4;
+  --text-title-track:  -0.1px;
+
+  /* ── Body ── */
+  --text-body-md-family: var(--font-sans);
+  --text-body-md-size:   16px;
+  --text-body-md-weight: 400;
+  --text-body-md-line:   1.55;
+  --text-body-md-track:  0;
+
+  --text-body-sm-family: var(--font-sans);
+  --text-body-sm-size:   15px;
+  --text-body-sm-weight: 400;
+  --text-body-sm-line:   1.45;
+  --text-body-sm-track:  0;
+
+  /* ── Button ── */
+  --text-button-family: var(--font-sans);
+  --text-button-size:   15px;
+  --text-button-weight: 500;
+  --text-button-line:   1.4;
+  --text-button-track:  0;
+
+  /* ── Caption ── */
+  --text-caption-family: var(--font-sans);
+  --text-caption-size:   14px;
+  --text-caption-weight: 400;
+  --text-caption-line:   1.43;
+  --text-caption-track:  0;
+
+  /* ── Eyebrow (uppercase, tracked) ── */
+  --text-eyebrow-family: var(--font-sans);
+  --text-eyebrow-size:   12px;
+  --text-eyebrow-weight: 600;
+  --text-eyebrow-line:   1.33;
+  --text-eyebrow-track:  1px;
+}

@@ -1,0 +1,42 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# next
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+
+# env files — NUNCA versionar segredos (SECURITY_GUIDE §5)
+.env
+.env*.local
+.env.local
+
+# local postgres data (test harness)
+/.pgdata/
+/.pglogs/
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# test
+/coverage
+
+# binários/artefatos que não devem ir ao repo
+/dist
+*.dmg
+*.zip

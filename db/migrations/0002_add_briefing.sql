@@ -1,0 +1,1 @@
+ALTER TABLE "content_editions" ADD COLUMN "briefing" jsonb;

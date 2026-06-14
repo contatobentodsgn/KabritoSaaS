@@ -1,0 +1,48 @@
+<!-- @dsCard group="Components" viewport="700x320" name="Forms" subtitle="Input, Checkbox, Switch — rose focus ring, square fields" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; background: var(--color-bg-default); padding: 24px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; align-items: start; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script type="text/babel">
+const { Input, Checkbox, Switch } = window.KabritoDesignSystem_0572f5;
+const Mail = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>;
+function Demo() {
+  const [c1, setC1] = React.useState(true);
+  const [c2, setC2] = React.useState(false);
+  const [s1, setS1] = React.useState(true);
+  const [s2, setS2] = React.useState(false);
+  return (
+    <div className="grid">
+      <div className="stack">
+        <Input label="Seu e-mail" type="email" placeholder="email@exemplo.com" iconLeft={<Mail/>} />
+        <Input label="Nome completo" defaultValue="Marina Alves" helper="Como devemos te chamar?" />
+        <Input label="Senha" type="password" defaultValue="123" error="Mínimo de 8 caracteres" />
+      </div>
+      <div className="stack">
+        <Checkbox checked={c1} onChange={setC1} label="Aceito os termos de uso" />
+        <Checkbox checked={c2} onChange={setC2} label="Quero receber novidades" />
+        <Checkbox checked={false} disabled label="Opção indisponível" />
+        <div style={{height:4}}></div>
+        <Switch checked={s1} onChange={setS1} label="Notificações por e-mail" />
+        <Switch checked={s2} onChange={setS2} label="Modo foco" />
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

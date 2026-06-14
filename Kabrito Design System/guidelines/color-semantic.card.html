@@ -1,0 +1,33 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Semantic — Text & Surfaces" subtitle="Text roles over their intended backgrounds" -->
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;background:var(--color-bg-subtle);padding:20px;font-family:var(--font-sans)}
+  .wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .panel{border-radius:var(--radius-lg);border:1px solid var(--color-border-default);overflow:hidden}
+  .lbl{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--color-text-muted);padding:0 0 8px}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:7px 12px}
+  .tk{font-family:var(--font-mono);font-size:11px;opacity:.7}
+</style></head>
+<body>
+<div class="wrap">
+  <div>
+    <div class="lbl">Text on surface</div>
+    <div class="panel" style="background:#fff">
+      <div class="row" style="color:var(--color-text-primary)"><span style="font-weight:600">Texto primário</span><span class="tk">forest-700</span></div>
+      <div class="row" style="color:var(--color-text-secondary)"><span>Texto secundário</span><span class="tk">mint-800</span></div>
+      <div class="row" style="color:var(--color-text-muted)"><span>Texto muted</span><span class="tk">mint-700</span></div>
+      <div class="row" style="color:var(--color-text-warm)"><span>Texto warm</span><span class="tk">rose-900</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="lbl">Surfaces</div>
+    <div class="panel">
+      <div class="row" style="background:var(--color-bg-surface);color:var(--color-text-primary)"><span>bg-surface</span><span class="tk">#FFFFFF</span></div>
+      <div class="row" style="background:var(--color-bg-subtle);color:var(--color-text-primary)"><span>bg-subtle</span><span class="tk">mint-50</span></div>
+      <div class="row" style="background:var(--color-bg-default);color:var(--color-text-primary)"><span>bg-default</span><span class="tk">mint-100</span></div>
+      <div class="row" style="background:var(--color-bg-highlight);color:var(--color-text-warm)"><span>bg-highlight</span><span class="tk">blush-100</span></div>
+    </div>
+  </div>
+</div>
+</body></html>

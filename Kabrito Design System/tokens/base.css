@@ -1,0 +1,33 @@
+/* ─────────────────────────────────────────────────────────────
+   Kabrito — Base layer
+   Light reset + type-role utility classes built from the tokens.
+   Optional for consumers; primitives reference the --tokens directly.
+   ───────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-md-size);
+  line-height: var(--text-body-md-line);
+  color: var(--color-text-primary);
+  background: var(--color-bg-default);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv05";
+}
+
+/* ── Type roles ── */
+.k-display-1 { font-family: var(--text-display-1-family); font-size: var(--text-display-1-size); font-weight: var(--text-display-1-weight); line-height: var(--text-display-1-line); letter-spacing: var(--text-display-1-track); }
+.k-display-2 { font-family: var(--text-display-2-family); font-size: var(--text-display-2-size); font-weight: var(--text-display-2-weight); line-height: var(--text-display-2-line); letter-spacing: var(--text-display-2-track); }
+.k-heading-1 { font-family: var(--text-heading-1-family); font-size: var(--text-heading-1-size); font-weight: var(--text-heading-1-weight); line-height: var(--text-heading-1-line); letter-spacing: var(--text-heading-1-track); }
+.k-heading-2 { font-family: var(--text-heading-2-family); font-size: var(--text-heading-2-size); font-weight: var(--text-heading-2-weight); line-height: var(--text-heading-2-line); letter-spacing: var(--text-heading-2-track); }
+.k-heading-3 { font-family: var(--text-heading-3-family); font-size: var(--text-heading-3-size); font-weight: var(--text-heading-3-weight); line-height: var(--text-heading-3-line); letter-spacing: var(--text-heading-3-track); }
+.k-title     { font-family: var(--text-title-family); font-size: var(--text-title-size); font-weight: var(--text-title-weight); line-height: var(--text-title-line); letter-spacing: var(--text-title-track); }
+.k-body      { font-family: var(--text-body-md-family); font-size: var(--text-body-md-size); font-weight: var(--text-body-md-weight); line-height: var(--text-body-md-line); }
+.k-body-sm   { font-family: var(--text-body-sm-family); font-size: var(--text-body-sm-size); font-weight: var(--text-body-sm-weight); line-height: var(--text-body-sm-line); }
+.k-caption   { font-family: var(--text-caption-family); font-size: var(--text-caption-size); font-weight: var(--text-caption-weight); line-height: var(--text-caption-line); color: var(--color-text-muted); }
+.k-eyebrow   { font-family: var(--text-eyebrow-family); font-size: var(--text-eyebrow-size); font-weight: var(--text-eyebrow-weight); line-height: var(--text-eyebrow-line); letter-spacing: var(--text-eyebrow-track); text-transform: uppercase; }
+
+.k-serif-italic { font-family: var(--font-serif); font-style: italic; font-weight: 400; }

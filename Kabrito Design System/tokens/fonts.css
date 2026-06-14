@@ -1,0 +1,9 @@
+/* ─────────────────────────────────────────────────────────────
+   Kabrito — Webfonts
+   Editorial serif display (Newsreader) + clean humanist sans (Inter).
+   NOTE: Kabrito shipped no proprietary font files. These are the
+   nearest open-source matches on Google Fonts and are flagged as
+   substitutions — swap in licensed files if the brand has them.
+   ───────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..600&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..500&display=swap');

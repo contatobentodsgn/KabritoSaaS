@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   Kabrito Design System → shadcn CSS variables
+   Mint Cream canvas · Black Forest authority type · soft Rose/Blush accents.
+   Remapeia as variáveis que todos os componentes já consomem → re-tema global.
+   ============================================================================ */
+@layer base {
+  :root {
+    /* shadcn semantic (HSL) — paleta Kabrito */
+    --background: 120 21% 93%; /* Mint Cream #EBF2EB */
+    --foreground: 116 95% 16%; /* Black Forest #075102 */
+    --card: 0 0% 100%; /* white surface */
+    --card-foreground: 116 95% 16%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 116 95% 16%;
+    --primary: 116 95% 16%; /* Forest 700 — authority/CTA */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 120 18% 96%; /* soft mint surface */
+    --secondary-foreground: 116 95% 16%;
+    --muted: 120 18% 96%;
+    --muted-foreground: 116 28% 32%; /* dark mint — passes contrast */
+    --accent: 120 22% 92%; /* forest-100 wash (nav/ghost hover) */
+    --accent-foreground: 116 95% 16%;
+    --destructive: 2 55% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 116 20% 87%; /* mint-200 #D9E5D8 hairline */
+    --input: 116 20% 87%;
+    --ring: 358 60% 78%; /* soft Dusty Rose focus */
+    --radius: 0.75rem; /* 12px cards */
+
+    /* Kabrito raw tokens (para sombras/foco) */
+    --k-rose-soft: #f6e9e9;
+    --shadow-focus: 0 0 0 3px var(--k-rose-soft);
+    --shadow-1: 0 0.5px 1px rgba(7, 81, 2, 0.04), 0 1px 3px rgba(7, 81, 2, 0.05), 0 4px 12px rgba(7, 81, 2, 0.05);
+  }
+
+  .dark {
+    --background: 116 80% 9%; /* Black Forest night */
+    --foreground: 120 21% 93%;
+    --card: 116 60% 11%;
+    --card-foreground: 120 21% 93%;
+    --popover: 116 60% 11%;
+    --popover-foreground: 120 21% 93%;
+    --primary: 3 100% 83%; /* blush leads on dark */
+    --primary-foreground: 116 95% 12%;
+    --secondary: 116 40% 16%;
+    --secondary-foreground: 120 21% 93%;
+    --muted: 116 40% 16%;
+    --muted-foreground: 120 18% 70%;
+    --accent: 116 40% 18%;
+    --accent-foreground: 120 21% 93%;
+    --destructive: 2 60% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 116 35% 20%;
+    --input: 116 35% 20%;
+    --ring: 358 60% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* Editorial signature: headings em Newsreader (serif). */
+  h1,
+  h2 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  ::selection {
+    background: #ffd8d5; /* blush-200 */
+    color: #075102;
+  }
+}
+
+@layer components {
+  /* Eyebrow: UPPERCASE tracked — assinatura editorial Kabrito. */
+  .k-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.08em] text-mint-700;
+  }
+  /* Serif display helper. */
+  .k-serif {
+    font-family: var(--font-serif);
+  }
+  .k-serif-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+  }
+}

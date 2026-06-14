@@ -1,0 +1,32 @@
+/* ─────────────────────────────────────────────────────────────
+   Kabrito — Spacing & Shape Tokens
+   Base unit: 8px. Calm, document-like rhythm with generous respiro.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Spacing (8px base) ── */
+  --space-xxs: 4px;
+  --space-xs:  8px;
+  --space-sm:  12px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  /* ── Radius ── */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ── Containers ── */
+  --container-narrow: 720px;
+  --container-base:   1080px;
+  --container-wide:   1280px;
+  --gutter:           24px;
+}

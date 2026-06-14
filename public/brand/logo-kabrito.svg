@@ -1,0 +1,9 @@
+<svg width="220" height="48" viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kabrito">
+  
+  <g transform="translate(2 6)">
+    <path d="M34 2C18 4 6 14 4 30c-1 7 2 13 8 16C10 30 20 16 34 8c-9 9-14 19-15 31 13 1 24-7 28-19 4-11 0-22-13-18Z" fill="#075102"></path>
+    <path d="M9 44C13 30 22 18 33 9" stroke="#FFACA8" stroke-width="2" stroke-linecap="round" fill="none"></path>
+  </g>
+  
+  <text x="58" y="33" font-family="Newsreader, Georgia, serif" font-size="30" font-weight="500" letter-spacing="-0.5" fill="#075102">Kabrito</text>
+</svg>

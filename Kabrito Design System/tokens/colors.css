@@ -1,0 +1,115 @@
+/* ─────────────────────────────────────────────────────────────
+   Kabrito — Color Tokens
+   Palette: Black Forest · Mint Cream · Dusty Rose · Powder Blush
+   Direction: natural · sensível · editorial · elegante
+   Balance: 60% Mint Cream · 25% Black Forest · 10% Powder Blush · 5% Dusty Rose
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Primitive: Forest (Primary / Authority) ── */
+  --forest-50:  #f3f6f2;
+  --forest-100: #e6eee6;
+  --forest-200: #cddccc;
+  --forest-300: #a8c2a6;
+  --forest-400: #779f74;
+  --forest-500: #457c41;
+  --forest-600: #20621b;
+  --forest-700: #075102; /* Black Forest — brand */
+  --forest-800: #064502;
+  --forest-900: #053901;
+  --forest-950: #042d01;
+
+  /* ── Primitive: Mint (Background / Base) ── */
+  --mint-50:  #f7faf7;
+  --mint-100: #ebf2eb; /* Mint Cream — brand */
+  --mint-200: #d9e5d8;
+  --mint-300: #c7d8c6;
+  --mint-400: #abc5aa;
+  --mint-500: #90b28e;
+  --mint-600: #749e72;
+  --mint-700: #598b56;
+  --mint-800: #3e783a;
+  --mint-900: #22641e;
+  --mint-950: #155b10;
+
+  /* ── Primitive: Rose (Secondary / Affection) ── */
+  --rose-50:  #fbf4f4;
+  --rose-100: #f6e9e9;
+  --rose-200: #efd8d9;
+  --rose-300: #e6c1c2;
+  --rose-400: #d89ea0;
+  --rose-500: #c77577; /* Dusty Rose — brand */
+  --rose-600: #af6769;
+  --rose-700: #955859;
+  --rose-800: #774647;
+  --rose-900: #5a3536;
+  --rose-950: #3c2324;
+
+  /* ── Primitive: Blush (Accent / Warmth) ── */
+  --blush-50:  #fff5f5;
+  --blush-100: #ffebea;
+  --blush-200: #ffd8d5;
+  --blush-300: #ffc4c0;
+  --blush-400: #ffaca8; /* Powder Blush — brand */
+  --blush-500: #f19e9c;
+  --blush-600: #e08a86;
+  --blush-700: #c77370;
+  --blush-800: #a85d5a;
+  --blush-900: #803f3d;
+  --blush-950: #5a2c2a;
+
+  /* ── Semantic: Brand ── */
+  --color-primary:         var(--forest-700);
+  --color-primary-hover:   var(--forest-800);
+  --color-primary-pressed: var(--forest-950);
+  --color-primary-soft:    var(--forest-100);
+  --color-secondary:       var(--rose-500);
+  --color-secondary-hover: var(--rose-600);
+  --color-secondary-soft:  var(--rose-100);
+  --color-accent:          var(--blush-400);
+  --color-accent-hover:    var(--blush-500);
+  --color-accent-soft:     var(--blush-50);
+
+  /* ── Semantic: Background / Surface ── */
+  --color-bg-default:   var(--mint-100);
+  --color-bg-subtle:    var(--mint-50);
+  --color-bg-surface:   #ffffff;
+  --color-bg-muted:     var(--forest-50);
+  --color-bg-highlight: var(--blush-100);
+
+  /* ── Semantic: Text ── */
+  --color-text-primary:   var(--forest-700);
+  --color-text-secondary: var(--mint-800);
+  --color-text-muted:     var(--mint-700);
+  --color-text-warm:      var(--rose-900);
+  --color-text-inverse:   #ffffff;
+
+  /* ── Semantic: Border ── */
+  --color-border-default: var(--mint-200);
+  --color-border-strong:  var(--mint-400);
+  --color-border-accent:  var(--rose-300);
+  --color-border-focus:   var(--rose-500);
+
+  /* ── Component: Buttons ── */
+  --button-primary-bg:     var(--forest-700);
+  --button-primary-text:   #ffffff;
+  --button-primary-hover:  var(--forest-800);
+  --button-secondary-bg:   var(--blush-400);
+  --button-secondary-text: var(--forest-700);
+  --button-secondary-hover:var(--blush-500);
+
+  /* ── Semantic: States ── */
+  --state-success-bg:   var(--forest-100);
+  --state-success-text: var(--forest-700);
+  --state-error-bg:     var(--blush-100);
+  --state-error-text:   var(--rose-900);
+  --state-warning-bg:   var(--blush-50);
+  --state-warning-text: var(--forest-700);
+  --state-info-bg:      var(--mint-100);
+  --state-info-text:    var(--forest-700);
+
+  /* ── Gradients (use sparingly: heroes, editorial, special cards) ── */
+  --gradient-soft:      linear-gradient(135deg, #ebf2eb 0%, #fff5f5 100%); /* @kind color */
+  --gradient-warm:      linear-gradient(135deg, #c77577 0%, #ffaca8 100%); /* @kind color */
+  --gradient-editorial: linear-gradient(135deg, #075102 0%, #c77577 100%); /* @kind color */
+}
