@@ -3,13 +3,16 @@ import { serverEnv } from "@/server/env";
 import { SYSTEM_BASE, type GenModule, type PromptVars } from "@/server/pipeline/prompts";
 
 /**
- * Provedor de IA do pipeline. Duas implementações:
- *  - RealAnthropicProvider: chama a API da Anthropic (claude) quando AI_API_KEY
- *    está configurada. Exige JSON puro (validado por Zod no generator).
- *  - MockProvider: gera saída determinística e VÁLIDA quando não há chave —
- *    permite rodar e testar o pipeline ponta-a-ponta localmente.
+ * Provedor de IA do pipeline — desacoplado de um fornecedor único. Implementações:
+ *  - RealAnthropicProvider: API nativa da Anthropic (Messages).
+ *  - OpenAiCompatibleProvider: API Chat Completions OpenAI-compatível — cobre
+ *    OpenAI, OpenRouter (→ qualquer modelo: Anthropic/Google/Meta/…), Groq,
+ *    Gemini (endpoint compat), DeepSeek, Mistral, local (Ollama/LM Studio)…
+ *  - MockProvider: saída determinística e VÁLIDA quando não há chave (testes).
  *
- * Em ambos os casos a saída passa por safeParseGenerated() antes de gravar.
+ * Seleção por env (getAiProvider): AI_PROVIDER + AI_BASE_URL. Em todos os casos a
+ * saída passa por safeParseGenerated() antes de gravar, e o teto de custo/tokens
+ * (run.ts) é aplicado — o token cap é exato; o custo é aproximado p/ não-Anthropic.
  */
 
 export interface ModelCall {
@@ -73,6 +76,46 @@ class RealAnthropicProvider implements AiProvider {
 }
 
 /* -------------------------------------------------------------------------- */
+/** Provider OpenAI-compatible (Chat Completions). Funciona com qualquer base que
+ *  fale o protocolo da OpenAI: OpenAI, OpenRouter, Groq, Gemini (compat), etc. */
+class OpenAiCompatibleProvider implements AiProvider {
+  name = "openai-compatible";
+  model = serverEnv.AI_MODEL;
+  private baseUrl = (serverEnv.AI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/$/, "");
+
+  async generateModule(_m: GenModule, userPrompt: string): Promise<ModelCall> {
+    const res = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${serverEnv.AI_API_KEY!}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: this.model,
+        max_tokens: 4096,
+        messages: [
+          { role: "system", content: SYSTEM_BASE },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      throw new Error(`AI API ${res.status}: ${await res.text()}`);
+    }
+    const data = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+      usage?: { prompt_tokens?: number; completion_tokens?: number };
+    };
+    const raw = data.choices?.[0]?.message?.content ?? "";
+    return {
+      raw,
+      inputTokens: data.usage?.prompt_tokens ?? 0,
+      outputTokens: data.usage?.completion_tokens ?? 0,
+    };
+  }
+}
+
+/* -------------------------------------------------------------------------- */
 class MockProvider implements AiProvider {
   name = "mock";
   model = "mock-generator-v1";
@@ -89,7 +132,14 @@ class MockProvider implements AiProvider {
 }
 
 export function getAiProvider(): AiProvider {
-  return serverEnv.AI_API_KEY ? new RealAnthropicProvider() : new MockProvider();
+  // Sem chave → mock (permite rodar/testar o pipeline localmente).
+  if (!serverEnv.AI_API_KEY) return new MockProvider();
+  const provider = (serverEnv.AI_PROVIDER ?? "").toLowerCase();
+  if (provider === "anthropic") return new RealAnthropicProvider();
+  // openai explícito OU base url customizada (OpenRouter/Groq/Gemini-compat/…).
+  if (provider === "openai" || serverEnv.AI_BASE_URL) return new OpenAiCompatibleProvider();
+  // Padrão histórico (compatível): Anthropic nativo.
+  return new RealAnthropicProvider();
 }
 
 /* --------------------------- Mock data builders --------------------------- */

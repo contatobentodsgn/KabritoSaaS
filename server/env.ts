@@ -18,6 +18,13 @@ export const serverEnv = {
   CRON_SECRET: process.env.CRON_SECRET,
   AI_API_KEY: process.env.AI_API_KEY,
   AI_MODEL: process.env.AI_MODEL ?? "claude-3-5-sonnet-latest",
+  // Provider de IA — desacopla de um fornecedor único:
+  //  - AI_PROVIDER: "anthropic" (API nativa) | "openai" (Chat Completions compatível)
+  //    Vazio = auto (openai se AI_BASE_URL setado, senão anthropic).
+  //  - AI_BASE_URL: base da API OpenAI-compatível (OpenAI, OpenRouter, Groq, Gemini-compat,
+  //    DeepSeek, Mistral, local…). Ex.: https://openrouter.ai/api/v1
+  AI_PROVIDER: process.env.AI_PROVIDER,
+  AI_BASE_URL: process.env.AI_BASE_URL,
   AI_RUN_COST_CAP_USD: numEnv(process.env.AI_RUN_COST_CAP_USD, 2.0),
   AI_RUN_TOKEN_CAP: numEnv(process.env.AI_RUN_TOKEN_CAP, 200000),
   RESEND_API_KEY: process.env.RESEND_API_KEY,
