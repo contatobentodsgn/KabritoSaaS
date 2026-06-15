@@ -35,22 +35,23 @@ export async function getPlatformBySlug(
 }
 
 /**
- * Keys dos cards do dashboard ATIVOS (feature-flags). RLS: authenticated lê.
- * FAIL-OPEN: se a tabela ainda não existe (ex.: antes da migration 0010 rodar
- * na Supabase) ou a query erra, mostra TODOS os cards — nunca um dashboard vazio.
+ * Keys dos cards do dashboard ATIVOS, NA ORDEM definida em /admin/cards
+ * (sort_order). RLS: authenticated lê. FAIL-OPEN: se a tabela não existe ou a
+ * query erra, mostra TODOS os cards na ordem canônica — nunca um dashboard vazio.
  * Lista vazia legítima (tabela existe, tudo desativado) é respeitada.
  */
-export async function getEnabledCardKeys(): Promise<Set<string>> {
+export async function getEnabledCardKeys(): Promise<string[]> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("dashboard_cards")
       .select("key")
-      .eq("enabled", true);
-    if (error) return new Set(DASHBOARD_CARD_KEYS); // fail-open
-    return new Set((data as { key: string }[]).map((r) => r.key));
+      .eq("enabled", true)
+      .order("sort_order");
+    if (error) return [...DASHBOARD_CARD_KEYS]; // fail-open
+    return (data as { key: string }[]).map((r) => r.key);
   } catch {
-    return new Set(DASHBOARD_CARD_KEYS);
+    return [...DASHBOARD_CARD_KEYS];
   }
 }
 

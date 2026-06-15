@@ -44,7 +44,7 @@ export default async function DashboardPage({
 
   const [platforms, niches, enabledCardKeys] = active
     ? await Promise.all([listPlatforms(), listNiches(), getEnabledCardKeys()])
-    : [[], [], new Set<string>()];
+    : [[], [], [] as string[]];
   const slug = resolvePlatformSlug(platformParam, platforms);
 
   // "Lente": o filtro escolhido no dashboard viaja nos atalhos p/ /trends e /headlines.
@@ -126,7 +126,7 @@ export default async function DashboardPage({
           <QuickAccess
             editionId={data.edition.id}
             lensQuery={lensQuery}
-            enabledKeys={enabledCardKeys}
+            orderedKeys={enabledCardKeys}
             counts={{
               trends: data.trend_items.length,
               explore: data.explore_reports.length,

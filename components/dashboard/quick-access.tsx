@@ -36,23 +36,23 @@ interface QuickCard {
 }
 
 /**
- * Atalhos da entrega. A VISIBILIDADE de cada card é controlada por feature-flag
- * (tabela dashboard_cards, editável em /admin/cards): só renderiza os cujo
- * `cardKey` está em `enabledKeys`.
+ * Atalhos da entrega. VISIBILIDADE e ORDEM vêm de feature-flags (tabela
+ * dashboard_cards, editável em /admin/cards): renderiza apenas os cards de
+ * `orderedKeys`, na ordem recebida (já filtrada por ativos + ordenada por sort_order).
  */
 export function QuickAccess({
   editionId,
   counts,
-  enabledKeys,
+  orderedKeys,
   lensQuery = "",
 }: {
   editionId: string;
   counts: QuickCounts;
-  enabledKeys: Set<string>;
+  orderedKeys: string[];
   lensQuery?: string;
 }) {
   const lens = lensQuery ? `?${lensQuery}` : "";
-  const cards: QuickCard[] = [
+  const all: QuickCard[] = [
     { cardKey: "trends", icon: Flame, title: "Pautas quentes", sub: "Temas em alta hoje", meta: `${counts.trends} temas`, href: `/trends${lens}`, cta: "Ver pautas" },
     { cardKey: "explore", icon: Radar, title: "Radar de Descoberta", sub: "Padrões em fontes legais", meta: `${counts.explore} análises`, href: `/daily-briefing/${editionId}#radar`, cta: "Abrir radar" },
     { cardKey: "copy", icon: PenLine, title: "Análise de copy", sub: "Ganchos e estruturas que funcionam", meta: `${counts.copy} padrões`, href: `/daily-briefing/${editionId}#copy`, cta: "Ver análise" },
@@ -63,7 +63,12 @@ export function QuickAccess({
     { cardKey: "favorites", icon: Heart, title: "Favoritos", sub: "Seus itens salvos", meta: `${counts.favorites} salvos`, href: "/favorites", cta: "Ver favoritos" },
     { cardKey: "adaptar", icon: Wand2, title: "Adaptar ao meu nicho", sub: "A IA reescreve a pauta para o seu público", meta: "sob demanda", href: "/adaptar", cta: "Adaptar agora" },
     { cardKey: "calendario", icon: CalendarRange, title: "Calendário editorial", sub: "Plano de conteúdo da semana", meta: "sob demanda", href: "/calendario", cta: "Montar calendário" },
-  ].filter((c) => enabledKeys.has(c.cardKey));
+  ];
+  // Renderiza na ordem de orderedKeys (ativos + ordenados em /admin/cards).
+  const byKey = new Map(all.map((c) => [c.cardKey, c]));
+  const cards = orderedKeys
+    .map((k) => byKey.get(k))
+    .filter((c): c is QuickCard => Boolean(c));
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

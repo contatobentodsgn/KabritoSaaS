@@ -45,15 +45,20 @@ export async function listSources(): Promise<SourceRow[]> {
   return (data as SourceRow[]) ?? [];
 }
 
-/** Estado de visibilidade dos cards do dashboard (admin). key → enabled. */
-export async function listCardFlags(): Promise<Record<string, boolean>> {
+/** Cards do dashboard NA ORDEM (sort_order) com estado, para a tela de admin. */
+export async function listCardFlags(): Promise<
+  { key: string; enabled: boolean; sortOrder: number }[]
+> {
   const supabase = await createClient();
-  const { data } = await supabase.from("dashboard_cards").select("key, enabled");
-  const map: Record<string, boolean> = {};
-  (data as { key: string; enabled: boolean }[] | null)?.forEach((r) => {
-    map[r.key] = r.enabled;
-  });
-  return map;
+  const { data } = await supabase
+    .from("dashboard_cards")
+    .select("key, enabled, sort_order")
+    .order("sort_order");
+  return (
+    (data as { key: string; enabled: boolean; sort_order: number }[] | null)?.map(
+      (r) => ({ key: r.key, enabled: r.enabled, sortOrder: r.sort_order }),
+    ) ?? []
+  );
 }
 
 export async function listAllPlatforms(): Promise<PlatformRow[]> {
