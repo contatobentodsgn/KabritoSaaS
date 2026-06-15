@@ -3,10 +3,16 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { loginSchema, registerSchema } from "@/lib/validations/auth";
+import {
+  loginSchema,
+  registerSchema,
+  resetRequestSchema,
+  newPasswordSchema,
+} from "@/lib/validations/auth";
 import { provisionNewUser } from "@/server/admin/provisioning";
 import { recordLogin, recordLogout } from "@/server/services/session";
 import { consume, type RateLimitAction } from "@/server/rate-limit";
+import { serverEnv } from "@/server/env";
 import { DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
 import type { FormState } from "@/server/actions/types";
 
@@ -112,6 +118,59 @@ export async function signUpAction(
   }
 
   await recordLogin(data.user.id);
+  redirect(DEFAULT_REDIRECT);
+}
+
+/**
+ * Pede o e-mail de redefinição de senha. Rate-limited. NÃO revela se o e-mail
+ * existe (resposta sempre igual — anti-enumeração). O link do e-mail aponta para
+ * /api/auth/callback (troca o code por sessão) → /redefinir-senha.
+ */
+export async function requestPasswordResetAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  if (await limited("password_reset")) {
+    return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+  }
+  const parsed = resetRequestSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+  const supabase = await createClient();
+  const redirectTo = `${serverEnv.APP_URL}/api/auth/callback?redirectTo=/redefinir-senha`;
+  // Erros são silenciados de propósito (não vazar existência da conta).
+  await supabase.auth.resetPasswordForEmail(parsed.data.email, { redirectTo });
+  return {
+    ok: true,
+    message:
+      "Se existir uma conta com esse e-mail, enviamos um link para redefinir a senha. Confira sua caixa de entrada.",
+  };
+}
+
+/**
+ * Define a nova senha. Exige sessão (de recuperação) — o usuário chegou aqui via
+ * o link do e-mail (callback trocou o code por sessão). Sem sessão = link expirado.
+ */
+export async function updatePasswordAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const parsed = newPasswordSchema.safeParse({ password: formData.get("password") });
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      error: "Link inválido ou expirado. Peça um novo e-mail de redefinição.",
+    };
+  }
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  if (error) return { error: "Não foi possível atualizar a senha." };
   redirect(DEFAULT_REDIRECT);
 }
 

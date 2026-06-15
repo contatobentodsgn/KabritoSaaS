@@ -2,14 +2,14 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { signInAction } from "@/server/actions/auth";
+import { requestPasswordResetAction } from "@/server/actions/auth";
 import { emptyFormState } from "@/server/actions/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/forms/submit-button";
 
-export function LoginForm() {
-  const [state, action] = useActionState(signInAction, emptyFormState);
+export function ResetRequestForm() {
+  const [state, action] = useActionState(requestPasswordResetAction, emptyFormState);
 
   return (
     <form action={action} className="space-y-5">
@@ -20,29 +20,6 @@ export function LoginForm() {
           <p className="text-sm text-destructive">{state.fieldErrors.email[0]}</p>
         )}
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">Senha</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-        />
-        {state.fieldErrors?.password && (
-          <p className="text-sm text-destructive">
-            {state.fieldErrors.password[0]}
-          </p>
-        )}
-        <div className="text-right">
-          <Link
-            href="/recuperar-senha"
-            className="text-sm text-muted-foreground underline-offset-4 transition-colors duration-150 hover:text-foreground hover:underline"
-          >
-            Esqueceu a senha?
-          </Link>
-        </div>
-      </div>
       {state.error && (
         <p
           role="alert"
@@ -51,16 +28,24 @@ export function LoginForm() {
           {state.error}
         </p>
       )}
-      <SubmitButton className="w-full" pendingText="Entrando...">
-        Entrar
+      {state.message && (
+        <p
+          role="status"
+          className="rounded-sm border border-forest-200 bg-forest-50 px-3 py-2 text-sm text-forest-700"
+        >
+          {state.message}
+        </p>
+      )}
+      <SubmitButton className="w-full" pendingText="Enviando...">
+        Enviar link de redefinição
       </SubmitButton>
       <p className="pt-1 text-center text-sm text-muted-foreground">
-        Não tem conta?{" "}
+        Lembrou a senha?{" "}
         <Link
-          href="/register"
+          href="/login"
           className="font-medium text-foreground underline-offset-4 transition-colors duration-150 hover:text-forest-800 hover:underline"
         >
-          Criar conta
+          Voltar ao login
         </Link>
       </p>
     </form>

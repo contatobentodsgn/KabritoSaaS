@@ -44,7 +44,12 @@ export default function HomePage() {
             <Button asChild size="pill">
               <Link href="/register">Criar conta grátis</Link>
             </Button>
-            <Button asChild variant="ghost" size="pill">
+            <Button
+              asChild
+              variant="outline"
+              size="pill"
+              className="border-forest-600 text-forest-700 hover:bg-forest-50 hover:text-forest-800"
+            >
               <Link href="/login">Entrar</Link>
             </Button>
           </div>

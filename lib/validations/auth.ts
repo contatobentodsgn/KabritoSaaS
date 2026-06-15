@@ -17,3 +17,16 @@ export const registerSchema = z.object({
     .max(72, "Senha muito longa"),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+export const resetRequestSchema = z.object({
+  email: z.string().trim().email("E-mail inválido"),
+});
+export type ResetRequestInput = z.infer<typeof resetRequestSchema>;
+
+export const newPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(8, "A senha precisa de pelo menos 8 caracteres")
+    .max(72, "Senha muito longa"),
+});
+export type NewPasswordInput = z.infer<typeof newPasswordSchema>;
