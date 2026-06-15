@@ -3,10 +3,11 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { requireActiveSubscription, isStaff } from "@/server/permissions";
 import { getCurrentUser } from "@/server/auth/session";
-import { getEditionWithModules } from "@/server/services/content";
+import { getEditionWithModules, listNiches } from "@/server/services/content";
 import { getFavoriteKeySet } from "@/server/services/favorites";
 import { listComments } from "@/server/services/comments";
 import { PageHeader } from "@/components/layout/page-header";
+import { ContentFilters } from "@/components/dashboard/content-filters";
 import { SectionTitle, EmptyState } from "@/components/content/empty-state";
 import { BriefingCard } from "@/components/content/briefing-card";
 import { TrendCard } from "@/components/content/trend-card";
@@ -21,23 +22,38 @@ export const metadata = { title: "Edição · Inteligência Criativa" };
 
 export default async function EditionDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ nicho?: string }>;
 }) {
   await requireActiveSubscription();
-  const { id } = await params;
+  const [{ id }, { nicho }] = await Promise.all([params, searchParams]);
 
   const data = await getEditionWithModules(id);
   if (!data) notFound();
 
-  const favs = await getFavoriteKeySet();
-  const fav = (t: string, i: string) => favs.has(`${t}:${i}`);
-
-  const [comments, user, canModerate] = await Promise.all([
+  const [favs, comments, user, canModerate, niches] = await Promise.all([
+    getFavoriteKeySet(),
     listComments(id),
     getCurrentUser(),
     isStaff(),
+    listNiches(),
   ]);
+  const fav = (t: string, i: string) => favs.has(`${t}:${i}`);
+
+  // Lente de nicho: só as seções com recommended_niches são filtradas
+  // (Pautas, Headlines, Sugestões). Copy/visual/radar são gerais → ficam intactos.
+  const byNiche = <T extends { recommended_niches: string[] }>(arr: T[]): T[] =>
+    nicho ? arr.filter((x) => x.recommended_niches?.includes(nicho)) : arr;
+  const trends = byNiche(data.trend_items);
+  const heads = byNiche(data.headlines);
+  const suggestions = byNiche(data.content_suggestions);
+  const noNicheItems =
+    Boolean(nicho) &&
+    trends.length === 0 &&
+    heads.length === 0 &&
+    suggestions.length === 0;
 
   return (
     <>
@@ -54,13 +70,17 @@ export default async function EditionDetailPage({
         title={data.edition.title}
       />
 
+      <div className="mb-6">
+        <ContentFilters niches={niches} />
+      </div>
+
       {data.briefing && <BriefingCard briefing={data.briefing} />}
 
-      {data.trend_items.length > 0 && (
+      {trends.length > 0 && (
         <section id="pautas" className="scroll-mt-20">
           <SectionTitle>Pautas quentes</SectionTitle>
           <div className="grid gap-4">
-            {data.trend_items.map((t) => (
+            {trends.map((t) => (
               <TrendCard key={t.id} trend={t} favorited={fav("trend_item", t.id)} />
             ))}
           </div>
@@ -100,33 +120,41 @@ export default async function EditionDetailPage({
         </section>
       )}
 
-      {data.headlines.length > 0 && (
+      {heads.length > 0 && (
         <section id="headlines" className="scroll-mt-20">
           <SectionTitle>Headlines</SectionTitle>
           <div className="grid gap-4 sm:grid-cols-2">
-            {data.headlines.map((h) => (
+            {heads.map((h) => (
               <HeadlineCard key={h.id} headline={h} favorited={fav("headline", h.id)} />
             ))}
           </div>
         </section>
       )}
 
-      {data.content_suggestions.length > 0 && (
+      {suggestions.length > 0 && (
         <section id="sugestoes" className="scroll-mt-20">
           <SectionTitle>Sugestões de post</SectionTitle>
           <div className="grid gap-4">
-            {data.content_suggestions.map((s) => (
+            {suggestions.map((s) => (
               <SuggestionCard key={s.id} suggestion={s} favorited={fav("content_suggestion", s.id)} />
             ))}
           </div>
         </section>
       )}
 
-      {data.trend_items.length === 0 &&
+      {!nicho &&
+        data.trend_items.length === 0 &&
         data.headlines.length === 0 &&
         data.content_suggestions.length === 0 && (
           <EmptyState title="Edição sem itens" />
         )}
+
+      {noNicheItems && (
+        <EmptyState
+          title="Nenhuma pauta, headline ou sugestão nesse nicho"
+          description="Ajuste o nicho ou limpe o filtro."
+        />
+      )}
 
       <section id="comentarios" className="scroll-mt-20">
         <SectionTitle>Comentários</SectionTitle>
