@@ -119,16 +119,21 @@ async function main() {
       "Headlines de quebra de crença geram salvamentos",
     ],
   });
-  await ensureSource("Newsletter de marketing (RSS)", "rss", {
-    url: "https://example.com/marketing/feed.xml",
+  // Fontes RSS reais (Google News por tópico — legal, sem scraping, sempre fresco).
+  await ensureSource("Google News — Marketing de conteúdo", "rss", {
+    url: "https://news.google.com/rss/search?q=marketing+de+conte%C3%BAdo&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+  });
+  await ensureSource("Google News — Redes sociais", "rss", {
+    url: "https://news.google.com/rss/search?q=redes+sociais+marketing&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+  });
+  await ensureSource("Google News — Criadores de conteúdo", "rss", {
+    url: "https://news.google.com/rss/search?q=criadores+de+conte%C3%BAdo&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+  });
+  await ensureSource("Google News — Tendências digitais", "rss", {
+    url: "https://news.google.com/rss/search?q=tend%C3%AAncias+marketing+digital&hl=pt-BR&gl=BR&ceid=BR:pt-419",
   });
   await ensureSource("Termos em alta (Trends)", "trends", {
     terms: ["IA no marketing", "vídeos curtos", "storytelling de marca", "prova social"],
-  });
-  await ensureSource("API de notícias (exemplo)", "api", {
-    url: "https://example.com/api/news",
-    path: "articles",
-    field: "title",
   });
 
   console.log("Seed concluído.");
