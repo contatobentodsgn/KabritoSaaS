@@ -1,15 +1,32 @@
 import { requireActiveSubscription } from "@/server/permissions";
-import { listTrends } from "@/server/services/content";
+import { listTrends, listNiches } from "@/server/services/content";
 import { getFavoriteKeySet } from "@/server/services/favorites";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/content/empty-state";
+import { ContentFilters } from "@/components/dashboard/content-filters";
 import { TrendCard } from "@/components/content/trend-card";
 
 export const metadata = { title: "Pautas · Inteligência Criativa" };
 
-export default async function TrendsPage() {
+export default async function TrendsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ nicho?: string; formato?: string }>;
+}) {
   await requireActiveSubscription();
-  const [trends, favs] = await Promise.all([listTrends(), getFavoriteKeySet()]);
+  const [{ nicho, formato }, all, favs, niches] = await Promise.all([
+    searchParams,
+    listTrends(),
+    getFavoriteKeySet(),
+    listNiches(),
+  ]);
+
+  const trends = all.filter(
+    (t) =>
+      (!nicho || t.recommended_niches?.includes(nicho)) &&
+      (!formato || t.content_format?.includes(formato)),
+  );
+  const filtering = Boolean(nicho || formato);
 
   return (
     <>
@@ -18,8 +35,18 @@ export default async function TrendsPage() {
         title="Pautas quentes"
         description="As tendências acionáveis do momento, prontas para virar conteúdo."
       />
+      <div className="mb-4">
+        <ContentFilters niches={niches} showFormat />
+      </div>
       {trends.length === 0 ? (
-        <EmptyState title="Sem pautas no momento" description="Volte após a próxima edição." />
+        <EmptyState
+          title={filtering ? "Nenhuma pauta com esses filtros" : "Sem pautas no momento"}
+          description={
+            filtering
+              ? "Ajuste o nicho/formato ou limpe os filtros."
+              : "Volte após a próxima edição."
+          }
+        />
       ) : (
         <div className="grid gap-4">
           {trends.map((t) => (

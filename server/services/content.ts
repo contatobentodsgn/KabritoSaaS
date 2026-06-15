@@ -33,6 +33,16 @@ export async function getPlatformBySlug(
   return (data as PlatformRow) ?? null;
 }
 
+/** Nichos (vocabulário de curadoria) para popular filtros. RLS: assinante/staff. */
+export async function listNiches(): Promise<{ slug: string; name: string }[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("niches")
+    .select("slug, name")
+    .order("name");
+  return (data as { slug: string; name: string }[]) ?? [];
+}
+
 export async function listPlatforms(): Promise<PlatformRow[]> {
   const supabase = await createClient();
   const { data } = await supabase

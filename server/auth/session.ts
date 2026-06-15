@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
@@ -7,16 +8,20 @@ import type { Organization, Profile } from "@/types";
 /**
  * Helpers de sessão/identidade. Todos usam o CLIENTE SUPABASE (JWT) → RLS
  * aplicada. NUNCA usam o service-client. (PROJECT_MASTER_DOCUMENT §9)
+ *
+ * getCurrentUser/getCurrentProfile são memoizados por request com React cache():
+ * várias chamadas no mesmo render (layout + requireAuth + isStaff + página)
+ * colapsam em UMA ida ao Supabase — corta latência (banco em us-west).
  */
 
 /** Usuário autenticado atual (ou null). Fonte da verdade: o JWT verificado. */
-export async function getCurrentUser(): Promise<User | null> {
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   return user;
-}
+});
 
 /** Exige autenticação; redireciona para /login se anônimo. */
 export async function requireAuth(): Promise<User> {
@@ -25,8 +30,8 @@ export async function requireAuth(): Promise<User> {
   return user;
 }
 
-/** Perfil do usuário atual (RLS: só o próprio). */
-export async function getCurrentProfile(): Promise<Profile | null> {
+/** Perfil do usuário atual (RLS: só o próprio). Memoizado por request. */
+export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const user = await getCurrentUser();
   if (!user) return null;
   const supabase = await createClient();
@@ -49,7 +54,7 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   } as Profile;
-}
+});
 
 /**
  * Organização atual do usuário (container oculto do MVP). Derivada SEMPRE do

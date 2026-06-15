@@ -6,13 +6,14 @@ import {
   getLatestEdition,
   getEditionWithModules,
   listPlatforms,
+  listNiches,
   resolvePlatformSlug,
 } from "@/server/services/content";
 import { listFavorites } from "@/server/services/favorites";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { PlatformSwitcher } from "@/components/dashboard/platform-switcher";
 import { StatStrip } from "@/components/dashboard/stat-strip";
-import { FilterChips } from "@/components/dashboard/filter-chips";
+import { ContentFilters } from "@/components/dashboard/content-filters";
 import { BriefingSummary } from "@/components/dashboard/briefing-summary";
 import { NextBestAction } from "@/components/dashboard/next-best-action";
 import { QuickAccess } from "@/components/dashboard/quick-access";
@@ -35,16 +36,21 @@ function updatedLabel(publishedAt: string | null): string | null {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ platform?: string }>;
+  searchParams: Promise<{ platform?: string; nicho?: string; formato?: string }>;
 }) {
-  const [{ platform: platformParam }, profile, active] = await Promise.all([
-    searchParams,
-    getCurrentProfile(),
-    hasActiveSubscription(),
-  ]);
+  const [{ platform: platformParam, nicho, formato }, profile, active] =
+    await Promise.all([searchParams, getCurrentProfile(), hasActiveSubscription()]);
 
-  const platforms = active ? await listPlatforms() : [];
+  const [platforms, niches] = active
+    ? await Promise.all([listPlatforms(), listNiches()])
+    : [[], []];
   const slug = resolvePlatformSlug(platformParam, platforms);
+
+  // "Lente": o filtro escolhido no dashboard viaja nos atalhos p/ /trends e /headlines.
+  const lensParams = new URLSearchParams();
+  if (nicho) lensParams.set("nicho", nicho);
+  if (formato) lensParams.set("formato", formato);
+  const lensQuery = lensParams.toString();
 
   const latest = active ? await getLatestEdition(slug) : null;
   const [data, favorites] = latest
@@ -97,7 +103,7 @@ export default async function DashboardPage({
             ]}
           />
 
-          <FilterChips />
+          <ContentFilters niches={niches} showFormat />
 
           {data.briefing && (
             <BriefingSummary
@@ -118,6 +124,7 @@ export default async function DashboardPage({
 
           <QuickAccess
             editionId={data.edition.id}
+            lensQuery={lensQuery}
             counts={{
               trends: data.trend_items.length,
               explore: data.explore_reports.length,
