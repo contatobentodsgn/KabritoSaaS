@@ -8,6 +8,7 @@ import { canReviewContent, canManagePipeline } from "@/server/permissions";
 import { recordAudit } from "@/server/audit/log";
 import { sendEditionDigest } from "@/server/admin/notify";
 import { AUDIT_ACTIONS } from "@/lib/constants";
+import { DASHBOARD_CARD_KEYS } from "@/lib/dashboard-cards";
 import {
   rejectionSchema,
   editionEditSchema,
@@ -201,6 +202,26 @@ export async function toggleSourceActive(id: string, isActive: boolean): Promise
     .eq("id", id);
   if (error) return { ok: false, error: "Falha." };
   revalidatePath("/admin/sources");
+  return { ok: true };
+}
+
+/** Liga/desliga um card do dashboard (feature-flag). Só staff (RLS reforça). */
+export async function toggleDashboardCard(
+  key: string,
+  enabled: boolean,
+): Promise<ActionResult> {
+  if (!(await canManagePipeline())) return forbidden();
+  if (!DASHBOARD_CARD_KEYS.includes(key as never)) {
+    return { ok: false, error: "Card inválido." };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("dashboard_cards")
+    .update({ enabled, updated_at: new Date().toISOString() })
+    .eq("key", key);
+  if (error) return { ok: false, error: "Falha ao atualizar o card." };
+  revalidatePath("/dashboard");
+  revalidatePath("/admin/cards");
   return { ok: true };
 }
 

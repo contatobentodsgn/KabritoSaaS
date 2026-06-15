@@ -429,3 +429,30 @@ describe("6.10 Anti auto-ressurreição — usuário não escreve profiles.delet
     expect(res.count).toBe(1);
   });
 });
+
+/* ===========================================================================
+ * 6.11 CARDS DO PAINEL — feature-flags (migration 0010)
+ * Qualquer assinante LÊ (config global de UI); só STAFF alterna a visibilidade.
+ * =========================================================================== */
+describe("6.11 dashboard_cards — leitura geral, escrita só staff", () => {
+  it("usuário comum LÊ os cards (config global)", async () => {
+    const rows = await asUser(f.userA, (tx) => tx`select key from dashboard_cards`);
+    expect(rows.length).toBeGreaterThan(0);
+  });
+
+  it("usuário comum NÃO consegue alternar (0 linhas afetadas)", async () => {
+    const res = await asUser(
+      f.userA,
+      (tx) => tx`update dashboard_cards set enabled = false where key = 'trends'`,
+    );
+    expect(res.count).toBe(0);
+  });
+
+  it("staff CONSEGUE alternar (idempotente: calendario permanece off)", async () => {
+    const res = await asUser(
+      f.staff,
+      (tx) => tx`update dashboard_cards set enabled = false where key = 'calendario'`,
+    );
+    expect(res.count).toBe(1);
+  });
+});

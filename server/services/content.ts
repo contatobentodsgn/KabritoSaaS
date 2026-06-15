@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { DASHBOARD_CARD_KEYS } from "@/lib/dashboard-cards";
 import type {
   EditionRow,
   EditionWithModules,
@@ -31,6 +32,26 @@ export async function getPlatformBySlug(
     .eq("slug", slug)
     .maybeSingle();
   return (data as PlatformRow) ?? null;
+}
+
+/**
+ * Keys dos cards do dashboard ATIVOS (feature-flags). RLS: authenticated lê.
+ * FAIL-OPEN: se a tabela ainda não existe (ex.: antes da migration 0010 rodar
+ * na Supabase) ou a query erra, mostra TODOS os cards — nunca um dashboard vazio.
+ * Lista vazia legítima (tabela existe, tudo desativado) é respeitada.
+ */
+export async function getEnabledCardKeys(): Promise<Set<string>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("dashboard_cards")
+      .select("key")
+      .eq("enabled", true);
+    if (error) return new Set(DASHBOARD_CARD_KEYS); // fail-open
+    return new Set((data as { key: string }[]).map((r) => r.key));
+  } catch {
+    return new Set(DASHBOARD_CARD_KEYS);
+  }
 }
 
 /** Nichos (vocabulário de curadoria) para popular filtros. RLS: assinante/staff. */

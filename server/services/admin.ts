@@ -45,6 +45,17 @@ export async function listSources(): Promise<SourceRow[]> {
   return (data as SourceRow[]) ?? [];
 }
 
+/** Estado de visibilidade dos cards do dashboard (admin). key → enabled. */
+export async function listCardFlags(): Promise<Record<string, boolean>> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("dashboard_cards").select("key, enabled");
+  const map: Record<string, boolean> = {};
+  (data as { key: string; enabled: boolean }[] | null)?.forEach((r) => {
+    map[r.key] = r.enabled;
+  });
+  return map;
+}
+
 export async function listAllPlatforms(): Promise<PlatformRow[]> {
   const supabase = await createClient();
   const { data } = await supabase

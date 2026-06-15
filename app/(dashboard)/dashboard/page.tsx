@@ -7,6 +7,7 @@ import {
   getEditionWithModules,
   listPlatforms,
   listNiches,
+  getEnabledCardKeys,
   resolvePlatformSlug,
 } from "@/server/services/content";
 import { listFavorites } from "@/server/services/favorites";
@@ -41,9 +42,9 @@ export default async function DashboardPage({
   const [{ platform: platformParam, nicho, formato }, profile, active] =
     await Promise.all([searchParams, getCurrentProfile(), hasActiveSubscription()]);
 
-  const [platforms, niches] = active
-    ? await Promise.all([listPlatforms(), listNiches()])
-    : [[], []];
+  const [platforms, niches, enabledCardKeys] = active
+    ? await Promise.all([listPlatforms(), listNiches(), getEnabledCardKeys()])
+    : [[], [], new Set<string>()];
   const slug = resolvePlatformSlug(platformParam, platforms);
 
   // "Lente": o filtro escolhido no dashboard viaja nos atalhos p/ /trends e /headlines.
@@ -125,6 +126,7 @@ export default async function DashboardPage({
           <QuickAccess
             editionId={data.edition.id}
             lensQuery={lensQuery}
+            enabledKeys={enabledCardKeys}
             counts={{
               trends: data.trend_items.length,
               explore: data.explore_reports.length,

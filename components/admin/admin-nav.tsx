@@ -10,6 +10,7 @@ const NAV = [
   { href: "/admin/prompts", label: "Prompts & taxonomia" },
   { href: "/admin/runs", label: "Runs & custo" },
   { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/cards", label: "Cards do painel" },
 ];
 
 export function AdminNav() {
