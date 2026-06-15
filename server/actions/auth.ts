@@ -156,7 +156,10 @@ export async function updatePasswordAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const parsed = newPasswordSchema.safeParse({ password: formData.get("password") });
+  const parsed = newPasswordSchema.safeParse({
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
