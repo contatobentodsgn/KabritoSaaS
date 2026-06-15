@@ -39,9 +39,13 @@ const itemIdle =
 export function Sidebar({
   isStaff = false,
   email,
+  name,
+  avatarUrl,
 }: {
   isStaff?: boolean;
   email?: string;
+  name?: string | null;
+  avatarUrl?: string | null;
 }) {
   const path = usePathname();
   // Match de prefixo mais longo: /settings/equipe vence /settings.
@@ -82,12 +86,20 @@ export function Sidebar({
         )}
       </nav>
       <div className="flex items-center gap-3 border-t border-border p-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-forest-100 text-sm font-semibold text-forest-700">
-          {(email?.[0] ?? "K").toUpperCase()}
-        </span>
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={name ?? email ?? "Avatar"}
+            className="size-9 shrink-0 rounded-full object-cover"
+          />
+        ) : (
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-forest-100 text-sm font-semibold text-forest-700">
+            {(name?.[0] ?? email?.[0] ?? "K").toUpperCase()}
+          </span>
+        )}
         <div className="min-w-0 flex-1">
           <div className="truncate text-[13.5px] font-semibold text-foreground">
-            {email ?? "Sua conta"}
+            {name ?? email ?? "Sua conta"}
           </div>
           <div className="text-xs text-muted-foreground">Plano único</div>
         </div>

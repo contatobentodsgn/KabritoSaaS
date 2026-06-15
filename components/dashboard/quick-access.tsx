@@ -9,7 +9,6 @@ import {
   Sparkles,
   Heart,
   Wand2,
-  CalendarRange,
   ArrowRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -52,11 +51,12 @@ export function QuickAccess({
     { icon: Sparkles, title: "Prompts", sub: "Biblioteca de prompts prontos", meta: "Biblioteca", href: "/prompts", cta: "Abrir prompts" },
     { icon: Heart, title: "Favoritos", sub: "Seus itens salvos", meta: `${counts.favorites} salvos`, href: "/favorites", cta: "Ver favoritos" },
     { icon: Wand2, title: "Adaptar ao meu nicho", sub: "A IA reescreve a pauta para o seu público", meta: "sob demanda", href: "/adaptar", cta: "Adaptar agora" },
-    { icon: CalendarRange, title: "Calendário editorial", sub: "Plano de conteúdo da semana", meta: "sob demanda", href: "/calendario", cta: "Montar calendário" },
+    // "Calendário editorial" ocultado do dashboard (rota /calendario segue ativa).
+    // Reexibir: adicionar o card de volta aqui (ou via feature-flag no admin, a fazer).
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((c) => (
         <Link key={c.title} href={c.href} className="group">
           <Card className="h-full transition-shadow duration-150 hover:shadow-k-1">

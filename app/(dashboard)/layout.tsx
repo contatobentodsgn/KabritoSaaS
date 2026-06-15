@@ -29,7 +29,12 @@ export default async function DashboardLayout({
             />
           </Link>
         </div>
-        <Sidebar isStaff={staff} email={profile?.email ?? undefined} />
+        <Sidebar
+          isStaff={staff}
+          email={profile?.email ?? undefined}
+          name={profile?.name ?? undefined}
+          avatarUrl={profile?.avatarUrl ?? undefined}
+        />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-6">
