@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import {
+  buildCsp,
+  CSP_REQUEST_HEADER,
+  CSP_RESPONSE_HEADER,
+} from "@/lib/security/csp";
+import {
   PROTECTED_ROUTES,
   STAFF_ROUTES,
   AUTH_ROUTES,
@@ -18,7 +23,18 @@ function matches(path: string, routes: readonly string[]) {
  * (TECHNICAL_SPEC §3) — autorização SEMPRE no servidor.
  */
 export async function middleware(request: NextRequest) {
-  const { response, user, supabase } = await updateSession(request);
+  // Nonce por requisição para a CSP. É propagado no header do request para o Next
+  // aplicar aos seus scripts, e os Server Components o leem via headers()['x-nonce'].
+  const nonce = btoa(crypto.randomUUID());
+  const csp = buildCsp(nonce);
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set(CSP_REQUEST_HEADER, csp);
+
+  const { response, user, supabase } = await updateSession(request, requestHeaders);
+  // CSP na resposta (Report-Only por ora — só registra violações, não bloqueia).
+  response.headers.set(CSP_RESPONSE_HEADER, csp);
   const path = request.nextUrl.pathname;
 
   // Deslogado tentando rota privada → /login (com retorno).

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import {
   Radar,
   Sparkles,
@@ -100,13 +101,15 @@ const FAQS = [
 ] as const;
 
 /** Landing page pública — hero editorial + seções de conversão (GSAP no scroll). */
-export default function HomePage() {
+export default async function HomePage() {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Habilita a pré-ocultação só quando há JS (.js-reveal), e arma um failsafe:
           se o GSAP não inicializar (chunk falhou/erro), reexibe tudo após 4s.
           Sem JS, nada disso roda → conteúdo sempre visível. */}
       <script
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html:
             "(function(){var h=document.documentElement;h.classList.add('js-reveal');window.setTimeout(function(){if(!window.__kReveal)h.classList.remove('js-reveal');},4000);})();",
