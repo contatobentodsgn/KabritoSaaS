@@ -47,16 +47,20 @@ export function LandingReveal() {
       );
     });
 
-    // Parallax sutil no respiro de cor do hero.
-    gsap.to("[data-parallax]", {
-      yPercent: 14,
-      ease: "none",
-      scrollTrigger: {
-        trigger: "[data-parallax]",
-        start: "top top",
-        end: "bottom top",
-        scrub: 0.5,
-      },
+    // Parallax sutil no respiro de cor do hero — só em telas >= md. Evita o custo
+    // do scrub (atrelado ao scroll) em smartphones; o matchMedia é revertido na
+    // limpeza do useGSAP e reage a resize.
+    gsap.matchMedia().add("(min-width: 768px)", () => {
+      gsap.to("[data-parallax]", {
+        yPercent: 14,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "[data-parallax]",
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.5,
+        },
+      });
     });
 
     // Web fonts (display:swap) mudam a altura do layout após o setup; recalcula
