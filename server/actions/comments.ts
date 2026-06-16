@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getCurrentProfile } from "@/server/auth/session";
 import { commentInputSchema, deleteCommentSchema } from "@/lib/validations/comments";
 import { notifyCommentParticipants } from "@/server/admin/notify";
+import { consume } from "@/server/rate-limit";
 
 export type CommentResult = { ok: true } | { ok: false; error: string };
 
@@ -19,6 +20,10 @@ export async function addComment(input: unknown): Promise<CommentResult> {
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
+
+  if (!(await consume("comment", user.id)).success) {
+    return { ok: false, error: "Muitos comentários em pouco tempo. Aguarde um instante." };
+  }
 
   const { editionId, body } = parsed.data;
   // Nome denormalizado no comentário (a RLS de profiles é própria-apenas, então

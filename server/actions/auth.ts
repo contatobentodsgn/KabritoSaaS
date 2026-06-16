@@ -10,19 +10,26 @@ import {
   newPasswordSchema,
 } from "@/lib/validations/auth";
 import { provisionNewUser } from "@/server/admin/provisioning";
+import { recordFailedLogin } from "@/server/admin/audit-system";
 import { recordLogin, recordLogout } from "@/server/services/session";
 import { consume, type RateLimitAction } from "@/server/rate-limit";
 import { serverEnv } from "@/server/env";
 import { DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
 import type { FormState } from "@/server/actions/types";
 
-async function clientIp(): Promise<string> {
+async function clientMeta(): Promise<{ ip: string; userAgent: string | null }> {
   const h = await headers();
-  return (
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    h.get("x-real-ip") ??
-    "unknown"
-  );
+  return {
+    ip:
+      h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      h.get("x-real-ip") ??
+      "unknown",
+    userAgent: h.get("user-agent"),
+  };
+}
+
+async function clientIp(): Promise<string> {
+  return (await clientMeta()).ip;
 }
 
 async function limited(action: RateLimitAction): Promise<boolean> {
@@ -53,6 +60,8 @@ export async function signInAction(
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
+    const meta = await clientMeta();
+    await recordFailedLogin({ email: parsed.data.email, ip: meta.ip, userAgent: meta.userAgent });
     return { error: "E-mail ou senha inválidos." };
   }
 
@@ -66,6 +75,13 @@ export async function signInAction(
       .maybeSingle();
     if (prof?.deleted_at) {
       await supabase.auth.signOut();
+      const meta = await clientMeta();
+      await recordFailedLogin({
+        email: parsed.data.email,
+        ip: meta.ip,
+        userAgent: meta.userAgent,
+        reason: "account_deleted",
+      });
       return { error: "Esta conta foi excluída." };
     }
     // Controle de sessão por dispositivo + auditoria (Fase 7).
@@ -156,6 +172,9 @@ export async function updatePasswordAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  if (await limited("password_reset")) {
+    return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+  }
   const parsed = newPasswordSchema.safeParse({
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),

@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set(CSP_REQUEST_HEADER, csp);
 
   const { response, user, supabase } = await updateSession(request, requestHeaders);
-  // CSP na resposta (Report-Only por ora — só registra violações, não bloqueia).
+  // CSP na resposta. Enforcing ou Report-Only conforme CSP_ENFORCE (lib/security/csp.ts).
   response.headers.set(CSP_RESPONSE_HEADER, csp);
   const path = request.nextUrl.pathname;
 
@@ -97,7 +97,8 @@ export const config = {
      * Roda em todas as rotas EXCETO:
      * - _next/static, _next/image, favicon, assets com extensão
      * - /api/cron/* (protegido por CRON_SECRET, não por sessão)
+     * - /api/webhooks/* (autenticado por assinatura HMAC, server-to-server)
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/cron|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/cron|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

@@ -23,7 +23,8 @@ async function handle(req: NextRequest) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[cron/lifecycle] erro:", message);
     Sentry.captureException(err, { tags: { area: "cron", job: "lifecycle" } });
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    // Não vaza o detalhe interno no corpo HTTP — fica em log/Sentry.
+    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
   }
 }
 

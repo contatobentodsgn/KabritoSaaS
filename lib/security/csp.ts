@@ -1,10 +1,11 @@
 /**
  * Content-Security-Policy do app.
  *
- * Estratégia (decisão do produto): começa em REPORT-ONLY (CSP_ENFORCE=false) —
- * o navegador NÃO bloqueia nada, só envia violações para /api/csp-report. Isso
- * permite validar todos os fluxos (Supabase auth/storage/realtime, Sentry, etc.)
- * contra o runtime real antes de promover para enforcing (basta flipar a flag).
+ * ESTADO ATUAL: ENFORCING (CSP_ENFORCE=true) — o navegador BLOQUEIA o que não
+ * estiver na política e ainda reporta para /api/csp-report. Foi validada em
+ * Report-Only em produção (todos os fluxos: Supabase, Sentry, upload) antes de
+ * promover. Para depurar uma violação nova sem quebrar, basta voltar a flag para
+ * false (vira Report-Only) — ver CSP_RESPONSE_HEADER abaixo.
  *
  * Scripts: SEM 'unsafe-inline'. Usa nonce por requisição + 'strict-dynamic'
  * (cobre os scripts do Next e os 2 inline scripts nossos, que recebem o nonce).

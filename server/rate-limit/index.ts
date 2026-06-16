@@ -26,6 +26,8 @@ export const RATE_LIMITS = {
   register: { limit: 5, windowMs: 60_000 },
   password_reset: { limit: 5, windowMs: 60_000 },
   generation: { limit: 30, windowMs: 60_000 }, // MVP2 — geração sob demanda
+  comment: { limit: 20, windowMs: 60_000 }, // anti-spam de comentários (por usuário)
+  invite: { limit: 10, windowMs: 60_000 }, // convites/adições de membro (dispara e-mail)
 } as const;
 
 export type RateLimitAction = keyof typeof RATE_LIMITS;

@@ -175,7 +175,7 @@ export async function listPrompts(): Promise<{
   const supabase = await createClient();
   const [cats, prompts] = await Promise.all([
     supabase.from("prompt_categories").select("id, name, slug, description").order("name"),
-    supabase.from("prompt_templates").select("*").order("title"),
+    supabase.from("prompt_templates").select("*").order("title").limit(200),
   ]);
   return {
     categories: (cats.data as PromptCategoryRow[]) ?? [],

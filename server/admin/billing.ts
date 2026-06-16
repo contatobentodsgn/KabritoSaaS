@@ -7,7 +7,8 @@ import {
   organizationMembers,
   subscriptions,
 } from "@/db/schema";
-import { SINGLE_PLAN_SLUG } from "@/lib/constants";
+import { SINGLE_PLAN_SLUG, AUDIT_ACTIONS } from "@/lib/constants";
+import { recordSystemAudit } from "@/server/admin/audit-system";
 import type { Plan } from "@/types";
 
 /**
@@ -114,5 +115,13 @@ export async function grantAccessByEmail(
       currentPeriodEnd: end,
     });
   }
+  // Trilha de auditoria: concessão manual de acesso (privilégio de billing).
+  await recordSystemAudit({
+    action: AUDIT_ACTIONS.ACCESS_GRANTED,
+    userId: profile.userId,
+    organizationId: membership.organizationId,
+    entityType: "subscription",
+    metadata: { email, days, until: end.toISOString() },
+  });
   return { ok: true, message: `Acesso ativo para ${email} por ${days} dias.` };
 }

@@ -23,6 +23,9 @@ import {
   removeMember,
 } from "@/server/admin/team";
 import { sendInviteEmail } from "@/server/admin/notify";
+import { recordAudit } from "@/server/audit/log";
+import { consume } from "@/server/rate-limit";
+import { AUDIT_ACTIONS } from "@/lib/constants";
 
 /**
  * Server Actions do workspace de agência. Cada ação:
@@ -70,16 +73,32 @@ export async function addMemberAction(input: unknown): Promise<InviteResult> {
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
 
+  // Dispara e-mail externo → rate-limit por usuário (anti-abuso/flood).
+  if (!(await consume("invite", ctx.userId)).success) {
+    return { ok: false, error: "Muitos convites em pouco tempo. Aguarde um instante." };
+  }
+
   const { email, role } = parsed.data;
   const existingUserId = await findUserIdByEmail(email);
   if (existingUserId) {
     await addMemberById(ctx.orgId, existingUserId, role);
+    await recordAudit({
+      action: AUDIT_ACTIONS.MEMBER_ADDED,
+      entityType: "organization_member",
+      entityId: existingUserId,
+      metadata: { email, role },
+    });
     revalidatePath(TEAM_PATH);
     return { ok: true, status: "added" };
   }
 
   // Sem conta ainda → convite pendente + e-mail (best-effort) com link de token.
   const { token } = await createInvite(ctx.orgId, email, role, ctx.userId);
+  await recordAudit({
+    action: AUDIT_ACTIONS.INVITE_CREATED,
+    entityType: "org_invite",
+    metadata: { email, role },
+  });
   const [org, inviter] = await Promise.all([
     getCurrentOrganization(),
     getCurrentProfile(),
@@ -106,6 +125,11 @@ export async function acceptInviteAction(
 
   const res = await acceptInviteByToken(parsed.data, user.id);
   if (res.ok) {
+    await recordAudit({
+      action: AUDIT_ACTIONS.INVITE_ACCEPTED,
+      entityType: "org_invite",
+      metadata: { orgName: res.orgName },
+    });
     revalidatePath("/dashboard");
     revalidatePath(TEAM_PATH);
   }
@@ -121,7 +145,14 @@ export async function cancelInviteAction(input: unknown): Promise<ActionResult> 
   if (!ctx.ok) return ctx;
 
   const res = await cancelInvite(ctx.orgId, parsed.data.inviteId);
-  if (res.ok) revalidatePath(TEAM_PATH);
+  if (res.ok) {
+    await recordAudit({
+      action: AUDIT_ACTIONS.INVITE_CANCELLED,
+      entityType: "org_invite",
+      entityId: parsed.data.inviteId,
+    });
+    revalidatePath(TEAM_PATH);
+  }
   return res;
 }
 
@@ -134,7 +165,15 @@ export async function setMemberRoleAction(input: unknown): Promise<ActionResult>
   if (!ctx.ok) return ctx;
 
   const res = await setMemberRole(ctx.orgId, parsed.data.userId, parsed.data.role);
-  if (res.ok) revalidatePath(TEAM_PATH);
+  if (res.ok) {
+    await recordAudit({
+      action: AUDIT_ACTIONS.MEMBER_ROLE_CHANGED,
+      entityType: "organization_member",
+      entityId: parsed.data.userId,
+      metadata: { role: parsed.data.role },
+    });
+    revalidatePath(TEAM_PATH);
+  }
   return res;
 }
 
@@ -147,6 +186,13 @@ export async function removeMemberAction(input: unknown): Promise<ActionResult> 
   if (!ctx.ok) return ctx;
 
   const res = await removeMember(ctx.orgId, parsed.data.userId);
-  if (res.ok) revalidatePath(TEAM_PATH);
+  if (res.ok) {
+    await recordAudit({
+      action: AUDIT_ACTIONS.MEMBER_REMOVED,
+      entityType: "organization_member",
+      entityId: parsed.data.userId,
+    });
+    revalidatePath(TEAM_PATH);
+  }
   return res;
 }
