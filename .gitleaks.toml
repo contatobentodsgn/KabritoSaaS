@@ -1,0 +1,15 @@
+# Config do gitleaks (estende as regras padrão + allowlist do projeto).
+title = "Kabrito gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Falsos-positivos conhecidos."
+paths = [
+  # Scripts auxiliares de design contêm Figma fileKeys (IDs PÚBLICOS de
+  # documento, não credenciais) — o gitleaks os flagra por entropia.
+  '''scripts/figma/.*''',
+  # .env.example só tem chaves vazias (template), nunca valores reais.
+  '''\.env\.example$''',
+]

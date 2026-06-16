@@ -60,4 +60,4 @@ jobs:
           curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
           # --no-git: varre os ARQUIVOS atuais (não o histórico) — pega segredo
           # colado num arquivo do PR sem falhar por ruído de commits antigos.
-          ./gitleaks detect --no-git --redact --verbose --exit-code 1
+          ./gitleaks detect --no-git --config .gitleaks.toml --redact --verbose --exit-code 1
