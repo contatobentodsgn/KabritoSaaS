@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancela runs antigos do mesmo ref (economiza minutos).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: typecheck · lint · tests (RLS)
+    runs-on: ubuntu-latest
+    # Postgres efêmero no runner (grátis) — replica o ambiente Supabase para os
+    # testes de RLS (roles authenticated/anon/service_role + auth.uid()).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: kabrito_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://postgres@localhost:5432/kabrito_test
+      TEST_DATABASE_URL: postgres://postgres@localhost:5432/kabrito_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      # Roles + schema auth (igual ao Supabase) ANTES das migrations.
+      - name: Bootstrap do banco de teste
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/rls/bootstrap.local.sql
+      - name: Migrations
+        run: npm run db:migrate
+      - run: npm run typecheck
+      - run: npm run lint
+      # Inclui os 39 testes de RLS (defesa multi-tenant) — nunca regride sem barrar.
+      - run: npm test
+
+  secrets-scan:
+    name: scan de segredos (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: gitleaks
+        run: |
+          VERSION=8.18.4
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          # --no-git: varre os ARQUIVOS atuais (não o histórico) — pega segredo
+          # colado num arquivo do PR sem falhar por ruído de commits antigos.
+          ./gitleaks detect --no-git --redact --verbose --exit-code 1
