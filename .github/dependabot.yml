@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # Dependências npm — PRs semanais agrupados (segurança + manutenção).
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-and-minor:
+        update-types: ["minor", "patch"]
+  # Versões das próprias actions do CI.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
