@@ -424,7 +424,8 @@ describe("6.10 Anti auto-ressurreição — usuário não escreve profiles.delet
     const res = await asUser(
       f.userA,
       (tx) =>
-        tx`update profiles set avatar_url = 'https://example.com/a.png' where user_id = ${f.userA}`,
+        // URL precisa casar com o CHECK profiles_avatar_url_supabase (migration 0012).
+        tx`update profiles set avatar_url = 'https://test.supabase.co/storage/v1/object/public/avatars/a.png' where user_id = ${f.userA}`,
     );
     expect(res.count).toBe(1);
   });
