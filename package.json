@@ -23,6 +23,7 @@
     "seed:test-user": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx server/admin/seed-test-user.ts"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
@@ -37,6 +38,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.36.4",
+    "gsap": "^3.15.0",
     "lucide-react": "^0.460.0",
     "next": "^15.1.0",
     "postgres": "^3.4.5",

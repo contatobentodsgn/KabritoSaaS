@@ -111,3 +111,13 @@
 .k-progress-bar {
   animation: k-progress 1.05s ease-in-out infinite;
 }
+
+/* Landing (GSAP): pré-esconde os elementos animados ANTES da pintura, evitando
+   flash. Só quando o usuário aceita movimento; com prefers-reduced-motion ficam
+   visíveis (sem animação). Sem JS, o <noscript> da landing reexibe tudo. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal],
+  [data-hero] > * {
+    opacity: 0;
+  }
+}
