@@ -18,10 +18,10 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function LandingReveal() {
   useGSAP(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
+    // Sinaliza ao failsafe (script inline da landing) que o GSAP carregou.
+    (window as unknown as { __kReveal?: boolean }).__kReveal = true;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return; // respeita a preferência: sem animação, conteúdo visível
     }
 
@@ -58,6 +58,10 @@ export function LandingReveal() {
         scrub: 0.5,
       },
     });
+
+    // Web fonts (display:swap) mudam a altura do layout após o setup; recalcula
+    // as posições dos triggers quando carregarem, evitando reveals obsoletos.
+    document.fonts?.ready.then(() => ScrollTrigger.refresh());
   });
 
   return null;

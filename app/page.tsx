@@ -103,15 +103,24 @@ const FAQS = [
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Sem JS, reexibe os elementos que o CSS pré-esconde para a animação. */}
-      <noscript>
-        {`<style>[data-reveal],[data-hero] > *{opacity:1 !important}</style>`}
-      </noscript>
+      {/* Habilita a pré-ocultação só quando há JS (.js-reveal), e arma um failsafe:
+          se o GSAP não inicializar (chunk falhou/erro), reexibe tudo após 4s.
+          Sem JS, nada disso roda → conteúdo sempre visível. */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "(function(){var h=document.documentElement;h.classList.add('js-reveal');window.setTimeout(function(){if(!window.__kReveal)h.classList.remove('js-reveal');},4000);})();",
+        }}
+      />
 
       {/* Topo fixo — CTA sempre ao alcance */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-6 py-4 sm:px-8">
-          <Link href="/" aria-label="Kabrito · página inicial">
+          <Link
+            href="/"
+            aria-label="Kabrito · página inicial"
+            className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
             <img src="/brand/logo-kabrito.svg" alt="Kabrito" className="h-7 w-auto dark:hidden" />
             <img
               src="/brand/logo-kabrito-inverse.svg"
@@ -150,7 +159,10 @@ export default function HomePage() {
 
             <h1 className="mt-5 font-serif font-medium leading-[1.04] tracking-[-0.02em] text-foreground [font-size:clamp(2.75rem,8vw,6rem)]">
               Conteúdo que cuida,{" "}
-              <em className="k-serif-italic text-rose-500">com respiro</em>.
+              <em className="k-serif-italic text-rose-600 dark:text-rose-500">
+                com respiro
+              </em>
+              .
             </h1>
 
             <p className="mx-auto mt-6 max-w-xl text-lg leading-[1.6] text-muted-foreground">
@@ -355,13 +367,13 @@ export default function HomePage() {
           <div className="flex items-center gap-4">
             <Link
               href="/termos"
-              className="transition-colors duration-150 hover:text-foreground"
+              className="rounded-sm transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Termos
             </Link>
             <Link
               href="/privacy"
-              className="transition-colors duration-150 hover:text-foreground"
+              className="rounded-sm transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Privacidade
             </Link>
