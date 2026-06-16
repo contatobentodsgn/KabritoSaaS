@@ -7,6 +7,16 @@ import { DEFAULT_REDIRECT } from "@/lib/constants";
 export const runtime = "nodejs";
 
 /**
+ * Só permite redirecionar para um caminho INTERNO relativo: precisa começar com
+ * uma única "/" (não "//" nem "/\"), evitando open-redirect e o bypass via "@"
+ * (ex.: redirectTo=@evil.com → https://app@evil.com). Caso contrário, fallback.
+ */
+function safeNextPath(raw: string | null): string {
+  if (raw && /^\/(?![/\\])/.test(raw)) return raw;
+  return DEFAULT_REDIRECT;
+}
+
+/**
  * Callback de confirmação de e-mail / OAuth / magic-link do Supabase. Troca o
  * `code` por uma sessão e redireciona. (Padrão @supabase/ssr.)
  *
@@ -19,7 +29,7 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("redirectTo") ?? DEFAULT_REDIRECT;
+  const next = safeNextPath(searchParams.get("redirectTo"));
 
   if (code) {
     const supabase = await createClient();

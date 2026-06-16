@@ -1,4 +1,5 @@
 import "server-only";
+import { safeFetchUrl } from "./safe-fetch";
 
 /**
  * Conector de API genérico (fonte legal — sem scraping de redes).
@@ -12,7 +13,7 @@ import "server-only";
  *  - field?: string (campo de cada item; default = item já é string)
  */
 export async function collectApi(config: Record<string, unknown>): Promise<string[]> {
-  const url = typeof config.url === "string" ? config.url : null;
+  const url = typeof config.url === "string" ? safeFetchUrl(config.url) : null;
   if (!url) return [];
 
   const res = await fetch(url, {

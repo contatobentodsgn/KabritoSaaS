@@ -16,6 +16,8 @@ export async function updateSession(request: NextRequest) {
     publicEnv.SUPABASE_URL,
     publicEnv.SUPABASE_ANON_KEY,
     {
+      // Secure em produção (default do @supabase/ssr não inclui essa flag).
+      cookieOptions: { secure: process.env.NODE_ENV === "production" },
       cookies: {
         getAll() {
           return request.cookies.getAll();

@@ -1,11 +1,12 @@
 import "server-only";
+import { safeFetchUrl } from "./safe-fetch";
 
 /**
  * Conector RSS (fonte legal). Faz fetch do feed e extrai títulos dos itens.
  * Parser mínimo por regex (sem dependência extra). Best-effort.
  */
 export async function collectRss(config: Record<string, unknown>): Promise<string[]> {
-  const url = typeof config.url === "string" ? config.url : null;
+  const url = typeof config.url === "string" ? safeFetchUrl(config.url) : null;
   if (!url) return [];
   const res = await fetch(url, {
     headers: { "user-agent": "InteligenciaCriativaBot/1.0 (+rss)" },

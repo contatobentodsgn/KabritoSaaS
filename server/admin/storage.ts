@@ -19,6 +19,27 @@ const ALLOWED_EXT: Record<string, string> = {
 
 export type UploadResult = { ok: true; url: string } | { ok: false; error: string };
 
+/**
+ * Detecta o tipo real pela assinatura (magic bytes) — não confia no Content-Type
+ * declarado pelo cliente (forjável). Retorna o MIME real ou null.
+ */
+function sniffImageType(buf: Buffer): string | null {
+  if (buf.length < 12) return null;
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) {
+    return "image/png"; // 89 50 4E 47
+  }
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
+    return "image/jpeg"; // FF D8 FF
+  }
+  if (
+    buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 && // RIFF
+    buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50 // WEBP
+  ) {
+    return "image/webp";
+  }
+  return null;
+}
+
 export async function uploadAvatar(userId: string, file: File): Promise<UploadResult> {
   if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) {
     return { ok: false, error: "Upload indisponível (Storage não configurado)." };
@@ -32,6 +53,10 @@ export async function uploadAvatar(userId: string, file: File): Promise<UploadRe
     const admin = createAdminSupabase();
     const path = `${userId}/avatar.${ext}`;
     const buffer = Buffer.from(await file.arrayBuffer());
+    // Confere os magic bytes contra o tipo declarado (anti-spoofing de MIME).
+    if (sniffImageType(buffer) !== file.type) {
+      return { ok: false, error: "Arquivo não é uma imagem PNG, JPG ou WEBP válida." };
+    }
     const { error } = await admin.storage
       .from(AVATAR_BUCKET)
       .upload(path, buffer, { contentType: file.type, upsert: true });
