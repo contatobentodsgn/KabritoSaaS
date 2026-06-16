@@ -50,9 +50,4 @@ export function getServiceDbClient(): PostgresJsDatabase<typeof schema> {
   return getConnection().db;
 }
 
-/** Acesso ao driver `postgres` cru (para SQL administrativo pontual). */
-export function getServiceSql() {
-  return getConnection().sql;
-}
-
 export { schema };

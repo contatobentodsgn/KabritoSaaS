@@ -23,7 +23,8 @@ export async function listReviewQueue(): Promise<EditionRow[]> {
     .from("content_editions")
     .select("*")
     .in("review_status", ["pending", "in_review", "rejected"])
-    .order("edition_date", { ascending: false });
+    .order("edition_date", { ascending: false })
+    .limit(200); // teto defensivo: a fila não cresce ilimitada na resposta
   return (data as EditionRow[]) ?? [];
 }
 

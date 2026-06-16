@@ -68,6 +68,9 @@ export async function getCurrentOrganization(): Promise<Organization | null> {
     .from("organization_members")
     .select("organization_id, organizations:organization_id(*)")
     .eq("user_id", user.id)
+    // ORDER BY estável: se o usuário estiver em >1 org, resolve sempre a mais
+    // antiga (evita o tenant "ativo" oscilar entre requests — .limit(1) sem ordem).
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
   const orgRaw = (data as { organizations?: Record<string, unknown> } | null)?.organizations;

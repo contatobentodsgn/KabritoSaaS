@@ -154,6 +154,11 @@ export async function deleteItem(input: unknown): Promise<ActionResult> {
   const supabase = await createClient();
   const { error } = await supabase.from(parsed.data.table).delete().eq("id", parsed.data.id);
   if (error) return { ok: false, error: "Falha ao remover item." };
+  await recordAudit({
+    action: AUDIT_ACTIONS.CONTENT_DELETED,
+    entityType: parsed.data.table,
+    entityId: parsed.data.id,
+  });
   revalidatePath("/admin/review");
   return { ok: true };
 }

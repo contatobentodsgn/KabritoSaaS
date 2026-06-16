@@ -54,6 +54,7 @@ export const CURRENT_PROMPT_VERSION = "v1";
 /** Ações auditadas (audit_logs / access_logs). */
 export const AUDIT_ACTIONS = {
   LOGIN: "auth.login",
+  LOGIN_FAILED: "auth.login_failed",
   LOGOUT: "auth.logout",
   REGISTER: "auth.register",
   SESSION_NEW_DEVICE: "session.new_device",
@@ -63,8 +64,18 @@ export const AUDIT_ACTIONS = {
   CONTENT_PUBLISHED: "content.published",
   CONTENT_REJECTED: "content.rejected",
   CONTENT_ARCHIVED: "content.archived",
+  CONTENT_DELETED: "content.deleted",
   FAVORITE_ADDED: "favorite.added",
   FAVORITE_REMOVED: "favorite.removed",
   ACCOUNT_DELETED: "account.deleted",
   GENERATION_ADAPT: "generation.adapt",
+  // Mudanças de privilégio / equipe (trilha de auditoria — SECURITY_CHECKLIST).
+  MEMBER_ADDED: "team.member_added",
+  MEMBER_REMOVED: "team.member_removed",
+  MEMBER_ROLE_CHANGED: "team.role_changed",
+  INVITE_CREATED: "team.invite_created",
+  INVITE_CANCELLED: "team.invite_cancelled",
+  INVITE_ACCEPTED: "team.invite_accepted",
+  STAFF_ROLE_SET: "staff.role_set",
+  ACCESS_GRANTED: "billing.access_granted",
 } as const;

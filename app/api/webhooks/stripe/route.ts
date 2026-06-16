@@ -31,22 +31,16 @@ export async function POST(req: Request): Promise<NextResponse> {
   let event;
   try {
     event = verifyAndConstructEvent(payload, signature);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "assinatura inválida";
-    return NextResponse.json(
-      { error: "invalid_signature", message },
-      { status: 400 },
-    );
+  } catch {
+    // Corpo genérico: o Stripe só lê o status code; detalhe não deve vazar.
+    return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
   }
 
   try {
     await handleStripeEvent(event);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "falha ao processar";
-    return NextResponse.json(
-      { error: "handler_error", message },
-      { status: 400 },
-    );
+    console.error("[stripe/webhook] handler:", err);
+    return NextResponse.json({ error: "handler_error" }, { status: 400 });
   }
 
   return NextResponse.json({ received: true }, { status: 200 });
