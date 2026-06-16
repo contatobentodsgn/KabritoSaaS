@@ -33,7 +33,7 @@ jobs:
       DATABASE_URL: postgres://postgres@localhost:5432/kabrito_test
       TEST_DATABASE_URL: postgres://postgres@localhost:5432/kabrito_test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -53,7 +53,7 @@ jobs:
     name: scan de segredos (gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: gitleaks
         run: |
           VERSION=8.18.4
