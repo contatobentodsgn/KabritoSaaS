@@ -8,8 +8,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Black Forest owns authority/CTA.
-        default: "bg-primary text-primary-foreground hover:bg-forest-800",
+        // Black Forest owns authority/CTA. No dark, o primary é blush (token).
+        default:
+          "bg-primary text-primary-foreground hover:bg-forest-800 dark:hover:bg-blush-300",
         // Powder Blush owns the warm secondary action (forest text — never white on blush).
         blush: "bg-blush-400 text-forest-700 hover:bg-blush-500",
         destructive:
@@ -17,7 +18,7 @@ const buttonVariants = cva(
         outline:
           "border border-input bg-card hover:bg-accent hover:text-accent-foreground hover:shadow-k-1",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-forest-100",
+          "bg-secondary text-secondary-foreground hover:bg-forest-100 dark:hover:bg-forest-800",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },

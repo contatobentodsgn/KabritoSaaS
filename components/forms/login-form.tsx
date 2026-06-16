@@ -58,7 +58,7 @@ export function LoginForm() {
         Não tem conta?{" "}
         <Link
           href="/register"
-          className="font-medium text-foreground underline-offset-4 transition-colors duration-150 hover:text-forest-800 hover:underline"
+          className="font-medium text-foreground underline-offset-4 transition-colors duration-150 hover:text-forest-800 dark:hover:text-forest-200 hover:underline"
         >
           Criar conta
         </Link>

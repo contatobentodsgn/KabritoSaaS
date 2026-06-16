@@ -34,7 +34,7 @@ export default async function ReviewQueuePage() {
             const s = STATUS[e.review_status] ?? { label: e.review_status, variant: "secondary" as const };
             return (
               <Link key={e.id} href={`/admin/review/${e.id}`} className="group block">
-                <Card className="transition-[border-color,box-shadow] duration-150 group-hover:border-rose-200 group-hover:shadow-k-1">
+                <Card className="transition-[border-color,box-shadow] duration-150 group-hover:border-rose-200 dark:group-hover:border-rose-500/40 group-hover:shadow-k-1">
                   <CardContent className="flex items-center justify-between gap-4 py-4">
                     <div className="min-w-0">
                       <p className="truncate font-serif text-lg font-medium leading-tight">{e.title}</p>

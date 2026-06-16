@@ -155,7 +155,7 @@ export function CalendarForm() {
         ) : (
           <Card className="border-dashed">
             <CardContent className="flex h-full min-h-[280px] flex-col items-center justify-center gap-2 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-forest-50 text-forest-700">
+              <span className="flex size-12 items-center justify-center rounded-full bg-forest-50 dark:bg-forest-900 text-forest-700 dark:text-forest-200">
                 <CalendarDays className="size-6" strokeWidth={1.75} />
               </span>
               <p className="font-medium">Seu calendário aparece aqui</p>

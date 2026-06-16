@@ -52,7 +52,7 @@ export function ReviewActions({ editionId }: { editionId: string }) {
         </Button>
       </div>
       {rejecting && (
-        <div className="space-y-2 rounded-md border border-rose-200 bg-rose-50/50 p-3">
+        <div className="space-y-2 rounded-md border border-rose-200 dark:border-rose-500/40 bg-rose-50/50 dark:bg-rose-500/15 p-3">
           <Textarea
             placeholder="Motivo da rejeição (vira feedback para ajustar o prompt)"
             value={reason}

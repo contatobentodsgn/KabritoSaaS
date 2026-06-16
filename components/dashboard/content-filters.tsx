@@ -23,7 +23,7 @@ const FORMATS: { value: string; label: string }[] = [
 ];
 
 const chip =
-  "inline-flex items-center gap-2 rounded-full border border-mint-200 bg-card px-3 py-1.5 text-sm text-foreground";
+  "inline-flex items-center gap-2 rounded-full border border-mint-200 dark:border-forest-800 bg-card px-3 py-1.5 text-sm text-foreground";
 const selectCls =
   "bg-transparent text-sm font-medium text-foreground focus:outline-none cursor-pointer";
 
@@ -68,7 +68,7 @@ export function ContentFilters({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <label className={chip}>
-        <Tag className="size-4 text-mint-700" strokeWidth={1.75} />
+        <Tag className="size-4 text-mint-700 dark:text-mint-300" strokeWidth={1.75} />
         <span className="text-muted-foreground">Nicho:</span>
         <select
           className={selectCls}
@@ -87,7 +87,7 @@ export function ContentFilters({
 
       {showFormat && (
         <label className={chip}>
-          <LayoutGrid className="size-4 text-mint-700" strokeWidth={1.75} />
+          <LayoutGrid className="size-4 text-mint-700 dark:text-mint-300" strokeWidth={1.75} />
           <span className="text-muted-foreground">Formato:</span>
           <select
             className={selectCls}

@@ -73,9 +73,9 @@ export default async function DashboardPage({
       )}
 
       {!active && (
-        <Card className="border-rose-200 bg-rose-50">
+        <Card className="border-rose-200 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/15">
           <CardContent className="flex flex-col items-start gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-rose-900">
+            <p className="text-sm text-rose-900 dark:text-blush-200">
               Sua assinatura não está ativa — o conteúdo editorial fica disponível
               com a assinatura ativa.
             </p>

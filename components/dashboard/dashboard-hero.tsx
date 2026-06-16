@@ -6,7 +6,7 @@ function DecorMotif() {
     <svg
       aria-hidden
       viewBox="0 0 360 200"
-      className="pointer-events-none absolute -right-4 bottom-0 hidden h-[160px] w-auto text-forest-700/[0.07] md:block"
+      className="pointer-events-none absolute -right-4 bottom-0 hidden h-[160px] w-auto text-forest-700/[0.07] dark:text-forest-200/[0.06] md:block"
       fill="none"
     >
       <path d="M0 200 Q90 120 180 160 T360 130 V200 Z" fill="currentColor" />
@@ -32,12 +32,12 @@ function StatusPill({
 }) {
   const toneCls =
     tone === "ok"
-      ? "text-forest-700"
+      ? "text-forest-700 dark:text-forest-200"
       : tone === "muted"
-        ? "text-rose-700"
+        ? "text-rose-700 dark:text-blush-300"
         : "text-muted-foreground";
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-mint-200 bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-mint-200 dark:border-forest-800 bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
       <Icon className={`size-3.5 ${toneCls}`} />
       <span className={toneCls}>{children}</span>
     </span>
@@ -62,7 +62,7 @@ export function DashboardHero({
       : "Assim que a equipe publicar a edição do dia, ela aparece aqui.";
 
   return (
-    <section className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-mint-100 via-mint-50 to-card px-6 py-8 sm:px-8">
+    <section className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-mint-100 dark:from-forest-900 via-mint-50 dark:via-forest-950 to-card px-6 py-8 sm:px-8">
       <DecorMotif />
       <div className="relative max-w-2xl space-y-3">
         <p className="k-eyebrow">Hoje</p>

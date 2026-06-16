@@ -27,9 +27,9 @@ export function PromptCard({
             <Pills items={prompt.required_input} variant="outline" />
           </Field>
         )}
-        <div className="rounded-lg border border-mint-200 bg-mint-50 p-4">
+        <div className="rounded-lg border border-mint-200 dark:border-forest-800 bg-mint-50 dark:bg-forest-950/40 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="k-eyebrow text-forest-700">Prompt</p>
+            <p className="k-eyebrow text-forest-700 dark:text-forest-200">Prompt</p>
             <CopyButton text={prompt.prompt_body} />
           </div>
           <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">{prompt.prompt_body}</pre>

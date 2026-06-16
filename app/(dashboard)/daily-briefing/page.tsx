@@ -56,7 +56,7 @@ export default async function DailyBriefingHistoryPage({
               <Card className="transition-shadow duration-150 hover:shadow-k-1">
                 <CardContent className="flex items-center justify-between gap-4 py-4">
                   <div className="flex items-center gap-4">
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-forest-50 text-forest-700">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-forest-50 dark:bg-forest-900 text-forest-700 dark:text-forest-200">
                       <CalendarDays className="size-5" strokeWidth={1.75} />
                     </span>
                     <div>

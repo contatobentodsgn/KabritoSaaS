@@ -27,7 +27,7 @@ export function AdminNav() {
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150",
               active
-                ? "bg-forest-100 text-forest-700"
+                ? "bg-forest-100 dark:bg-forest-800 text-forest-700 dark:text-forest-200"
                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
           >

@@ -4,9 +4,9 @@ import type { BriefingBlock } from "@/types/content";
 
 export function BriefingCard({ briefing }: { briefing: BriefingBlock }) {
   return (
-    <Card className="border-mint-200 bg-mint-50">
+    <Card className="border-mint-200 dark:border-forest-800 bg-mint-50 dark:bg-forest-950/40">
       <CardHeader>
-        <p className="k-eyebrow text-forest-700">Resumo do dia</p>
+        <p className="k-eyebrow text-forest-700 dark:text-forest-200">Resumo do dia</p>
         <CardTitle>Briefing do dia</CardTitle>
         <p className="text-sm leading-relaxed text-muted-foreground">{briefing.summary}</p>
       </CardHeader>

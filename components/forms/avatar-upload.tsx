@@ -48,7 +48,7 @@ export function AvatarUpload({
           className="size-16 rounded-full border border-border object-cover"
         />
       ) : (
-        <span className="flex size-16 items-center justify-center rounded-full bg-forest-100 text-xl font-semibold text-forest-700">
+        <span className="flex size-16 items-center justify-center rounded-full bg-forest-100 dark:bg-forest-800 text-xl font-semibold text-forest-700 dark:text-forest-200">
           {initial}
         </span>
       )}

@@ -30,7 +30,7 @@ export function CopyPatternCard({
         </Field>
         <Field label="Por que chama atenção">{pattern.explanation}</Field>
         <Field label="Estrutura reutilizável">
-          <code className="rounded-sm border border-mint-200 bg-mint-50 px-1.5 py-0.5 text-forest-700">
+          <code className="rounded-sm border border-mint-200 dark:border-forest-800 bg-mint-50 dark:bg-forest-950/40 px-1.5 py-0.5 text-forest-700 dark:text-forest-200">
             {pattern.structure}
           </code>
         </Field>

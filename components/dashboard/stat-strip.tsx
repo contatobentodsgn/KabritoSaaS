@@ -11,13 +11,13 @@ export interface Stat {
 export function StatStrip({ items }: { items: Stat[] }) {
   return (
     <Card className="overflow-hidden">
-      <div className="grid grid-cols-2 divide-mint-200 lg:grid-cols-4 lg:divide-x">
+      <div className="grid grid-cols-2 divide-mint-200 dark:divide-forest-800 lg:grid-cols-4 lg:divide-x">
         {items.map(({ icon: Icon, value, label }, i) => (
           <div
             key={label}
-            className={`flex items-center gap-3 p-5 ${i >= 2 ? "border-t border-mint-200 lg:border-t-0" : ""} ${i === 1 ? "border-l border-mint-200 lg:border-l-0" : ""} ${i === 3 ? "border-l border-mint-200 lg:border-l-0" : ""}`}
+            className={`flex items-center gap-3 p-5 ${i >= 2 ? "border-t border-mint-200 dark:border-forest-800 lg:border-t-0" : ""} ${i === 1 ? "border-l border-mint-200 dark:border-forest-800 lg:border-l-0" : ""} ${i === 3 ? "border-l border-mint-200 dark:border-forest-800 lg:border-l-0" : ""}`}
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-forest-50 text-forest-700">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-forest-50 dark:bg-forest-900 text-forest-700 dark:text-forest-200">
               <Icon className="size-5" strokeWidth={1.75} />
             </span>
             <div>

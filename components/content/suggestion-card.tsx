@@ -37,9 +37,9 @@ export function SuggestionCard({
           <p className="whitespace-pre-line">{suggestion.caption_base}</p>
         </Field>
         <Field label="CTA">{suggestion.cta}</Field>
-        <div className="rounded-lg border border-mint-200 bg-mint-50 p-4">
+        <div className="rounded-lg border border-mint-200 dark:border-forest-800 bg-mint-50 dark:bg-forest-950/40 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="k-eyebrow text-forest-700">Prompt para adaptar ao seu nicho</p>
+            <p className="k-eyebrow text-forest-700 dark:text-forest-200">Prompt para adaptar ao seu nicho</p>
             <CopyButton text={suggestion.personalization_prompt} />
           </div>
           <p className="text-sm leading-relaxed">{suggestion.personalization_prompt}</p>

@@ -76,7 +76,7 @@ export function QuickAccess({
         <Link key={c.cardKey} href={c.href} className="group">
           <Card className="h-full transition-shadow duration-150 hover:shadow-k-1">
             <CardContent className="flex h-full flex-col gap-3 py-5">
-              <span className="flex size-10 items-center justify-center rounded-full bg-forest-50 text-forest-700">
+              <span className="flex size-10 items-center justify-center rounded-full bg-forest-50 dark:bg-forest-900 text-forest-700 dark:text-forest-200">
                 <c.icon className="size-5" strokeWidth={1.75} />
               </span>
               <div className="flex-1">
@@ -84,7 +84,7 @@ export function QuickAccess({
                 <p className="mt-0.5 text-sm text-muted-foreground">{c.sub}</p>
               </div>
               <div className="flex items-center justify-between pt-1">
-                <span className="text-xs font-medium text-forest-600">{c.meta}</span>
+                <span className="text-xs font-medium text-forest-600 dark:text-forest-300">{c.meta}</span>
                 <span className="inline-flex items-center gap-1 text-sm font-medium text-foreground">
                   {c.cta}
                   <ArrowRight className="size-4 transition-transform duration-150 group-hover:translate-x-0.5" />

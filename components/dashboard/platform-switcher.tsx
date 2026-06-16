@@ -39,7 +39,7 @@ export function PlatformSwitcher({
     <div
       role="tablist"
       aria-label="Plataforma da edição"
-      className="inline-flex flex-wrap items-center gap-1 rounded-full border border-mint-200 bg-card p-1"
+      className="inline-flex flex-wrap items-center gap-1 rounded-full border border-mint-200 dark:border-forest-800 bg-card p-1"
     >
       {platforms.map(({ slug, name }) => {
         const active = slug === current;

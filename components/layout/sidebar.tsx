@@ -32,9 +32,10 @@ const NAV = [
 
 const itemBase =
   "flex items-center gap-3 rounded-md px-3 py-2 text-[14.5px] transition-colors duration-150";
-const itemActive = "bg-forest-100 font-semibold text-forest-700";
+const itemActive =
+  "bg-forest-100 font-semibold text-forest-700 dark:bg-forest-800 dark:text-forest-100";
 const itemIdle =
-  "font-medium text-muted-foreground hover:bg-mint-100 hover:text-foreground";
+  "font-medium text-muted-foreground hover:bg-mint-100 hover:text-foreground dark:hover:bg-forest-800";
 
 export function Sidebar({
   isStaff = false,
@@ -93,7 +94,7 @@ export function Sidebar({
             className="size-9 shrink-0 rounded-full object-cover"
           />
         ) : (
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-forest-100 text-sm font-semibold text-forest-700">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-forest-100 text-sm font-semibold text-forest-700 dark:bg-forest-800 dark:text-forest-100">
             {(name?.[0] ?? email?.[0] ?? "K").toUpperCase()}
           </span>
         )}

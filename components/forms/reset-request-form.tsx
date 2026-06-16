@@ -31,7 +31,7 @@ export function ResetRequestForm() {
       {state.message && (
         <p
           role="status"
-          className="rounded-sm border border-forest-200 bg-forest-50 px-3 py-2 text-sm text-forest-700"
+          className="rounded-sm border border-forest-200 dark:border-forest-700 bg-forest-50 dark:bg-forest-900 px-3 py-2 text-sm text-forest-700 dark:text-forest-200"
         >
           {state.message}
         </p>
@@ -43,7 +43,7 @@ export function ResetRequestForm() {
         Lembrou a senha?{" "}
         <Link
           href="/login"
-          className="font-medium text-foreground underline-offset-4 transition-colors duration-150 hover:text-forest-800 hover:underline"
+          className="font-medium text-foreground underline-offset-4 transition-colors duration-150 hover:text-forest-800 dark:hover:text-forest-100 hover:underline"
         >
           Voltar ao login
         </Link>

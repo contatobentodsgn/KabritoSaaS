@@ -40,7 +40,7 @@ export function BriefingSummary({
             <div key={key} className="space-y-3">
               <div className="flex items-center gap-2">
                 <Icon
-                  className={`size-[18px] ${tone === "warn" ? "text-rose-500" : "text-forest-600"}`}
+                  className={`size-[18px] ${tone === "warn" ? "text-rose-500" : "text-forest-600 dark:text-forest-300"}`}
                   strokeWidth={1.75}
                 />
                 <h3 className="text-sm font-semibold text-foreground">{title}</h3>
@@ -48,7 +48,7 @@ export function BriefingSummary({
               <ul className="space-y-1.5">
                 {items.map((it, i) => (
                   <li key={i} className="flex gap-2 text-sm text-muted-foreground">
-                    <span className="mt-2 size-1 shrink-0 rounded-full bg-mint-400" />
+                    <span className="mt-2 size-1 shrink-0 rounded-full bg-mint-400 dark:bg-forest-400" />
                     <span>{it}</span>
                   </li>
                 ))}

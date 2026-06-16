@@ -31,7 +31,7 @@ export default async function RunsPage() {
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             <table className="w-full text-sm">
-              <thead className="border-b bg-mint-50 text-left">
+              <thead className="border-b bg-mint-50 dark:bg-forest-950/40 text-left">
                 <tr className="[&>th]:k-eyebrow [&>th]:p-3 [&>th]:font-semibold">
                   <th>Data</th>
                   <th>Status</th>
@@ -42,7 +42,7 @@ export default async function RunsPage() {
               </thead>
               <tbody>
                 {runs.map((r) => (
-                  <tr key={r.id} className="border-b transition-colors last:border-0 hover:bg-mint-50/60">
+                  <tr key={r.id} className="border-b transition-colors last:border-0 hover:bg-mint-50/60 dark:hover:bg-forest-900/40">
                     <td className="p-3">{r.edition_date}</td>
                     <td className="p-3">
                       <Badge variant={RUN_VARIANT[r.status] ?? "secondary"}>{r.status}</Badge>

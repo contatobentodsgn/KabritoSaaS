@@ -28,7 +28,12 @@ export default async function RedefinirSenhaPage() {
         aria-label="Kabrito — página inicial"
         className="mb-10 inline-flex rounded-sm transition-opacity duration-150 hover:opacity-80"
       >
-        <img src="/brand/logo-kabrito.svg" alt="Kabrito" className="h-8 w-auto" />
+        <img src="/brand/logo-kabrito.svg" alt="Kabrito" className="h-8 w-auto dark:hidden" />
+        <img
+          src="/brand/logo-kabrito-inverse.svg"
+          alt="Kabrito"
+          className="hidden h-8 w-auto dark:block"
+        />
       </Link>
       <div className="w-full max-w-md">
         <Card className="shadow-k-1">

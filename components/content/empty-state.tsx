@@ -11,7 +11,7 @@ export function EmptyState({
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-        <span className="flex size-12 items-center justify-center rounded-full bg-mint-100 text-forest-600">
+        <span className="flex size-12 items-center justify-center rounded-full bg-mint-100 text-forest-600 dark:bg-forest-900 dark:text-forest-300">
           <Sparkles className="size-6" strokeWidth={1.5} />
         </span>
         <p className="font-serif text-lg text-foreground">{title}</p>

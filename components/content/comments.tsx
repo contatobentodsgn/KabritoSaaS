@@ -33,7 +33,7 @@ function CommentAvatar({ name, src }: { name: string; src: string | null }) {
   }
   const initial = (name.trim()[0] ?? "?").toUpperCase();
   return (
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-forest-100 text-xs font-semibold text-forest-700">
+    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-forest-100 dark:bg-forest-800 text-xs font-semibold text-forest-700 dark:text-forest-200">
       {initial}
     </span>
   );

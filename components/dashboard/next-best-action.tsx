@@ -14,10 +14,10 @@ export function NextBestAction({
   cta?: string;
 }) {
   return (
-    <Card className="border-forest-200 bg-forest-50/60">
+    <Card className="border-forest-200 dark:border-forest-700 bg-forest-50/60 dark:bg-forest-900/60">
       <CardContent className="flex flex-col items-start gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-card text-forest-700 shadow-k-1">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-card text-forest-700 dark:text-forest-200 shadow-k-1">
             <Lightbulb className="size-5" strokeWidth={1.75} />
           </span>
           <div>

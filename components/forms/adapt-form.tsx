@@ -129,7 +129,7 @@ export function AdaptForm() {
               <Field label="Estrutura do post">
                 <p className="whitespace-pre-line">{result.post_structure}</p>
               </Field>
-              <div className="rounded-md border bg-mint-50 p-3">
+              <div className="rounded-md border bg-mint-50 dark:bg-forest-950/40 p-3">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="k-eyebrow">Legenda</p>
                   <CopyButton text={result.caption} />
@@ -149,7 +149,7 @@ export function AdaptForm() {
         ) : (
           <Card className="border-dashed">
             <CardContent className="flex h-full min-h-[280px] flex-col items-center justify-center gap-2 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-forest-50 text-forest-700">
+              <span className="flex size-12 items-center justify-center rounded-full bg-forest-50 dark:bg-forest-900 text-forest-700 dark:text-forest-200">
                 <Wand2 className="size-6" strokeWidth={1.75} />
               </span>
               <p className="font-medium">Sua adaptação aparece aqui</p>

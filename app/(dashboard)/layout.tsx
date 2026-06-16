@@ -4,6 +4,7 @@ import { isStaff } from "@/server/permissions";
 import { signOutAction } from "@/server/actions/auth";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Layout autenticado. requireAuth() é a defesa de servidor (além do middleware).
@@ -19,13 +20,14 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <aside className="hidden w-[248px] shrink-0 flex-col border-r border-border bg-mint-50 md:flex">
+      <aside className="hidden w-[248px] shrink-0 flex-col border-r border-border bg-mint-50 dark:bg-forest-950/40 md:flex">
         <div className="px-5 pb-3 pt-5">
           <Link href="/dashboard" aria-label="Kabrito">
+            <img src="/brand/logo-kabrito.svg" alt="Kabrito" className="h-7 w-auto dark:hidden" />
             <img
-              src="/brand/logo-kabrito.svg"
+              src="/brand/logo-kabrito-inverse.svg"
               alt="Kabrito"
-              className="h-7 w-auto"
+              className="hidden h-7 w-auto dark:block"
             />
           </Link>
         </div>
@@ -48,6 +50,7 @@ export default async function DashboardLayout({
             <span className="hidden text-muted-foreground sm:inline">
               {profile?.email}
             </span>
+            <ThemeToggle />
             <form action={signOutAction}>
               <Button variant="outline" size="sm" type="submit">
                 Sair

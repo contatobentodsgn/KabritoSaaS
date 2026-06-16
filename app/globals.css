@@ -86,7 +86,7 @@
 @layer components {
   /* Eyebrow: UPPERCASE tracked — assinatura editorial Kabrito. */
   .k-eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.08em] text-mint-700;
+    @apply text-xs font-semibold uppercase tracking-[0.08em] text-mint-700 dark:text-mint-400;
   }
   /* Serif display helper. */
   .k-serif {

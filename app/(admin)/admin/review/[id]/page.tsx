@@ -25,9 +25,9 @@ export default async function ReviewDetailPage({
         <Badge variant="forest">{data.edition.status}</Badge>
       </PageHeader>
 
-      <Card className="mb-6 border-rose-200 bg-rose-50/60 shadow-k-1">
+      <Card className="mb-6 border-rose-200 dark:border-rose-500/40 bg-rose-50/60 shadow-k-1">
         <CardHeader className="pb-3">
-          <span className="k-eyebrow text-rose-900">Decisão</span>
+          <span className="k-eyebrow text-rose-900 dark:text-blush-200">Decisão</span>
           <CardTitle className="text-lg">Aprovar ou ajustar esta edição</CardTitle>
         </CardHeader>
         <CardContent>

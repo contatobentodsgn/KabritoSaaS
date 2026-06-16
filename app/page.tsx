@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /** Landing page pública — hero editorial Kabrito. */
 export default function HomePage() {
@@ -8,15 +9,19 @@ export default function HomePage() {
       {/* Topo: logo Kabrito */}
       <header className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-6 py-6 sm:px-8">
         <Link href="/" aria-label="Kabrito · página inicial">
+          <img src="/brand/logo-kabrito.svg" alt="Kabrito" className="h-7 w-auto dark:hidden" />
           <img
-            src="/brand/logo-kabrito.svg"
+            src="/brand/logo-kabrito-inverse.svg"
             alt="Kabrito"
-            className="h-7 w-auto"
+            className="hidden h-7 w-auto dark:block"
           />
         </Link>
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/login">Entrar</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/login">Entrar</Link>
+          </Button>
+        </div>
       </header>
 
       {/* Hero editorial — único momento com gradiente suave Mint */}
@@ -24,7 +29,7 @@ export default function HomePage() {
         {/* Respiro de cor: gradiente Mint discreto ao fundo, sem exagero */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-mint-100/70 via-background to-background"
+          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-mint-100/70 dark:from-forest-900/30 via-background to-background"
         />
 
         <div className="mx-auto w-full max-w-3xl py-20 text-center sm:py-28">
@@ -48,7 +53,7 @@ export default function HomePage() {
               asChild
               variant="outline"
               size="pill"
-              className="border-forest-600 text-forest-700 hover:bg-forest-50 hover:text-forest-800"
+              className="border-forest-600 dark:border-forest-400 text-forest-700 dark:text-forest-200 hover:bg-forest-50 dark:hover:bg-forest-900 hover:text-forest-800 dark:hover:text-forest-100"
             >
               <Link href="/login">Entrar</Link>
             </Button>

@@ -45,8 +45,8 @@ export default async function SettingsPage({
       />
 
       {inactive && !active && (
-        <Card className="mb-8 border-rose-200 bg-rose-50">
-          <CardContent className="py-4 text-sm text-rose-900">
+        <Card className="mb-8 border-rose-200 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/15">
+          <CardContent className="py-4 text-sm text-rose-900 dark:text-blush-200">
             Sua assinatura não está ativa. O conteúdo editorial fica disponível
             apenas com a assinatura ativa.
           </CardContent>
@@ -54,8 +54,8 @@ export default async function SettingsPage({
       )}
 
       {billing === "ok" && (
-        <Card className="mb-8 border-forest-200 bg-forest-50">
-          <CardContent className="py-4 text-sm text-forest-900">
+        <Card className="mb-8 border-forest-200 dark:border-forest-700 bg-forest-50 dark:bg-forest-900">
+          <CardContent className="py-4 text-sm text-forest-900 dark:text-forest-100">
             Pagamento recebido. A assinatura é ativada assim que o Stripe
             confirma — atualize a página em instantes se ainda aparecer pendente.
           </CardContent>
