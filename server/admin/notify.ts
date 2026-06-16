@@ -12,6 +12,20 @@ import {
 import { serverEnv } from "@/server/env";
 
 /**
+ * Escapa HTML antes de interpolar texto dinâmico (título/summary gerados por IA,
+ * nome de quem convida, etc.) no corpo dos e-mails. Sem isso, markup vindo do
+ * modelo ou de input do usuário seria injetado cru no HTML enviado aos assinantes.
+ */
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
  * Disparo do E-MAIL DIGEST na publicação (PROJECT_MASTER_DOCUMENT §2 estágio 4).
  *
  * É um job de SISTEMA (fan-out para todos os assinantes ativos) → usa o
@@ -89,7 +103,7 @@ export async function notifyCommentParticipants(
           to,
           subject: `Novo comentário em ${edition.title}`,
           html: `
-            <p>Há um novo comentário na edição "<strong>${edition.title}</strong>".</p>
+            <p>Há um novo comentário na edição "<strong>${escapeHtml(edition.title)}</strong>".</p>
             <p><a href="${url}">Ver a conversa →</a></p>
             <hr/>
             <p style="color:#888;font-size:12px">Você recebe porque participou desta conversa.</p>
@@ -126,13 +140,15 @@ export async function sendInviteEmail(params: {
     const url = params.token
       ? `${serverEnv.APP_URL}/convite/${params.token}`
       : `${serverEnv.APP_URL}/register`;
-    const who = params.inviterName ? `${params.inviterName} convidou você` : "Você foi convidado(a)";
+    const who = params.inviterName
+      ? `${escapeHtml(params.inviterName)} convidou você`
+      : "Você foi convidado(a)";
     await resend.emails.send({
       from: serverEnv.EMAIL_FROM,
       to: params.to,
       subject: `Convite para ${params.orgName} no Kabrito`,
       html: `
-        <h2>${who} para ${params.orgName}</h2>
+        <h2>${who} para ${escapeHtml(params.orgName)}</h2>
         <p>Aceite o convite para entrar na equipe. Se ainda não tiver conta, crie uma com este e-mail.</p>
         <p><a href="${url}">Aceitar convite →</a></p>
         <hr/>
@@ -171,8 +187,8 @@ export async function sendEditionDigest(editionId: string): Promise<DigestResult
     const resend = new Resend(serverEnv.RESEND_API_KEY);
     const url = `${serverEnv.APP_URL}/daily-briefing`;
     const html = `
-      <h2>${edition.title}</h2>
-      <p>${edition.summary ?? "Sua edição diária de inteligência criativa está pronta."}</p>
+      <h2>${escapeHtml(edition.title)}</h2>
+      <p>${escapeHtml(edition.summary ?? "Sua edição diária de inteligência criativa está pronta.")}</p>
       <p><a href="${url}">Abrir a edição de hoje →</a></p>
       <hr/>
       <p style="color:#888;font-size:12px">Você recebe este e-mail porque tem assinatura ativa.</p>

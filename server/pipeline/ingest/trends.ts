@@ -1,4 +1,5 @@
 import "server-only";
+import { safeFetchUrl } from "./safe-fetch";
 
 /**
  * Conector de tendências (fonte legal — sem scraping de redes).
@@ -21,7 +22,7 @@ export async function collectTrends(config: Record<string, unknown>): Promise<st
       .map((t) => `tema em alta: ${t}`);
   }
 
-  const url = typeof config.url === "string" ? config.url : null;
+  const url = typeof config.url === "string" ? safeFetchUrl(config.url) : null;
   if (!url) return [];
 
   const res = await fetch(url, {

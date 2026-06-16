@@ -1,9 +1,18 @@
 import "server-only";
+import { timingSafeEqual } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { getServiceDbClient } from "@/server/db/service-client";
 import { platforms } from "@/db/schema";
 import { runDailyGeneration, type RunResult } from "@/server/pipeline/run";
 import { serverEnv } from "@/server/env";
+
+/** Comparação de string em tempo constante (evita side-channel de timing). */
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
 
 /**
  * Autorização dos endpoints de cron por CRON_SECRET (SECURITY_GUIDE §9).
@@ -15,7 +24,7 @@ export function isCronAuthorized(req: Request): boolean {
   if (!secret) return false; // sem segredo configurado: nega por padrão
   const auth = req.headers.get("authorization") ?? "";
   const x = req.headers.get("x-cron-secret") ?? "";
-  return auth === `Bearer ${secret}` || x === secret;
+  return safeEqual(auth, `Bearer ${secret}`) || safeEqual(x, secret);
 }
 
 export function todayISODate(): string {

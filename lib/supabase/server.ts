@@ -16,6 +16,9 @@ export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(publicEnv.SUPABASE_URL, publicEnv.SUPABASE_ANON_KEY, {
+    // Garante o atributo Secure em produção (o default do @supabase/ssr não o seta).
+    // httpOnly fica false por necessidade do client browser; a CSP é a contrapartida.
+    cookieOptions: { secure: process.env.NODE_ENV === "production" },
     cookies: {
       getAll() {
         return cookieStore.getAll();
