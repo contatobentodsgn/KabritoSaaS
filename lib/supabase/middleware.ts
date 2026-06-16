@@ -9,8 +9,9 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
  * Retorna o usuário atual + a resposta com cookies atualizados.
  * Usado pelo middleware.ts para decidir redirects.
  */
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+export async function updateSession(request: NextRequest, requestHeaders: Headers) {
+  // requestHeaders carrega o x-nonce + CSP (para o Next aplicar o nonce aos scripts).
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
 
   const supabase = createServerClient(
     publicEnv.SUPABASE_URL,
@@ -26,7 +27,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          response = NextResponse.next({ request });
+          response = NextResponse.next({ request: { headers: requestHeaders } });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
           );
