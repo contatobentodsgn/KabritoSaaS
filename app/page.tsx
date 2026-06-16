@@ -328,7 +328,7 @@ export default function HomePage() {
         <section className="mx-auto w-full max-w-[1120px] px-6 py-20 sm:px-8 sm:py-28">
           <div
             data-reveal
-            className="overflow-hidden rounded-3xl bg-gradient-to-br from-forest-700 to-forest-800 px-8 py-16 text-center"
+            className="overflow-hidden rounded-3xl bg-gradient-to-br from-forest-700 to-forest-800 px-6 py-12 text-center sm:px-8 sm:py-16"
           >
             <h2 className="font-serif text-3xl font-medium tracking-tight text-white sm:text-4xl">
               Comece hoje, com calma.
