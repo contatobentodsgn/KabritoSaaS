@@ -29,9 +29,20 @@ function supabaseSources(): { http: string; ws: string } {
   }
 }
 
+/** Origem de ingestão do Sentry (do DSN), p/ o SDK do browser enviar eventos. */
+function sentryOrigin(): string {
+  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+  if (!dsn) return "";
+  try {
+    return new URL(dsn).origin; // ex.: https://o123.ingest.us.sentry.io
+  } catch {
+    return "";
+  }
+}
+
 export function buildCsp(nonce: string): string {
   const sb = supabaseSources();
-  const connect = ["'self'", sb.http, sb.ws].filter(Boolean).join(" ");
+  const connect = ["'self'", sb.http, sb.ws, sentryOrigin()].filter(Boolean).join(" ");
   const img = ["'self'", "data:", "blob:", sb.http].filter(Boolean).join(" ");
 
   return [
