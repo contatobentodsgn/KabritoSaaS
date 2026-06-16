@@ -11,7 +11,7 @@
  * Estilos: 'unsafe-inline' é a única exceção pragmática — atributos `style`
  * inline do React/GSAP não aceitam nonce; o risco de injeção via estilo é baixo.
  */
-export const CSP_ENFORCE = false;
+export const CSP_ENFORCE = true;
 
 export const CSP_REQUEST_HEADER = "Content-Security-Policy";
 export const CSP_RESPONSE_HEADER = CSP_ENFORCE
