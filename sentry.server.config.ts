@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
+import { scrubSentryEvent } from "@/lib/security/sentry-scrub";
 
 /**
  * Sentry — runtime Node (server actions, route handlers, pipeline, cron).
@@ -11,4 +12,8 @@ Sentry.init({
   tracesSampleRate: 0.1,
   // Não captura PII por padrão (LGPD — só erros/stack, sem corpo de request).
   sendDefaultPii: false,
+  beforeSend(event) {
+    scrubSentryEvent(event as unknown as Record<string, unknown>);
+    return event;
+  },
 });

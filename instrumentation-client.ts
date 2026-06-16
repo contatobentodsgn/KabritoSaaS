@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
+import { scrubSentryEvent } from "@/lib/security/sentry-scrub";
 
 /**
  * Sentry no client. Usa NEXT_PUBLIC_SENTRY_DSN (DSN é público por design — seguro
@@ -10,6 +11,10 @@ Sentry.init({
   enabled: Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN),
   tracesSampleRate: 0.1,
   sendDefaultPii: false,
+  beforeSend(event) {
+    scrubSentryEvent(event as unknown as Record<string, unknown>);
+    return event;
+  },
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
