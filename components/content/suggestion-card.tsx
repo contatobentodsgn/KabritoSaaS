@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pills, Field, ScoreBadge } from "@/components/content/shared";
+import { Pills, Field, ScoreBadge, DifficultyBadge } from "@/components/content/shared";
 import { FavoriteButton } from "@/components/content/favorite-button";
 import { CopyButton } from "@/components/content/copy-button";
 import type { ContentSuggestionRow } from "@/types/content";
@@ -19,7 +19,7 @@ export function SuggestionCard({
           <CardTitle>{suggestion.title}</CardTitle>
           <div className="flex flex-wrap gap-1.5">
             <Badge variant="outline">{suggestion.recommended_format}</Badge>
-            <Badge variant="secondary">dificuldade: {suggestion.difficulty_level}</Badge>
+            <DifficultyBadge level={suggestion.difficulty_level} />
             <ScoreBadge score={suggestion.opportunity_score} />
           </div>
         </div>

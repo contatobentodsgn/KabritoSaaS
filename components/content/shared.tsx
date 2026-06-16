@@ -54,6 +54,19 @@ export function RiskBadge({ level }: { level: string }) {
   return <Badge variant={RISK_VARIANT[level] ?? "secondary"}>risco: {level}</Badge>;
 }
 
+// Dificuldade: verde = fácil/acessível, blush = mais trabalhoso (sem alarme).
+const DIFFICULTY_VARIANT: Record<string, "forest" | "secondary" | "blush"> = {
+  facil: "forest",
+  medio: "secondary",
+  dificil: "blush",
+};
+
+export function DifficultyBadge({ level }: { level: string }) {
+  return (
+    <Badge variant={DIFFICULTY_VARIANT[level] ?? "secondary"}>dificuldade: {level}</Badge>
+  );
+}
+
 export function ScoreBadge({ score }: { score: number }) {
   const v = score >= 70 ? "forest" : score >= 40 ? "secondary" : "blush";
   return <Badge variant={v}>oportunidade {score}</Badge>;

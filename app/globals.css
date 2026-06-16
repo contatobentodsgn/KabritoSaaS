@@ -98,3 +98,16 @@
     font-weight: 400;
   }
 }
+
+/* Barra de progresso indeterminada (loading.tsx) — CSS puro, sem JS. */
+@keyframes k-progress {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(420%);
+  }
+}
+.k-progress-bar {
+  animation: k-progress 1.05s ease-in-out infinite;
+}
