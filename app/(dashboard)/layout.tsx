@@ -3,6 +3,7 @@ import { requireAuth, getCurrentProfile } from "@/server/auth/session";
 import { isStaff } from "@/server/permissions";
 import { signOutAction } from "@/server/actions/auth";
 import { Sidebar } from "@/components/layout/sidebar";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -19,7 +20,7 @@ export default async function DashboardLayout({
   const [profile, staff] = await Promise.all([getCurrentProfile(), isStaff()]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-dvh overflow-hidden bg-background">
       <aside className="hidden w-[248px] shrink-0 flex-col border-r border-border bg-mint-50 dark:bg-forest-950/40 md:flex">
         <div className="px-5 pb-3 pt-5">
           <Link href="/dashboard" aria-label="Kabrito">
@@ -39,14 +40,25 @@ export default async function DashboardLayout({
         />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-6">
-          <Link
-            href="/dashboard"
-            className="font-serif text-xl font-medium tracking-tight text-foreground"
-          >
-            Inteligência Criativa
-          </Link>
-          <div className="flex items-center gap-4 text-sm">
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border bg-background px-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            {/* Navegação mobile (< md): hambúrguer abre a Sidebar num drawer. */}
+            <MobileNav>
+              <Sidebar
+                isStaff={staff}
+                email={profile?.email ?? undefined}
+                name={profile?.name ?? undefined}
+                avatarUrl={profile?.avatarUrl ?? undefined}
+              />
+            </MobileNav>
+            <Link
+              href="/dashboard"
+              className="min-w-0 truncate font-serif text-lg font-medium tracking-tight text-foreground sm:text-xl"
+            >
+              Inteligência Criativa
+            </Link>
+          </div>
+          <div className="flex shrink-0 items-center gap-3 text-sm sm:gap-4">
             <span className="hidden text-muted-foreground sm:inline">
               {profile?.email}
             </span>

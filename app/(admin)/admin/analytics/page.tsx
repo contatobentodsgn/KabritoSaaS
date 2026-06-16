@@ -85,7 +85,8 @@ export default async function AnalyticsPage() {
             ) : (
               <Card className="overflow-hidden">
                 <CardContent className="p-0">
-                  <table className="w-full text-sm">
+                  <div className="overflow-x-auto">
+                  <table className="w-full min-w-[680px] text-sm">
                     <thead className="border-b bg-mint-50 dark:bg-forest-950/40 text-left">
                       <tr className="[&>th]:k-eyebrow [&>th]:p-3 [&>th]:font-semibold">
                         <th>Versão</th>
@@ -124,6 +125,7 @@ export default async function AnalyticsPage() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </CardContent>
               </Card>
             )}

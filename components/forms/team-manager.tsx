@@ -35,7 +35,7 @@ const ROLE_BADGE: Record<MemberRole, "forest" | "secondary" | "outline"> = {
 };
 
 const selectCls =
-  "flex h-9 rounded-sm border border-input bg-card px-2 text-sm transition-[border-color,box-shadow] focus-visible:border-rose-400 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-rose-100 disabled:opacity-50";
+  "flex h-9 rounded-sm border border-input bg-card px-2 text-base transition-[border-color,box-shadow] focus-visible:border-rose-400 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-rose-100 disabled:opacity-50 sm:text-sm";
 
 export function TeamManager({
   members,
