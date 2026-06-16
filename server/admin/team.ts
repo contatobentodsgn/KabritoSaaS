@@ -311,8 +311,10 @@ export async function getInviteByToken(token: string): Promise<TokenInvite | nul
 }
 
 /**
- * Aceita um convite por TOKEN (link). Qualquer usuário logado com o link entra —
- * o token é a credencial. Idempotente. O userId vem do contexto (na action).
+ * Aceita um convite por TOKEN (link). O token + o E-MAIL do convite são a
+ * credencial: o usuário logado só entra se o e-mail dele bater com o do convite.
+ * Isso impede que um link vazado/encaminhado adicione outra pessoa à org
+ * (join cross-tenant). Idempotente. O userId vem do contexto (na action).
  */
 export async function acceptInviteByToken(
   token: string,
@@ -321,6 +323,19 @@ export async function acceptInviteByToken(
   const db = getServiceDbClient();
   const invite = await getInviteByToken(token);
   if (!invite) return { ok: false, error: "Convite inválido ou expirado." };
+
+  // O convite é vinculado ao e-mail destinatário: confere contra o usuário logado.
+  const [profile] = await db
+    .select({ email: profiles.email })
+    .from(profiles)
+    .where(eq(profiles.userId, userId))
+    .limit(1);
+  if (!profile || profile.email.toLowerCase() !== invite.email.toLowerCase()) {
+    return {
+      ok: false,
+      error: "Este convite foi enviado para outro e-mail. Entre com esse e-mail para aceitar.",
+    };
+  }
 
   await db
     .insert(organizationMembers)
