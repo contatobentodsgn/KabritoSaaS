@@ -51,7 +51,7 @@ export default function PrivacyPage() {
         </p>
 
         <h2 className="text-lg font-semibold">6. Contato do encarregado (DPO)</h2>
-        <p>privacidade@example.com</p>
+        <p>privacidade@kabritodigital.com</p>
 
         <p className="pt-2">
           Veja também os{" "}

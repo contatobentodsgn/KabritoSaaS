@@ -75,7 +75,7 @@ const TRUST = [
 const FAQS = [
   {
     q: "Preciso de cartão para começar?",
-    a: "Não. Você cria a conta grátis e começa na hora, sem cartão de crédito.",
+    a: "Não. Você cria a conta e tem 14 dias grátis, sem cartão de crédito — depois, é só assinar o plano único.",
   },
   {
     q: "A IA publica sozinha?",
@@ -185,7 +185,7 @@ export default function HomePage() {
             </div>
 
             <p className="mt-5 text-sm text-muted-foreground">
-              Grátis para começar · sem cartão de crédito
+              Teste grátis por 14 dias · sem cartão de crédito
             </p>
           </div>
         </section>
@@ -354,7 +354,7 @@ export default function HomePage() {
               </Button>
             </div>
             <p className="mt-5 text-sm text-mint-200">
-              Grátis para começar · sem cartão de crédito
+              Teste grátis por 14 dias · sem cartão de crédito
             </p>
           </div>
         </section>

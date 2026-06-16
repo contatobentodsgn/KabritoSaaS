@@ -102,7 +102,7 @@ export default function TermsPage() {
         </p>
 
         <h2 className="text-lg font-semibold">11. Contato</h2>
-        <p>contato@example.com</p>
+        <p>contato@kabritodigital.com</p>
       </section>
     </main>
   );
