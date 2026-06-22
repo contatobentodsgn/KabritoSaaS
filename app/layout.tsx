@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Inter, Newsreader } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { CookieNotice } from "@/components/cookie-notice";
 import "./globals.css";
 
 // Inter (UI/body) + Newsreader (editorial serif display) — pareamento Kabrito.
@@ -72,6 +73,7 @@ export default async function RootLayout({
           }}
         />
         {children}
+        <CookieNotice />
         <Toaster richColors position="top-center" />
       </body>
     </html>
