@@ -66,6 +66,11 @@ export default async function DashboardPage({
         updatedLabel={updatedLabel(latest?.published_at ?? null)}
         active={active}
         hasEdition={!!data}
+        cta={
+          data
+            ? { label: "Ver edição de hoje", href: `/daily-briefing/${data.edition.id}#sugestoes` }
+            : undefined
+        }
       />
 
       {active && (
@@ -90,6 +95,11 @@ export default async function DashboardPage({
         <EmptyState
           title="Nenhuma edição publicada ainda"
           description="Assim que a equipe revisar e publicar a edição do dia, o resumo aparece aqui."
+          action={
+            <Button asChild variant="blush">
+              <Link href="/prompts">Explorar prompts enquanto a edição não sai</Link>
+            </Button>
+          }
         />
       )}
 
@@ -104,7 +114,10 @@ export default async function DashboardPage({
             ]}
           />
 
-          <ContentFilters niches={niches} showFormat />
+          <div className="space-y-2">
+            <p className="k-eyebrow">Lente para pautas e headlines</p>
+            <ContentFilters niches={niches} showFormat />
+          </div>
 
           {data.briefing && (
             <BriefingSummary

@@ -20,11 +20,11 @@ import { cn } from "@/lib/utils/cn";
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/daily-briefing", label: "Edição diária", icon: Newspaper },
-  { href: "/trends", label: "Pautas", icon: TrendingUp },
+  { href: "/trends", label: "Pautas quentes", icon: TrendingUp },
   { href: "/headlines", label: "Headlines", icon: Type },
   { href: "/prompts", label: "Prompts", icon: Sparkles },
   { href: "/adaptar", label: "Adaptar ao meu nicho", icon: Wand2 },
-  { href: "/calendario", label: "Calendário", icon: CalendarRange },
+  { href: "/calendario", label: "Calendário editorial", icon: CalendarRange },
   { href: "/favorites", label: "Favoritos", icon: Heart },
   { href: "/settings/equipe", label: "Equipe", icon: Users },
   { href: "/settings", label: "Configurações", icon: Settings },
@@ -63,6 +63,7 @@ export function Sidebar({
             <Link
               key={href}
               href={href}
+              aria-current={active ? "page" : undefined}
               className={cn(itemBase, active ? itemActive : itemIdle)}
             >
               <Icon className="size-[19px]" />
@@ -75,6 +76,7 @@ export function Sidebar({
             <div className="my-2 border-t" />
             <Link
               href="/admin/review"
+              aria-current={path.startsWith("/admin") ? "page" : undefined}
               className={cn(
                 itemBase,
                 path.startsWith("/admin") ? itemActive : itemIdle,
