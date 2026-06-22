@@ -18,10 +18,39 @@ const newsreader = Newsreader({
   display: "swap",
 });
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://kabrito.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL),
   title: "Inteligência Criativa · Kabrito",
+  applicationName: "Kabrito",
   description:
-    "Central diária de inteligência criativa para criadores de conteúdo e social media. Cuidado editorial, revisão humana.",
+    "Central diária de inteligência criativa para criadores de conteúdo e social media: pautas, copy, headlines e prompts — gerados por IA e revisados por humanos antes de publicar.",
+  keywords: [
+    "inteligência criativa",
+    "social media",
+    "criação de conteúdo",
+    "pautas",
+    "copywriting",
+    "prompts de IA",
+    "Kabrito",
+  ],
+  // A imagem (app/opengraph-image.tsx) é ligada automaticamente pelo Next.
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Kabrito",
+    url: APP_URL,
+    title: "Inteligência Criativa · Kabrito",
+    description:
+      "Pautas, copy, headlines e prompts — gerados por IA e revisados por humanos antes de publicar.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Inteligência Criativa · Kabrito",
+    description:
+      "Conteúdo que cuida, com respiro — inteligência criativa diária para social media.",
+  },
 };
 
 export default async function RootLayout({
