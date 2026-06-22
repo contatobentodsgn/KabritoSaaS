@@ -20,11 +20,22 @@ export function Pills({
   );
 }
 
-/** Campo rotulado vertical. */
-export function Field({ label, children }: { label: string; children: React.ReactNode }) {
+/** Campo rotulado vertical. `action` (opcional) aparece à direita do rótulo. */
+export function Field({
+  label,
+  children,
+  action,
+}: {
+  label: string;
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) {
   return (
     <div className="space-y-1.5">
-      <p className="k-eyebrow text-muted-foreground">{label}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="k-eyebrow text-muted-foreground">{label}</p>
+        {action}
+      </div>
       <div className="text-sm leading-relaxed">{children}</div>
     </div>
   );

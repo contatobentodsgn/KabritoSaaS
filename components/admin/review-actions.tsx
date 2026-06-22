@@ -11,6 +11,7 @@ export function ReviewActions({ editionId }: { editionId: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [rejecting, setRejecting] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [reason, setReason] = useState("");
 
   function onApprove() {
@@ -40,17 +41,48 @@ export function ReviewActions({ editionId }: { editionId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        <Button onClick={onApprove} disabled={pending}>
+        <Button
+          onClick={() => {
+            setConfirming(true);
+            setRejecting(false);
+          }}
+          disabled={pending}
+        >
           Aprovar e publicar
         </Button>
         <Button
           variant="outline"
-          onClick={() => setRejecting((v) => !v)}
+          onClick={() => {
+            setRejecting((v) => !v);
+            setConfirming(false);
+          }}
           disabled={pending}
         >
           Rejeitar
         </Button>
       </div>
+      {confirming && (
+        <div className="space-y-2 rounded-md border border-mint-200 dark:border-forest-800 bg-mint-50/60 dark:bg-forest-950/40 p-3">
+          <p className="font-serif text-base text-foreground">Publicar e enviar o digest?</p>
+          <p className="text-sm text-muted-foreground">
+            A edição vai ao ar e o e-mail é enviado a todos os assinantes ativos.
+            Isso não pode ser desfeito.
+          </p>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={onApprove} disabled={pending}>
+              Publicar e enviar
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setConfirming(false)}
+              disabled={pending}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
       {rejecting && (
         <div className="space-y-2 rounded-md border border-rose-200 dark:border-rose-500/40 bg-rose-50/50 dark:bg-rose-500/15 p-3">
           <Textarea

@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Clock, CheckCircle2, CircleSlash } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /** Motivo decorativo sutil (colinas + folha + brilho) — evoca a marca sem peso. */
 function DecorMotif() {
@@ -49,11 +51,13 @@ export function DashboardHero({
   updatedLabel,
   active,
   hasEdition,
+  cta,
 }: {
   name: string;
   updatedLabel?: string | null;
   active: boolean;
   hasEdition: boolean;
+  cta?: { label: string; href: string };
 }) {
   const subtitle = !active
     ? "Ative sua assinatura para acessar a edição de hoje."
@@ -76,6 +80,13 @@ export function DashboardHero({
             {active ? "Assinatura ativa" : "Assinatura inativa"}
           </StatusPill>
         </div>
+        {cta && (
+          <div className="pt-2">
+            <Button asChild size="pill">
+              <Link href={cta.href}>{cta.label}</Link>
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
