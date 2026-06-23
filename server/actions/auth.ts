@@ -223,3 +223,23 @@ export async function signOutAction(): Promise<void> {
   await supabase.auth.signOut();
   redirect(LOGIN_ROUTE);
 }
+
+/**
+ * Encerra a sessão em TODOS os dispositivos: revoga as sessões rastreadas do
+ * usuário (user_sessions, via RLS própria) e faz signOut global (invalida todos
+ * os refresh tokens no servidor). Útil se um aparelho foi perdido/comprometido.
+ */
+export async function signOutAllDevicesAction(): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    await supabase
+      .from("user_sessions")
+      .update({ is_active: false, revoked_at: new Date().toISOString() })
+      .eq("user_id", user.id);
+  }
+  await supabase.auth.signOut({ scope: "global" });
+  redirect(LOGIN_ROUTE);
+}
