@@ -6,12 +6,15 @@ import { serverEnv } from "@/server/env";
 /**
  * RATE LIMITING (TECHNICAL_SPEC §8).
  *
- * Distribuído via **Upstash Redis** (sliding window, compartilhado entre todas
- * as instâncias serverless) quando UPSTASH_REDIS_REST_URL + _TOKEN estão
- * presentes. Sem elas (dev local / não configurado), cai no limiter EM MEMÓRIA
- * por instância — interface idêntica, degradação graciosa. Se o Redis ficar
- * indisponível em runtime, também cai no fallback (FAIL-OPEN: não trava login
- * por causa do Redis).
+ * Distribuído via **Upstash Redis** (sliding window compartilhado entre todas
+ * as instâncias serverless) quando UPSTASH_REDIS_REST_URL (https) + _TOKEN
+ * estão presentes. Sem elas — ou se mal configuradas — cai no limiter EM
+ * MEMÓRIA por instância (degradação graciosa). Se o Redis falhar em runtime,
+ * também cai no fallback (FAIL-OPEN: não trava login por causa do Redis).
+ *
+ * A construção do cliente é PREGUIÇOSA (na 1ª chamada) e protegida por
+ * try/catch — NUNCA no topo do módulo. Assim uma env ausente/inválida não
+ * pode derrubar o build (next build avalia o grafo de módulos).
  *
  * Aplicado a: login, cadastro, recuperação de senha e (MVP2) geração sob demanda.
  * Endpoints de cron são protegidos por CRON_SECRET (não por este limiter).
@@ -40,30 +43,33 @@ export const RATE_LIMITS = {
 
 export type RateLimitAction = keyof typeof RATE_LIMITS;
 
-// Cliente Redis criado uma vez, só se as duas envs existirem.
-const redis =
-  serverEnv.UPSTASH_REDIS_REST_URL && serverEnv.UPSTASH_REDIS_REST_TOKEN
-    ? new Redis({
-        url: serverEnv.UPSTASH_REDIS_REST_URL,
-        token: serverEnv.UPSTASH_REDIS_REST_TOKEN,
-      })
-    : null;
+const restUrl = serverEnv.UPSTASH_REDIS_REST_URL?.trim();
+const restToken = serverEnv.UPSTASH_REDIS_REST_TOKEN?.trim();
 
-// Uma instância de Ratelimit por ação (limites distintos), cacheada.
+// Cliente + limiters construídos sob demanda e cacheados. Nunca no load do módulo.
+let redis: Redis | null = null;
 const limiters = new Map<RateLimitAction, Ratelimit>();
-function limiterFor(action: RateLimitAction): Ratelimit {
-  let rl = limiters.get(action);
-  if (!rl) {
-    const { limit, windowMs } = RATE_LIMITS[action];
-    rl = new Ratelimit({
-      redis: redis!,
-      limiter: Ratelimit.slidingWindow(limit, `${windowMs} ms`),
-      prefix: `rl:${action}`,
-      analytics: false,
-    });
-    limiters.set(action, rl);
+
+function getLimiter(action: RateLimitAction): Ratelimit | null {
+  // Só ativa com URL REST válida (https) + token; senão, fallback em memória.
+  if (!restUrl || !restToken || !restUrl.startsWith("https://")) return null;
+  try {
+    let rl = limiters.get(action);
+    if (!rl) {
+      redis ??= new Redis({ url: restUrl, token: restToken });
+      const { limit, windowMs } = RATE_LIMITS[action];
+      rl = new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(limit, `${windowMs} ms`),
+        prefix: `rl:${action}`,
+        analytics: false,
+      });
+      limiters.set(action, rl);
+    }
+    return rl;
+  } catch {
+    return null; // construção falhou (ex.: URL/token inválidos) → fallback
   }
-  return rl;
 }
 
 /** Limiter em memória (fallback): janela deslizante simples, por instância. */
@@ -93,12 +99,13 @@ export async function consume(
   action: RateLimitAction,
   identifier: string,
 ): Promise<RateLimitResult> {
-  if (redis) {
+  const limiter = getLimiter(action);
+  if (limiter) {
     try {
-      const res = await limiterFor(action).limit(identifier);
+      const res = await limiter.limit(identifier);
       return { success: res.success, remaining: res.remaining, resetAt: res.reset };
     } catch {
-      // Redis indisponível → fail-open pro limiter em memória.
+      // Redis indisponível em runtime → fail-open pro limiter em memória.
       return consumeInMemory(action, identifier);
     }
   }
