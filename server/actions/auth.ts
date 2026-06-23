@@ -12,6 +12,7 @@ import {
 } from "@/lib/validations/auth";
 import { provisionNewUser } from "@/server/admin/provisioning";
 import { recordFailedLogin } from "@/server/admin/audit-system";
+import { isPasswordPwned } from "@/lib/security/pwned";
 import { recordLogin, recordLogout } from "@/server/services/session";
 import { consume, type RateLimitAction } from "@/server/rate-limit";
 import { serverEnv } from "@/server/env";
@@ -108,6 +109,15 @@ export async function signUpAction(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
   const { name, email, password } = parsed.data;
+
+  // Bloqueia senhas vazadas (HaveIBeenPwned) — alternativa gratuita ao Pro.
+  if (await isPasswordPwned(password)) {
+    return {
+      fieldErrors: {
+        password: ["Essa senha apareceu em vazamentos de dados. Escolha uma diferente."],
+      },
+    };
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
@@ -207,6 +217,13 @@ export async function updatePasswordAction(
   if (!user) {
     return {
       error: "Link inválido ou expirado. Peça um novo e-mail de redefinição.",
+    };
+  }
+  if (await isPasswordPwned(parsed.data.password)) {
+    return {
+      fieldErrors: {
+        password: ["Essa senha apareceu em vazamentos de dados. Escolha uma diferente."],
+      },
     };
   }
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
