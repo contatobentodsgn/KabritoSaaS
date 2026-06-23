@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { AUDIT_ACTIONS } from "@/lib/constants";
 import type {
   EditionRow,
   PlatformRow,
@@ -16,8 +17,18 @@ export interface ReviewEditionRow extends EditionRow {
   platform_name?: string;
 }
 
-/** Edições aguardando revisão (draft / pending / in_review). */
-export async function listReviewQueue(): Promise<EditionRow[]> {
+export interface QueueEdition extends EditionRow {
+  counts: { trends: number; headlines: number; suggestions: number };
+}
+
+/** Prioridade de triagem: pendentes/em-revisão antes de rejeitadas. */
+const QUEUE_ORDER: Record<string, number> = { pending: 0, in_review: 0, rejected: 1 };
+
+/**
+ * Edições aguardando revisão, com contagem por módulo (contexto de triagem) e
+ * ordenadas: pendentes primeiro, depois por data desc.
+ */
+export async function listReviewQueue(): Promise<QueueEdition[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("content_editions")
@@ -25,7 +36,50 @@ export async function listReviewQueue(): Promise<EditionRow[]> {
     .in("review_status", ["pending", "in_review", "rejected"])
     .order("edition_date", { ascending: false })
     .limit(200); // teto defensivo: a fila não cresce ilimitada na resposta
-  return (data as EditionRow[]) ?? [];
+  const editions = (data as EditionRow[]) ?? [];
+  if (editions.length === 0) return [];
+
+  // Conta os 3 módulos principais em 3 queries (não N×M) e agrega em memória.
+  const ids = editions.map((e) => e.id);
+  const tally = async (table: string): Promise<Map<string, number>> => {
+    const { data } = await supabase.from(table).select("edition_id").in("edition_id", ids);
+    const m = new Map<string, number>();
+    for (const r of (data as { edition_id: string }[] | null) ?? []) {
+      m.set(r.edition_id, (m.get(r.edition_id) ?? 0) + 1);
+    }
+    return m;
+  };
+  const [t, h, s] = await Promise.all([
+    tally("trend_items"),
+    tally("headlines"),
+    tally("content_suggestions"),
+  ]);
+
+  return editions
+    .map((e) => ({
+      ...e,
+      counts: { trends: t.get(e.id) ?? 0, headlines: h.get(e.id) ?? 0, suggestions: s.get(e.id) ?? 0 },
+    }))
+    .sort((a, b) => (QUEUE_ORDER[a.review_status] ?? 0) - (QUEUE_ORDER[b.review_status] ?? 0));
+}
+
+/**
+ * Motivo da última rejeição de uma edição (gravado em audit_logs, não em coluna).
+ * Usado para mostrar ao revisor o feedback anterior na re-revisão.
+ */
+export async function getLatestRejectionReason(editionId: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("audit_logs")
+    .select("metadata")
+    .eq("entity_type", "content_edition")
+    .eq("entity_id", editionId)
+    .eq("action", AUDIT_ACTIONS.CONTENT_REJECTED)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const reason = (data as { metadata?: { reason?: unknown } } | null)?.metadata?.reason;
+  return typeof reason === "string" ? reason : null;
 }
 
 export interface SourceRow {

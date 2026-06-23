@@ -39,6 +39,10 @@ export default async function ReviewQueuePage() {
                     <div className="min-w-0">
                       <p className="truncate font-serif text-lg font-medium leading-tight">{e.title}</p>
                       <p className="mt-0.5 text-sm text-muted-foreground">{e.edition_date}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {e.counts.trends} pautas · {e.counts.headlines} headlines ·{" "}
+                        {e.counts.suggestions} sugestões
+                      </p>
                     </div>
                     <Badge variant={s.variant}>{s.label}</Badge>
                   </CardContent>

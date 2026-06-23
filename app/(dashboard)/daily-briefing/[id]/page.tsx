@@ -8,6 +8,7 @@ import { getFavoriteKeySet } from "@/server/services/favorites";
 import { listComments } from "@/server/services/comments";
 import { PageHeader } from "@/components/layout/page-header";
 import { ContentFilters } from "@/components/dashboard/content-filters";
+import { SectionNav } from "@/components/content/section-nav";
 import { SectionTitle, EmptyState } from "@/components/content/empty-state";
 import { BriefingCard } from "@/components/content/briefing-card";
 import { TrendCard } from "@/components/content/trend-card";
@@ -55,6 +56,17 @@ export default async function EditionDetailPage({
     heads.length === 0 &&
     suggestions.length === 0;
 
+  // Sub-nav: só as seções que têm conteúdo (+ comentários sempre).
+  const sections = [
+    trends.length > 0 && { id: "pautas", label: "Pautas" },
+    data.explore_reports.length > 0 && { id: "radar", label: "Radar" },
+    data.copy_patterns.length > 0 && { id: "copy", label: "Copy" },
+    data.visual_patterns.length > 0 && { id: "visual", label: "Visual" },
+    heads.length > 0 && { id: "headlines", label: "Headlines" },
+    suggestions.length > 0 && { id: "sugestoes", label: "Sugestões" },
+    { id: "comentarios", label: "Comentários" },
+  ].filter((x): x is { id: string; label: string } => Boolean(x));
+
   return (
     <>
       <p className="mb-3">
@@ -73,6 +85,8 @@ export default async function EditionDetailPage({
       <div className="mb-6">
         <ContentFilters niches={niches} />
       </div>
+
+      <SectionNav items={sections} />
 
       {data.briefing && <BriefingCard briefing={data.briefing} />}
 
