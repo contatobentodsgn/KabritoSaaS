@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 const ROLE_LABEL: Record<MemberRole, string> = {
   owner: "Dono",
@@ -82,6 +83,8 @@ export function TeamManager({
     });
   }
 
+  const [removing, setRemoving] = useState<TeamMember | null>(null);
+
   function onChangeRole(userId: string, role: MemberRole) {
     start(async () => {
       const res = await setMemberRoleAction({ userId, role });
@@ -95,8 +98,13 @@ export function TeamManager({
   }
 
   function onRemove(member: TeamMember) {
-    const label = member.name ?? member.email;
-    if (!window.confirm(`Remover ${label} do workspace?`)) return;
+    setRemoving(member);
+  }
+
+  function confirmRemove() {
+    const member = removing;
+    if (!member) return;
+    setRemoving(null);
     start(async () => {
       const res = await removeMemberAction({ userId: member.userId });
       if (res.ok) {
@@ -264,6 +272,21 @@ export function TeamManager({
           </CardContent>
         </Card>
       )}
+
+      <ConfirmDialog
+        open={!!removing}
+        title="Remover do workspace?"
+        description={
+          removing
+            ? `${removing.name ?? removing.email} perde o acesso a este workspace.`
+            : undefined
+        }
+        confirmLabel="Remover"
+        destructive
+        pending={pending}
+        onConfirm={confirmRemove}
+        onCancel={() => setRemoving(null)}
+      />
     </div>
   );
 }
