@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCurrentProfile, getCurrentOrganization } from "@/server/auth/session";
+import { getMfaStatus } from "@/server/auth/mfa";
 import { getCurrentSubscription, hasActiveSubscription } from "@/server/permissions";
 import { PageHeader } from "@/components/layout/page-header";
 import {
@@ -11,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { DeleteAccount } from "@/components/forms/delete-account";
 import { SignOutAll } from "@/components/forms/sign-out-all";
+import { MfaSettings } from "@/components/forms/mfa-settings";
 import { AvatarUpload } from "@/components/forms/avatar-upload";
 import { SubscribeOptions } from "@/components/forms/checkout-button";
 import { STRIPE_ENABLED } from "@/server/admin/stripe";
@@ -30,11 +32,12 @@ export default async function SettingsPage({
   searchParams: Promise<{ inactive?: string; billing?: string }>;
 }) {
   const { inactive, billing } = await searchParams;
-  const [profile, org, sub, active] = await Promise.all([
+  const [profile, org, sub, active, mfa] = await Promise.all([
     getCurrentProfile(),
     getCurrentOrganization(),
     getCurrentSubscription(),
     hasActiveSubscription(),
+    getMfaStatus(),
   ]);
 
   return (
@@ -111,12 +114,19 @@ export default async function SettingsPage({
           <CardHeader>
             <CardTitle className="text-base">Sessões e segurança</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>
-              Seu acesso é limitado a poucos dispositivos ativos — ao entrar num
-              aparelho novo além do limite, o mais antigo é desconectado.
-            </p>
-            <SignOutAll />
+          <CardContent className="space-y-4 text-sm text-muted-foreground">
+            <div className="space-y-2">
+              <p className="font-medium text-foreground">Verificação em duas etapas (2FA)</p>
+              <MfaSettings enrolled={mfa.enrolled} factorId={mfa.factorId} />
+            </div>
+            <div className="space-y-2 border-t border-border pt-4">
+              <p className="font-medium text-foreground">Dispositivos</p>
+              <p>
+                Seu acesso é limitado a poucos dispositivos ativos — ao entrar num
+                aparelho novo além do limite, o mais antigo é desconectado.
+              </p>
+              <SignOutAll />
+            </div>
           </CardContent>
         </Card>
 
