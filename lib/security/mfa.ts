@@ -7,4 +7,4 @@
  * /admin — fica atrás deste flag, DESLIGADO por padrão. Assim ninguém é trancado
  * fora: dá para testar o enroll no ambiente real e só então ligar o flag.
  */
-export const MFA_ENFORCE = false;
+export const MFA_ENFORCE = true;
