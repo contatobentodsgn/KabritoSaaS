@@ -12,6 +12,7 @@ import {
 } from "@/server/services/content";
 import { listFavorites } from "@/server/services/favorites";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
+import { OnboardingWelcome } from "@/components/dashboard/onboarding-welcome";
 import { PlatformSwitcher } from "@/components/dashboard/platform-switcher";
 import { StatStrip } from "@/components/dashboard/stat-strip";
 import { ContentFilters } from "@/components/dashboard/content-filters";
@@ -68,6 +69,8 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-6">
+      {active && <OnboardingWelcome name={name} />}
+
       <DashboardHero
         name={name}
         updatedLabel={updatedLabel(latest?.published_at ?? null)}

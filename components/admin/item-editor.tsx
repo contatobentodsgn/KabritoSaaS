@@ -9,6 +9,7 @@ import type { EditableTable } from "@/lib/validations/admin";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export interface EditableField {
   name: string;
@@ -35,6 +36,7 @@ export function ItemEditor({
     [fields],
   );
   const [values, setValues] = useState<Record<string, string>>(initial);
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   // Só os campos realmente alterados são salvos — um único "Salvar alterações".
   const dirty = fields.filter((f) => (values[f.name] ?? "") !== initial[f.name]);
@@ -54,8 +56,8 @@ export function ItemEditor({
     });
   }
 
-  function remove() {
-    if (!confirm("Remover este item da edição?")) return;
+  function doRemove() {
+    setConfirmRemove(false);
     start(async () => {
       const res = await deleteItem({ table, id });
       if (res.ok) {
@@ -69,7 +71,7 @@ export function ItemEditor({
     <div className="rounded-lg border bg-card p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="font-serif text-base font-medium leading-tight">{title}</p>
-        <Button variant="ghost" size="icon" onClick={remove} disabled={pending} aria-label="Remover item">
+        <Button variant="ghost" size="icon" onClick={() => setConfirmRemove(true)} disabled={pending} aria-label="Remover item">
           <Trash2 className="size-4 text-destructive" />
         </Button>
       </div>
@@ -95,6 +97,17 @@ export function ItemEditor({
           </span>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmRemove}
+        title="Remover este item?"
+        description="O item sai da edição. Isso não pode ser desfeito."
+        confirmLabel="Remover"
+        destructive
+        pending={pending}
+        onConfirm={doRemove}
+        onCancel={() => setConfirmRemove(false)}
+      />
     </div>
   );
 }
