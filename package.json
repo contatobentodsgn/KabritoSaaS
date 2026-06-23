@@ -15,6 +15,7 @@
     "seed:editions": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx db/seed-editions.ts",
     "setup:storage": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx db/setup-storage.ts",
     "check:supabase": "node --env-file-if-exists=.env.local --import tsx db/check-supabase.ts",
+    "check:upstash": "node --env-file-if-exists=.env.local --import tsx server/rate-limit/check-upstash.ts",
     "test": "vitest run",
     "test:rls": "vitest run tests/rls",
     "pipeline:run": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx server/pipeline/cli.ts",
