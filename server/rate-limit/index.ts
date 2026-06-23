@@ -1,9 +1,17 @@
+import "server-only";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+import { serverEnv } from "@/server/env";
+
 /**
- * Estrutura de RATE LIMITING (TECHNICAL_SPEC §8).
+ * RATE LIMITING (TECHNICAL_SPEC §8).
  *
- * MVP: limiter em memória (janela deslizante simples, por instância). A
- * interface já está pronta para trocar por Upstash Redis (distribuído) no
- * futuro — basta reimplementar `consume()` chamando o Redis.
+ * Distribuído via **Upstash Redis** (sliding window, compartilhado entre todas
+ * as instâncias serverless) quando UPSTASH_REDIS_REST_URL + _TOKEN estão
+ * presentes. Sem elas (dev local / não configurado), cai no limiter EM MEMÓRIA
+ * por instância — interface idêntica, degradação graciosa. Se o Redis ficar
+ * indisponível em runtime, também cai no fallback (FAIL-OPEN: não trava login
+ * por causa do Redis).
  *
  * Aplicado a: login, cadastro, recuperação de senha e (MVP2) geração sob demanda.
  * Endpoints de cron são protegidos por CRON_SECRET (não por este limiter).
@@ -32,11 +40,37 @@ export const RATE_LIMITS = {
 
 export type RateLimitAction = keyof typeof RATE_LIMITS;
 
-/** Consome 1 do bucket `action:identifier`. Retorna success=false se estourou. */
-export async function consume(
+// Cliente Redis criado uma vez, só se as duas envs existirem.
+const redis =
+  serverEnv.UPSTASH_REDIS_REST_URL && serverEnv.UPSTASH_REDIS_REST_TOKEN
+    ? new Redis({
+        url: serverEnv.UPSTASH_REDIS_REST_URL,
+        token: serverEnv.UPSTASH_REDIS_REST_TOKEN,
+      })
+    : null;
+
+// Uma instância de Ratelimit por ação (limites distintos), cacheada.
+const limiters = new Map<RateLimitAction, Ratelimit>();
+function limiterFor(action: RateLimitAction): Ratelimit {
+  let rl = limiters.get(action);
+  if (!rl) {
+    const { limit, windowMs } = RATE_LIMITS[action];
+    rl = new Ratelimit({
+      redis: redis!,
+      limiter: Ratelimit.slidingWindow(limit, `${windowMs} ms`),
+      prefix: `rl:${action}`,
+      analytics: false,
+    });
+    limiters.set(action, rl);
+  }
+  return rl;
+}
+
+/** Limiter em memória (fallback): janela deslizante simples, por instância. */
+function consumeInMemory(
   action: RateLimitAction,
   identifier: string,
-): Promise<RateLimitResult> {
+): RateLimitResult {
   const { limit, windowMs } = RATE_LIMITS[action];
   const key = `${action}:${identifier}`;
   const now = Date.now();
@@ -54,7 +88,24 @@ export async function consume(
   };
 }
 
-/** Limpeza oportunista de buckets expirados (evita vazamento de memória). */
+/** Consome 1 do bucket `action:identifier`. Retorna success=false se estourou. */
+export async function consume(
+  action: RateLimitAction,
+  identifier: string,
+): Promise<RateLimitResult> {
+  if (redis) {
+    try {
+      const res = await limiterFor(action).limit(identifier);
+      return { success: res.success, remaining: res.remaining, resetAt: res.reset };
+    } catch {
+      // Redis indisponível → fail-open pro limiter em memória.
+      return consumeInMemory(action, identifier);
+    }
+  }
+  return consumeInMemory(action, identifier);
+}
+
+/** Limpeza oportunista de buckets em memória expirados (evita vazamento). */
 export function sweep(now = Date.now()) {
   for (const [k, b] of store) if (b.resetAt <= now) store.delete(k);
 }

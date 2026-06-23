@@ -18,6 +18,10 @@ export const serverEnv = {
   CRON_SECRET: process.env.CRON_SECRET,
   AI_API_KEY: process.env.AI_API_KEY,
   AI_MODEL: process.env.AI_MODEL ?? "claude-3-5-sonnet-latest",
+  // Rate-limit distribuído (Upstash Redis REST). Vazias = cai no limiter em
+  // memória por instância (dev local / não configurado). Ambas presentes = ativa.
+  UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+  UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
   // Provider de IA — desacopla de um fornecedor único:
   //  - AI_PROVIDER: "anthropic" (API nativa) | "openai" (Chat Completions compatível)
   //    Vazio = auto (openai se AI_BASE_URL setado, senão anthropic).
