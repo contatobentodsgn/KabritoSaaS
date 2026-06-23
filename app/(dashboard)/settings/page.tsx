@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DeleteAccount } from "@/components/forms/delete-account";
+import { SignOutAll } from "@/components/forms/sign-out-all";
 import { AvatarUpload } from "@/components/forms/avatar-upload";
 import { SubscribeOptions } from "@/components/forms/checkout-button";
 import { STRIPE_ENABLED } from "@/server/admin/stripe";
@@ -103,6 +104,19 @@ export default async function SettingsPage({
                 concedido manualmente pela equipe.
               </p>
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Sessões e segurança</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <p>
+              Seu acesso é limitado a poucos dispositivos ativos — ao entrar num
+              aparelho novo além do limite, o mais antigo é desconectado.
+            </p>
+            <SignOutAll />
           </CardContent>
         </Card>
 
