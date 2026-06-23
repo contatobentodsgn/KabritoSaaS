@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireStaff } from "@/server/permissions";
+import { getMfaStatus } from "@/server/auth/mfa";
+import { MFA_ENFORCE } from "@/lib/security/mfa";
 import { signOutAction } from "@/server/actions/auth";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { Button } from "@/components/ui/button";
@@ -15,6 +18,13 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const role = await requireStaff();
+  // 2FA obrigatório para staff (atrás do flag OFF): sem fator → ativar; com
+  // fator mas em aal1 → verificar. Hoje o flag está desligado (no-op).
+  if (MFA_ENFORCE) {
+    const mfa = await getMfaStatus();
+    if (!mfa.enrolled) redirect("/settings?mfa=required");
+    if (mfa.pendingAal2) redirect("/verificar");
+  }
 
   return (
     <div className="min-h-screen bg-background">

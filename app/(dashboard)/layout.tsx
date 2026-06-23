@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireAuth, getCurrentProfile } from "@/server/auth/session";
+import { getMfaStatus } from "@/server/auth/mfa";
+import { MFA_ENFORCE } from "@/lib/security/mfa";
 import { isStaff } from "@/server/permissions";
 import { signOutAction } from "@/server/actions/auth";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -17,6 +20,11 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   await requireAuth();
+  // 2FA (atrás do flag OFF): quem ativou precisa verificar no login (aal1→aal2).
+  if (MFA_ENFORCE) {
+    const mfa = await getMfaStatus();
+    if (mfa.pendingAal2) redirect("/verificar");
+  }
   const [profile, staff] = await Promise.all([getCurrentProfile(), isStaff()]);
 
   return (
