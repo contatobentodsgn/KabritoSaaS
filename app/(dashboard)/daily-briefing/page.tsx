@@ -8,6 +8,7 @@ import {
 } from "@/server/services/content";
 import { PageHeader } from "@/components/layout/page-header";
 import { PlatformSwitcher } from "@/components/dashboard/platform-switcher";
+import { NextBestAction } from "@/components/dashboard/next-best-action";
 import { EmptyState } from "@/components/content/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +42,16 @@ export default async function DailyBriefingHistoryPage({
       {platforms.length > 1 && (
         <div className="mb-6">
           <PlatformSwitcher platforms={platforms} current={slug} />
+        </div>
+      )}
+
+      {editions[0] && (
+        <div className="mb-6">
+          <NextBestAction
+            text="Sua edição mais recente — pautas, headlines e prompts prontos para revisar."
+            href={`/daily-briefing/${editions[0].id}`}
+            cta="Abrir edição mais recente"
+          />
         </div>
       )}
 

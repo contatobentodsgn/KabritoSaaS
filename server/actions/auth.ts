@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import {
   loginSchema,
@@ -128,13 +129,30 @@ export async function signUpAction(
   if (!data.session) {
     return {
       ok: true,
-      message:
-        "Conta criada! Confirme seu e-mail para entrar. (Se a confirmação estiver desativada, faça login.)",
+      email,
+      message: "Conta criada! Confirme seu e-mail para entrar.",
     };
   }
 
   await recordLogin(data.user.id);
   redirect(DEFAULT_REDIRECT);
+}
+
+/**
+ * Reenvia o e-mail de confirmação de cadastro. Rate-limited; anti-enumeração
+ * (resposta sempre igual). Usado no estado de sucesso do cadastro.
+ */
+export async function resendConfirmationAction(email: string): Promise<FormState> {
+  if (await limited("register")) {
+    return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+  }
+  if (!z.string().email().safeParse(email).success) {
+    return { error: "E-mail inválido." };
+  }
+  const supabase = await createClient();
+  // Erros silenciados de propósito (não vazar existência/estado da conta).
+  await supabase.auth.resend({ type: "signup", email });
+  return { ok: true, message: "Link reenviado. Confira sua caixa de entrada (e o spam)." };
 }
 
 /**

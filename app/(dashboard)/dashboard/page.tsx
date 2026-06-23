@@ -54,10 +54,17 @@ export default async function DashboardPage({
   const lensQuery = lensParams.toString();
 
   const latest = active ? await getLatestEdition(slug) : null;
-  const [data, favorites] = latest
-    ? await Promise.all([getEditionWithModules(latest.id), listFavorites()])
-    : [null, []];
+  // Favoritos são buscados sempre que ativo (úteis mesmo sem edição do dia).
+  const [data, favorites] = await Promise.all([
+    latest ? getEditionWithModules(latest.id) : Promise.resolve(null),
+    active ? listFavorites() : Promise.resolve([]),
+  ]);
   const name = profile?.name ?? "criador";
+
+  // Cards que funcionam SEM a edição do dia (não ficam num beco sem saída).
+  const independentKeys = enabledCardKeys.filter((k) =>
+    ["prompts", "favorites", "adaptar", "calendario"].includes(k),
+  );
 
   return (
     <div className="space-y-6">
@@ -92,15 +99,27 @@ export default async function DashboardPage({
       )}
 
       {active && !data && (
-        <EmptyState
-          title="Nenhuma edição publicada ainda"
-          description="Assim que a equipe revisar e publicar a edição do dia, o resumo aparece aqui."
-          action={
-            <Button asChild variant="blush">
-              <Link href="/prompts">Explorar prompts enquanto a edição não sai</Link>
-            </Button>
-          }
-        />
+        <>
+          <EmptyState
+            title="Nenhuma edição publicada ainda"
+            description="Assim que a equipe revisar e publicar a edição do dia, o resumo aparece aqui. Enquanto isso, estes recursos não dependem da edição:"
+          />
+          {independentKeys.length > 0 && (
+            <QuickAccess
+              editionId=""
+              orderedKeys={independentKeys}
+              counts={{
+                trends: 0,
+                explore: 0,
+                copy: 0,
+                suggestions: 0,
+                headlines: 0,
+                visual: 0,
+                favorites: favorites.length,
+              }}
+            />
+          )}
+        </>
       )}
 
       {active && data && (

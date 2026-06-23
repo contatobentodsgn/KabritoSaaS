@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditionWithModules } from "@/server/services/content";
+import { getLatestRejectionReason } from "@/server/services/admin";
 import { PageHeader } from "@/components/layout/page-header";
 import { SectionTitle } from "@/components/content/empty-state";
 import { ReviewActions } from "@/components/admin/review-actions";
@@ -19,11 +20,27 @@ export default async function ReviewDetailPage({
   const data = await getEditionWithModules(id); // staff vê draft via RLS
   if (!data) notFound();
 
+  const rejectionReason =
+    data.edition.review_status === "rejected"
+      ? await getLatestRejectionReason(data.edition.id)
+      : null;
+
   return (
     <>
       <PageHeader title={data.edition.title} description={`${data.edition.edition_date}`}>
         <Badge variant="forest">{data.edition.status}</Badge>
       </PageHeader>
+
+      {rejectionReason && (
+        <Card className="mb-6 border-rose-200 dark:border-rose-500/40 bg-rose-50/60 dark:bg-rose-500/10">
+          <CardContent className="py-4">
+            <span className="k-eyebrow text-rose-700 dark:text-blush-300">
+              Rejeitada anteriormente — motivo registrado
+            </span>
+            <p className="mt-1 text-sm leading-relaxed text-foreground">{rejectionReason}</p>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="mb-6 border-rose-200 dark:border-rose-500/40 bg-rose-50/60 shadow-k-1">
         <CardHeader className="pb-3">

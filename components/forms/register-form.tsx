@@ -1,16 +1,58 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useTransition } from "react";
 import Link from "next/link";
-import { signUpAction } from "@/server/actions/auth";
+import { Mail } from "lucide-react";
+import { toast } from "sonner";
+import { signUpAction, resendConfirmationAction } from "@/server/actions/auth";
 import { emptyFormState } from "@/server/actions/types";
 import { PASSWORD_RULES_HINT } from "@/lib/validations/auth";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/forms/submit-button";
 
 export function RegisterForm() {
   const [state, action] = useActionState(signUpAction, emptyFormState);
+  const [resending, startResend] = useTransition();
+
+  // Estado de SUCESSO: conta criada, falta confirmar o e-mail (sem sessão).
+  if (state.ok && state.email) {
+    const email = state.email;
+    const resend = () => {
+      startResend(async () => {
+        const res = await resendConfirmationAction(email);
+        if (res.error) toast.error(res.error);
+        else toast.success(res.message ?? "Link reenviado.");
+      });
+    };
+    return (
+      <div className="space-y-5 text-center">
+        <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-mint-100 text-forest-600 dark:bg-forest-900 dark:text-forest-300">
+          <Mail className="size-6" strokeWidth={1.5} />
+        </span>
+        <div className="space-y-1.5">
+          <h2 className="font-serif text-xl text-foreground">Confirme seu e-mail</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Enviamos um link de confirmação para{" "}
+            <span className="font-medium text-foreground">{email}</span>. Abra o
+            e-mail para ativar sua conta e entrar.
+          </p>
+        </div>
+        <div className="flex flex-col items-center gap-3">
+          <Button variant="outline" onClick={resend} disabled={resending}>
+            {resending ? "Reenviando..." : "Reenviar link"}
+          </Button>
+          <Link
+            href="/login"
+            className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+          >
+            Voltar ao login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form action={action} className="space-y-5">
@@ -51,14 +93,6 @@ export function RegisterForm() {
           className="rounded-sm border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive"
         >
           {state.error}
-        </p>
-      )}
-      {state.message && (
-        <p
-          role="status"
-          className="rounded-sm border border-forest-200 dark:border-forest-700 bg-forest-50 dark:bg-forest-900 px-3 py-2 text-sm text-forest-700 dark:text-forest-200"
-        >
-          {state.message}
         </p>
       )}
       <SubmitButton className="w-full" pendingText="Criando conta...">
