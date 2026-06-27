@@ -16,6 +16,7 @@
     "setup:storage": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx db/setup-storage.ts",
     "check:supabase": "node --env-file-if-exists=.env.local --import tsx db/check-supabase.ts",
     "check:upstash": "node --env-file-if-exists=.env.local --import tsx server/rate-limit/check-upstash.ts",
+    "db:backup": "node --env-file-if-exists=.env.local --import tsx db/backup.ts",
     "check:resend": "node --env-file-if-exists=.env.local --import tsx server/admin/check-resend.ts",
     "test": "vitest run",
     "test:rls": "vitest run tests/rls",
