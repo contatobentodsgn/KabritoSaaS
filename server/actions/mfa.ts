@@ -67,6 +67,11 @@ export async function verifyLoginMfaAction(
 ): Promise<MfaResult> {
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
-  if (error) return { ok: false, error: "Código inválido. Tente de novo." };
+  if (error) {
+    return {
+      ok: false,
+      error: "Código inválido. Confira o código atual no app autenticador e tente de novo.",
+    };
+  }
   redirect(DEFAULT_REDIRECT);
 }

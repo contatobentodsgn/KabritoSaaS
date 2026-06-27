@@ -56,7 +56,7 @@ export default async function AnalyticsPage() {
       {!hasData ? (
         <EmptyState
           title="Ainda sem sinais de uso"
-          description="Assim que o pipeline gerar edições e os assinantes salvarem favoritos, os agregados aparecem aqui."
+          description="Assim que a primeira edição for gerada e os assinantes salvarem favoritos, os números aparecem aqui."
         />
       ) : (
         <div className="space-y-8">
