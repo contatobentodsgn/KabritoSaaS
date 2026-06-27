@@ -40,3 +40,10 @@ npm-debug.log*
 /dist
 *.dmg
 *.zip
+
+# backups do banco — contêm DADOS DE USUÁRIO; o repo é PÚBLICO, então NUNCA
+# versionar. O db:backup grava em ~/kabrito-backups (fora do repo); estes
+# padrões são defesa extra caso algum dump caia aqui.
+/backups/
+*.sql.gz
+kabrito-*.sql
