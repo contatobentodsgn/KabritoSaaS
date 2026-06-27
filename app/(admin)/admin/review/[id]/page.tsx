@@ -25,11 +25,28 @@ export default async function ReviewDetailPage({
       ? await getLatestRejectionReason(data.edition.id)
       : null;
 
+  const isPublished = data.edition.status === "published";
+  const statusBadge = isPublished
+    ? { label: "Publicada · no ar", variant: "forest" as const }
+    : data.edition.review_status === "rejected"
+      ? { label: "Rascunho · rejeitada", variant: "destructive" as const }
+      : { label: "Rascunho da IA · não publicada", variant: "warning" as const };
+
   return (
     <>
       <PageHeader title={data.edition.title} description={`${data.edition.edition_date}`}>
-        <Badge variant="forest">{data.edition.status}</Badge>
+        <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
       </PageHeader>
+
+      {!isPublished && (
+        <p className="mb-6 flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-foreground">
+          <span aria-hidden>🔒</span>
+          <span>
+            Rascunho gerado por IA — <strong>ainda NÃO publicado</strong>. Nada vai
+            ao ar até você aprovar.
+          </span>
+        </p>
+      )}
 
       {rejectionReason && (
         <Card className="mb-6 border-rose-200 dark:border-rose-500/40 bg-rose-50/60 dark:bg-rose-500/10">

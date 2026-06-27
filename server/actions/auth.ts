@@ -114,7 +114,9 @@ export async function signUpAction(
   if (await isPasswordPwned(password)) {
     return {
       fieldErrors: {
-        password: ["Essa senha apareceu em vazamentos de dados. Escolha uma diferente."],
+        password: [
+          "Essa senha já apareceu em vazamentos públicos de outros sites (não foi a sua conta que vazou). Por segurança, escolha uma senha diferente.",
+        ],
       },
     };
   }
@@ -222,7 +224,9 @@ export async function updatePasswordAction(
   if (await isPasswordPwned(parsed.data.password)) {
     return {
       fieldErrors: {
-        password: ["Essa senha apareceu em vazamentos de dados. Escolha uma diferente."],
+        password: [
+          "Essa senha já apareceu em vazamentos públicos de outros sites (não foi a sua conta que vazou). Por segurança, escolha uma senha diferente.",
+        ],
       },
     };
   }

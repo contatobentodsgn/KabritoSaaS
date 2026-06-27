@@ -26,7 +26,7 @@ export default async function ReviewQueuePage() {
       {editions.length === 0 ? (
         <EmptyState
           title="Nada para revisar agora"
-          description="As edições geradas pelo pipeline aparecem aqui como rascunho, prontas para a sua leitura."
+          description="As edições geradas automaticamente aparecem aqui como rascunho, prontas para a sua leitura — nada é publicado sem a sua aprovação."
         />
       ) : (
         <div className="grid gap-3">

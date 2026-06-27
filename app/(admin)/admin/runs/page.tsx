@@ -26,7 +26,10 @@ export default async function RunsPage() {
         description={`Custo total registrado: US$ ${totalCost.toFixed(4)}`}
       />
       {runs.length === 0 ? (
-        <EmptyState title="Nenhum run ainda" description="Rode o pipeline para gerar edições." />
+        <EmptyState
+          title="Nenhuma geração ainda"
+          description="Quando uma edição for gerada, o custo e o histórico de execuções aparecem aqui."
+        />
       ) : (
         <Card className="overflow-hidden">
           <CardContent className="p-0">
