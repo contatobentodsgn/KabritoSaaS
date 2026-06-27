@@ -46,12 +46,12 @@ try {
   await db.insert(profiles).values({ userId: tokenInviteeId, name: "Token", email: `token-${suffix}@e2e.test` });
   const acc = await acceptInviteByToken(token, tokenInviteeId);
   check("aceite por token ok", acc.ok === true);
-  let members = await listMembers(org!.id);
+  let members = await listMembers(org!.id, ownerId);
   check("convidado entrou como member", members.some((m) => m.userId === tokenInviteeId && m.role === "member"));
 
   // Idempotência: aceitar de novo não duplica.
   await acceptInviteByToken(token, tokenInviteeId);
-  members = await listMembers(org!.id);
+  members = await listMembers(org!.id, ownerId);
   check("idempotente (sem duplicar membership)", members.filter((m) => m.userId === tokenInviteeId).length === 1);
 
   // ── Fluxo 2: auto-aceite por e-mail (cadastro/login) ──
@@ -59,7 +59,7 @@ try {
   await db.insert(profiles).values({ userId: autoInviteeId, name: "Auto", email: `auto-${suffix}@e2e.test` });
   const n = await acceptPendingInvites(autoInviteeId, `auto-${suffix}@e2e.test`);
   check("auto-aceite processou 1 convite", n === 1);
-  members = await listMembers(org!.id);
+  members = await listMembers(org!.id, ownerId);
   check("entrou como admin via auto-aceite", members.some((m) => m.userId === autoInviteeId && m.role === "admin"));
 } finally {
   // Limpeza (cascade remove members/invites da org).
