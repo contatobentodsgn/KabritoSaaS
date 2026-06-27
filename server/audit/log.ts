@@ -26,7 +26,13 @@ export async function recordAudit(params: {
       entity_id: params.entityId ?? null,
       metadata: params.metadata ?? null,
     });
-  } catch {
-    // best-effort
+  } catch (err) {
+    // Best-effort (nunca quebra a ação principal), mas OBSERVÁVEL: um furo na
+    // trilha de auditoria não pode ser invisível (G7 — auditoria confiável).
+    console.error(
+      "[audit] falha ao registrar evento:",
+      params.action,
+      err instanceof Error ? err.message : String(err),
+    );
   }
 }

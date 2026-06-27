@@ -51,7 +51,10 @@ export async function approveEdition(editionId: string): Promise<ActionResult> {
   const now = new Date();
   const expires = new Date(now.getTime() + retentionDays * 86_400_000);
 
-  const { error } = await supabase
+  // G8 — guarda de estado: só aprova edição AGUARDANDO revisão. Sem isto, um
+  // UPDATE por id republicaria uma edição já arquivada/rejeitada (quebra o ciclo
+  // de vida). `.select()` revela quantas linhas casaram: 0 = estado inválido.
+  const { data: updated, error } = await supabase
     .from("content_editions")
     .update({
       status: "published",
@@ -61,8 +64,13 @@ export async function approveEdition(editionId: string): Promise<ActionResult> {
       reviewed_at: now.toISOString(),
       content_expires_at: expires.toISOString(),
     })
-    .eq("id", editionId);
+    .eq("id", editionId)
+    .eq("review_status", "pending")
+    .select("id");
   if (error) return { ok: false, error: "Falha ao publicar." };
+  if (!updated || updated.length === 0) {
+    return { ok: false, error: "Esta edição não está aguardando aprovação." };
+  }
 
   await recordAudit({
     action: AUDIT_ACTIONS.CONTENT_PUBLISHED,
