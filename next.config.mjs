@@ -25,7 +25,9 @@ const nextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            // Desliga APIs sensíveis não usadas + opt-out do Topics API do Chrome
+            // (browsing-topics) — privacidade, sem custo.
+            value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
           },
         ],
       },
