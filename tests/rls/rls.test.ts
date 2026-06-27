@@ -457,3 +457,87 @@ describe("6.11 dashboard_cards — leitura geral, escrita só staff", () => {
     expect(res.count).toBe(1);
   });
 });
+
+/* ===========================================================================
+ * 6.12 ISOLAMENTO DE ESCRITA CROSS-ORG (regressão — auditoria de tenant)
+ * O 6.3 cobre a LEITURA cross-org; aqui travamos a ESCRITA: um outsider (B, da
+ * org B) NÃO insere/atualiza/apaga recursos da org A. Inclui a invariante
+ * "subscriptions só é escrita via service_role" (nem o próprio owner escreve).
+ * =========================================================================== */
+describe("6.12 Escrita cross-org — outsider (B) não escreve na org A", () => {
+  // G1 — organization_members (raiz da cadeia de autorização)
+  it("B NÃO se auto-insere como membro/owner da org A (WITH CHECK rejeita)", async () => {
+    await expect(
+      asUser(
+        f.userB,
+        (tx) =>
+          tx`insert into organization_members (organization_id, user_id, role) values (${f.orgA}, ${f.userB}, 'owner')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("B NÃO altera o papel de um membro da org A (0 linhas)", async () => {
+    const res = await asUser(
+      f.userB,
+      (tx) =>
+        tx`update organization_members set role = 'admin' where organization_id = ${f.orgA} and user_id = ${f.userC}`,
+    );
+    expect(res.count).toBe(0);
+  });
+
+  it("B NÃO remove um membro da org A (0 linhas)", async () => {
+    const res = await asUser(
+      f.userB,
+      (tx) =>
+        tx`delete from organization_members where organization_id = ${f.orgA} and user_id = ${f.userC}`,
+    );
+    expect(res.count).toBe(0);
+  });
+
+  // G2 — organizations
+  it("B NÃO renomeia a organização A (0 linhas)", async () => {
+    const res = await asUser(
+      f.userB,
+      (tx) => tx`update organizations set name = 'Hijacked' where id = ${f.orgA}`,
+    );
+    expect(res.count).toBe(0);
+  });
+
+  // G3 — subscriptions (sem policy de escrita p/ JWT: nem cross-org, nem o owner)
+  it("B NÃO altera a assinatura da org A (0 linhas)", async () => {
+    const res = await asUser(
+      f.userB,
+      (tx) =>
+        tx`update subscriptions set subscription_status = 'canceled' where organization_id = ${f.orgA}`,
+    );
+    expect(res.count).toBe(0);
+  });
+
+  it("nem o próprio owner (A) escreve em subscriptions — só service_role (0 linhas)", async () => {
+    const res = await asUser(
+      f.userA,
+      (tx) =>
+        tx`update subscriptions set subscription_status = 'canceled' where organization_id = ${f.orgA}`,
+    );
+    expect(res.count).toBe(0);
+  });
+
+  // G4 — org_invites
+  it("B (outsider) NÃO cria convite na org A (WITH CHECK rejeita)", async () => {
+    await expect(
+      asUser(
+        f.userB,
+        (tx) =>
+          tx`insert into org_invites (organization_id, email, role, token) values (${f.orgA}, 'evil@example.com', 'member', ${crypto.randomUUID()})`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("B NÃO cancela convite pendente da org A (0 linhas)", async () => {
+    const res = await asUser(
+      f.userB,
+      (tx) => tx`delete from org_invites where id = ${f.inviteId}`,
+    );
+    expect(res.count).toBe(0);
+  });
+});
