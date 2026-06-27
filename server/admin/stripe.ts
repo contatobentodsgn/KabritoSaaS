@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { desc, eq } from "drizzle-orm";
 import { serverEnv, requireEnv } from "@/server/env";
 import { getServiceDbClient } from "@/server/db/service-client";
-import { subscriptions } from "@/db/schema";
+import { subscriptions, organizations } from "@/db/schema";
 import { ensureSinglePlan } from "@/server/admin/billing";
 
 /**
@@ -119,7 +119,29 @@ async function upsertOrgSubscription(input: {
   currentPeriodStart?: Date | null;
   currentPeriodEnd?: Date | null;
 }): Promise<void> {
+  // Defesa-em-profundidade (G6): organizationId vem da metadata do Stripe. Mesmo
+  // com o webhook validado por HMAC, não gravamos assinatura para uma org que
+  // não existe — evita linha órfã / vínculo forjado se a metadata for adulterada.
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      input.organizationId,
+    )
+  ) {
+    console.warn("[stripe] evento ignorado: organizationId mal-formado.");
+    return;
+  }
   const db = getServiceDbClient();
+  const [org] = await db
+    .select({ id: organizations.id })
+    .from(organizations)
+    .where(eq(organizations.id, input.organizationId))
+    .limit(1);
+  if (!org) {
+    console.warn(
+      `[stripe] evento ignorado: organização ${input.organizationId} não existe.`,
+    );
+    return;
+  }
   const plan = await ensureSinglePlan();
 
   const [existing] = await db
