@@ -81,7 +81,7 @@ export async function addMemberAction(input: unknown): Promise<InviteResult> {
   const { email, role } = parsed.data;
   const existingUserId = await findUserIdByEmail(email);
   if (existingUserId) {
-    await addMemberById(ctx.orgId, existingUserId, role);
+    await addMemberById(ctx.orgId, existingUserId, role, ctx.userId);
     await recordAudit({
       action: AUDIT_ACTIONS.MEMBER_ADDED,
       entityType: "organization_member",
@@ -144,7 +144,7 @@ export async function cancelInviteAction(input: unknown): Promise<ActionResult> 
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
 
-  const res = await cancelInvite(ctx.orgId, parsed.data.inviteId);
+  const res = await cancelInvite(ctx.orgId, parsed.data.inviteId, ctx.userId);
   if (res.ok) {
     await recordAudit({
       action: AUDIT_ACTIONS.INVITE_CANCELLED,
@@ -164,7 +164,7 @@ export async function setMemberRoleAction(input: unknown): Promise<ActionResult>
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
 
-  const res = await setMemberRole(ctx.orgId, parsed.data.userId, parsed.data.role);
+  const res = await setMemberRole(ctx.orgId, parsed.data.userId, parsed.data.role, ctx.userId);
   if (res.ok) {
     await recordAudit({
       action: AUDIT_ACTIONS.MEMBER_ROLE_CHANGED,
@@ -185,7 +185,7 @@ export async function removeMemberAction(input: unknown): Promise<ActionResult> 
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
 
-  const res = await removeMember(ctx.orgId, parsed.data.userId);
+  const res = await removeMember(ctx.orgId, parsed.data.userId, ctx.userId);
   if (res.ok) {
     await recordAudit({
       action: AUDIT_ACTIONS.MEMBER_REMOVED,

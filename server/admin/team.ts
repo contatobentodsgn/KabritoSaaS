@@ -16,8 +16,11 @@ import { organizationMembers, profiles, orgInvites, organizations } from "@/db/s
  * Action que chama estas funções (server/actions/team.ts), que confere o papel
  * do usuário na org ANTES de invocar qualquer coisa daqui.
  *
- * Toda função recebe orgId já DERIVADO do contexto autenticado (anti-IDOR);
- * nunca confiar em org vinda do frontend.
+ * DEFESA-EM-PROFUNDIDADE (G5): como a RLS está desligada aqui, cada função
+ * org-scoped REVALIDA internamente o papel do ATOR (`actingUserId`) na org via
+ * `actorRole()` — não confia cegamente no `orgId` recebido. Assim, um caller
+ * futuro que esqueça o gate não vira um IDOR cross-tenant. O orgId continua
+ * vindo do contexto autenticado; nunca do frontend.
  */
 
 export type MemberRole = "owner" | "admin" | "member";
@@ -31,9 +34,44 @@ export type TeamMember = {
 
 export type AdminResult = { ok: true } | { ok: false; error: string };
 
+const NO_PERMISSION = "Sem permissão para gerenciar esta organização." as const;
+
+/**
+ * Backstop anti-IDOR (G5): papel do ATOR na org, lido via service-client.
+ * null = não é membro. As Server Actions já conferem antes, mas como a RLS está
+ * ignorada aqui, revalidamos — um caller sem gate seria um IDOR direto.
+ */
+async function actorRole(
+  db: ReturnType<typeof getServiceDbClient>,
+  orgId: string,
+  actingUserId: string,
+): Promise<MemberRole | null> {
+  const [m] = await db
+    .select({ role: organizationMembers.role })
+    .from(organizationMembers)
+    .where(
+      and(
+        eq(organizationMembers.organizationId, orgId),
+        eq(organizationMembers.userId, actingUserId),
+      ),
+    )
+    .limit(1);
+  return m?.role ?? null;
+}
+
+function isManager(role: MemberRole | null): boolean {
+  return role === "owner" || role === "admin";
+}
+
 /** Lista membros da org (join organization_members + profiles). */
-export async function listMembers(orgId: string): Promise<TeamMember[]> {
+export async function listMembers(
+  orgId: string,
+  actingUserId: string,
+): Promise<TeamMember[]> {
   const db = getServiceDbClient();
+  // Qualquer membro vê a equipe; não-membro não vê (evita vazar e-mails de outra org).
+  if (!(await actorRole(db, orgId, actingUserId))) return [];
+
   const rows = await db
     .select({
       userId: organizationMembers.userId,
@@ -78,8 +116,12 @@ export async function addMemberByEmail(
   orgId: string,
   email: string,
   role: Exclude<MemberRole, "owner">,
+  actingUserId: string,
 ): Promise<AdminResult> {
   const db = getServiceDbClient();
+  if (!isManager(await actorRole(db, orgId, actingUserId))) {
+    return { ok: false, error: NO_PERMISSION };
+  }
 
   const [profile] = await db
     .select({ userId: profiles.userId })
@@ -109,8 +151,12 @@ export async function setMemberRole(
   orgId: string,
   userId: string,
   role: MemberRole,
+  actingUserId: string,
 ): Promise<AdminResult> {
   const db = getServiceDbClient();
+  if (!isManager(await actorRole(db, orgId, actingUserId))) {
+    return { ok: false, error: NO_PERMISSION };
+  }
 
   const [current] = await db
     .select({ role: organizationMembers.role })
@@ -155,8 +201,12 @@ export async function setMemberRole(
 export async function removeMember(
   orgId: string,
   userId: string,
+  actingUserId: string,
 ): Promise<AdminResult> {
   const db = getServiceDbClient();
+  if (!isManager(await actorRole(db, orgId, actingUserId))) {
+    return { ok: false, error: NO_PERMISSION };
+  }
 
   const [current] = await db
     .select({ role: organizationMembers.role })
@@ -213,8 +263,12 @@ export async function addMemberById(
   orgId: string,
   userId: string,
   role: Exclude<MemberRole, "owner">,
+  actingUserId: string,
 ): Promise<AdminResult> {
   const db = getServiceDbClient();
+  if (!isManager(await actorRole(db, orgId, actingUserId))) {
+    return { ok: false, error: NO_PERMISSION };
+  }
   await db
     .insert(organizationMembers)
     .values({ organizationId: orgId, userId, role })
@@ -231,8 +285,13 @@ export interface PendingInvite {
   createdAt: Date;
 }
 
-export async function listPendingInvites(orgId: string): Promise<PendingInvite[]> {
+export async function listPendingInvites(
+  orgId: string,
+  actingUserId: string,
+): Promise<PendingInvite[]> {
   const db = getServiceDbClient();
+  // Convites só são vistos por owner/admin (espelha a RLS de org_invites).
+  if (!isManager(await actorRole(db, orgId, actingUserId))) return [];
   const rows = await db
     .select({
       id: orgInvites.id,
@@ -245,7 +304,10 @@ export async function listPendingInvites(orgId: string): Promise<PendingInvite[]
   return rows;
 }
 
-/** Cria (ou reusa) um convite pendente e devolve o token. */
+/**
+ * Cria (ou reusa) um convite pendente e devolve o token. `invitedBy` é o ATOR —
+ * usado também como backstop de autorização (precisa ser owner/admin da org).
+ */
 export async function createInvite(
   orgId: string,
   email: string,
@@ -253,6 +315,9 @@ export async function createInvite(
   invitedBy: string,
 ): Promise<{ token: string }> {
   const db = getServiceDbClient();
+  if (!isManager(await actorRole(db, orgId, invitedBy))) {
+    throw new Error(NO_PERMISSION);
+  }
   const lower = email.toLowerCase();
   const [existing] = await db
     .select({ token: orgInvites.token })
@@ -274,8 +339,15 @@ export async function createInvite(
   return { token };
 }
 
-export async function cancelInvite(orgId: string, inviteId: string): Promise<AdminResult> {
+export async function cancelInvite(
+  orgId: string,
+  inviteId: string,
+  actingUserId: string,
+): Promise<AdminResult> {
   const db = getServiceDbClient();
+  if (!isManager(await actorRole(db, orgId, actingUserId))) {
+    return { ok: false, error: NO_PERMISSION };
+  }
   await db
     .delete(orgInvites)
     .where(and(eq(orgInvites.id, inviteId), eq(orgInvites.organizationId, orgId)));
