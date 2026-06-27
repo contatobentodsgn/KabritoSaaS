@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { requireEnv, serverEnv } from "@/server/env";
+import { recordSystemAudit } from "@/server/admin/audit-system";
 
 /**
  * Cliente Supabase com SERVICE_ROLE (bypass RLS) — ISOLADO em server/admin.
@@ -72,4 +73,62 @@ export async function purgeAccountAccess(
     console.error("[account] purgeAccountAccess deleteUser:", err);
     return { authDeleted: false };
   }
+}
+
+/**
+ * ANTI-LOCKOUT do 2FA (U1): remove os fatores MFA de uma conta que perdeu o
+ * autenticador. Como o Supabase TOTP não emite recovery codes nativos, este é o
+ * caminho de recuperação — operado por admin via CLI (`npm run mfa:reset`).
+ * Service-role (admin API). A pessoa volta a entrar só com a senha e pode
+ * reativar o 2FA nas Configurações. Auditado (mfa.admin_reset).
+ */
+export async function resetUserMfa(
+  email: string,
+): Promise<{ ok: boolean; message: string }> {
+  if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) {
+    return { ok: false, message: "SUPABASE_SERVICE_ROLE_KEY ausente." };
+  }
+  const admin = createAdminSupabase();
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("user_id")
+    .eq("email", email)
+    .maybeSingle();
+  const userId = (profile?.user_id as string | undefined) ?? null;
+  if (!userId) {
+    return { ok: false, message: `Conta não encontrada: ${email}.` };
+  }
+
+  const { data, error } = await admin.auth.admin.mfa.listFactors({ userId });
+  if (error) {
+    return { ok: false, message: `Falha ao listar fatores: ${error.message}` };
+  }
+  const factors = data?.factors ?? [];
+  if (factors.length === 0) {
+    return { ok: true, message: `${email} não tem 2FA ativo (nada a remover).` };
+  }
+
+  let removed = 0;
+  for (const f of factors) {
+    const { error: delErr } = await admin.auth.admin.mfa.deleteFactor({
+      id: f.id,
+      userId,
+    });
+    if (delErr) console.error(`[mfa-reset] falha ao remover fator ${f.id}:`, delErr.message);
+    else removed++;
+  }
+
+  await recordSystemAudit({
+    action: "mfa.admin_reset",
+    userId,
+    entityType: "profile",
+    entityId: userId,
+    metadata: { email, removed },
+  });
+
+  return {
+    ok: true,
+    message: `2FA de ${email} removido (${removed} fator(es)). A pessoa entra só com a senha e pode reativar nas Configurações.`,
+  };
 }
