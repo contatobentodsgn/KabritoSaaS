@@ -54,10 +54,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Histórico completo: necessário para o scan de histórico abaixo.
+          fetch-depth: 0
       - name: gitleaks
         run: |
           VERSION=8.18.4
           curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
-          # --no-git: varre os ARQUIVOS atuais (não o histórico) — pega segredo
-          # colado num arquivo do PR sem falhar por ruído de commits antigos.
+          # 1) Arquivos atuais: pega segredo colado num arquivo do PR.
           ./gitleaks detect --no-git --config .gitleaks.toml --redact --verbose --exit-code 1
+          # 2) Histórico completo (todas as refs): o repo é PÚBLICO — um segredo
+          # commitado e depois revertido continua exposto no log. Varre tudo.
+          ./gitleaks detect --config .gitleaks.toml --redact --verbose --exit-code 1 --log-opts="--all"

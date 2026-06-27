@@ -50,6 +50,20 @@ const restToken = serverEnv.UPSTASH_REDIS_REST_TOKEN?.trim();
 let redis: Redis | null = null;
 const limiters = new Map<RateLimitAction, Ratelimit>();
 
+// Observabilidade do fallback: quando o Upstash ESTÁ configurado mas falha, o
+// rate-limit cai para o limiter em memória (por instância). Antes isso era um
+// `catch {}` silencioso — agora avisa UMA vez por instância, para que uma queda
+// do Redis seja visível nos logs (e alertável via Sentry quando ligado).
+let warnedRedisDown = false;
+function noteRedisDown(err: unknown): void {
+  if (warnedRedisDown) return;
+  warnedRedisDown = true;
+  console.error(
+    "[rate-limit] Upstash configurado mas indisponível — usando fallback EM MEMÓRIA (por instância, não compartilhado). Erro:",
+    err instanceof Error ? err.message : String(err),
+  );
+}
+
 function getLimiter(action: RateLimitAction): Ratelimit | null {
   // Só ativa com URL REST válida (https) + token; senão, fallback em memória.
   if (!restUrl || !restToken || !restUrl.startsWith("https://")) return null;
@@ -67,8 +81,9 @@ function getLimiter(action: RateLimitAction): Ratelimit | null {
       limiters.set(action, rl);
     }
     return rl;
-  } catch {
-    return null; // construção falhou (ex.: URL/token inválidos) → fallback
+  } catch (err) {
+    noteRedisDown(err); // construção falhou (ex.: URL/token inválidos) → fallback
+    return null;
   }
 }
 
@@ -104,8 +119,12 @@ export async function consume(
     try {
       const res = await limiter.limit(identifier);
       return { success: res.success, remaining: res.remaining, resetAt: res.reset };
-    } catch {
+    } catch (err) {
       // Redis indisponível em runtime → fail-open pro limiter em memória.
+      // (Decisão deliberada: NÃO fail-closed no login — uma queda do Redis não
+      // pode trancar todos os usuários para fora; o fallback ainda limita por
+      // instância.) O aviso abaixo torna a degradação observável.
+      noteRedisDown(err);
       return consumeInMemory(action, identifier);
     }
   }
