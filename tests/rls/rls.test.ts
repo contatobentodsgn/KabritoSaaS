@@ -561,7 +561,8 @@ describe("6.13 approve_edition — publicação atômica, gated a pending, staff
 
     const res = await asUser(
       f.staff,
-      (tx) => tx`select approve_edition(${edId}::uuid, ${expires}::timestamptz) as n`,
+      (tx) =>
+        tx`select approve_edition(${edId}::uuid, ${f.staff}::uuid, ${expires}::timestamptz) as n`,
     );
     expect(Number(res[0]!.n)).toBe(1);
 
@@ -586,7 +587,8 @@ describe("6.13 approve_edition — publicação atômica, gated a pending, staff
     );
     const res = await asUser(
       f.staff,
-      (tx) => tx`select approve_edition(${ed!.id}::uuid, ${expires}::timestamptz) as n`,
+      (tx) =>
+        tx`select approve_edition(${ed!.id}::uuid, ${f.staff}::uuid, ${expires}::timestamptz) as n`,
     );
     expect(Number(res[0]!.n)).toBe(0);
   });
@@ -600,7 +602,8 @@ describe("6.13 approve_edition — publicação atômica, gated a pending, staff
     );
     const res = await asUser(
       f.userA,
-      (tx) => tx`select approve_edition(${ed!.id}::uuid, ${expires}::timestamptz) as n`,
+      (tx) =>
+        tx`select approve_edition(${ed!.id}::uuid, ${f.userA}::uuid, ${expires}::timestamptz) as n`,
     );
     expect(Number(res[0]!.n)).toBe(0);
 

@@ -38,6 +38,7 @@ export async function approveEdition(editionId: string): Promise<ActionResult> {
     return { ok: false, error: "ID inválido." };
 
   const user = await getCurrentUser();
+  if (!user) return forbidden();
   const supabase = await createClient();
 
   // content_expires_at = now + plans.retention_days (plano único)
@@ -59,6 +60,7 @@ export async function approveEdition(editionId: string): Promise<ActionResult> {
   // migration↔deploy.
   const rpc = await supabase.rpc("approve_edition", {
     p_edition_id: editionId,
+    p_reviewer: user.id,
     p_expires: expires.toISOString(),
   });
 
@@ -74,7 +76,7 @@ export async function approveEdition(editionId: string): Promise<ActionResult> {
         status: "published",
         review_status: "approved",
         published_at: now.toISOString(),
-        reviewed_by: user?.id ?? null,
+        reviewed_by: user.id,
         reviewed_at: now.toISOString(),
         content_expires_at: expires.toISOString(),
       })
