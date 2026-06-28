@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/server/auth/session";
-import { DEFAULT_REDIRECT } from "@/lib/constants";
+import { consume } from "@/server/rate-limit";
+import { DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
 
 export type EnrollResult =
   | { ok: true; factorId: string; qrCode: string; secret: string }
@@ -39,6 +40,12 @@ export async function startEnrollAction(): Promise<EnrollResult> {
 
 /** Confirma a ativação verificando o código do app autenticador. */
 export async function confirmEnrollAction(factorId: string, code: string): Promise<MfaResult> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Não autenticado." };
+  // Anti brute-force do código de 6 dígitos (não depende só do throttle do provedor).
+  if (!(await consume("mfa_verify", user.id)).success) {
+    return { ok: false, error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+  }
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
   if (error) {
@@ -50,6 +57,8 @@ export async function confirmEnrollAction(factorId: string, code: string): Promi
 
 /** Desativa o 2FA (remove o fator). */
 export async function disableMfaAction(factorId: string): Promise<MfaResult> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Não autenticado." };
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.unenroll({ factorId });
   if (error) return { ok: false, error: "Não foi possível desativar o 2FA." };
@@ -65,6 +74,11 @@ export async function verifyLoginMfaAction(
   factorId: string,
   code: string,
 ): Promise<MfaResult> {
+  const user = await getCurrentUser();
+  if (!user) redirect(LOGIN_ROUTE);
+  if (!(await consume("mfa_verify", user.id)).success) {
+    return { ok: false, error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+  }
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
   if (error) {

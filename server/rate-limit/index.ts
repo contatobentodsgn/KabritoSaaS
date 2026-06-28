@@ -39,6 +39,7 @@ export const RATE_LIMITS = {
   generation: { limit: 30, windowMs: 60_000 }, // MVP2 — geração sob demanda
   comment: { limit: 20, windowMs: 60_000 }, // anti-spam de comentários (por usuário)
   invite: { limit: 10, windowMs: 60_000 }, // convites/adições de membro (dispara e-mail)
+  mfa_verify: { limit: 5, windowMs: 60_000 }, // anti brute-force do código TOTP (por usuário)
 } as const;
 
 export type RateLimitAction = keyof typeof RATE_LIMITS;

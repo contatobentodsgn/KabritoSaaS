@@ -128,7 +128,14 @@ export async function signUpAction(
     options: { data: { name } },
   });
   if (error) {
-    return { error: error.message };
+    // Anti-enumeração: NÃO revelar se o e-mail já existe. "already registered"
+    // (e variantes) devolve o MESMO estado de um cadastro novo; outros erros
+    // viram mensagem genérica (sem ecoar o texto interno do provedor).
+    const m = error.message?.toLowerCase() ?? "";
+    if (m.includes("already") || m.includes("registered") || m.includes("exists")) {
+      return { ok: true, email, message: "Conta criada! Confirme seu e-mail para entrar." };
+    }
+    return { error: "Não foi possível criar a conta. Tente novamente." };
   }
   if (!data.user) {
     return { error: "Não foi possível criar a conta." };
