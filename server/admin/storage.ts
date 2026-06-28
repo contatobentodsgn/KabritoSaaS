@@ -35,7 +35,9 @@ function sniffImageType(buf: Buffer): string | null {
     buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 && // RIFF
     buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50 // WEBP
   ) {
-    return "image/webp";
+    // Não basta o container RIFF/WEBP: valida o subchunk de imagem (VP8/VP8L/VP8X).
+    const chunk = buf.toString("ascii", 12, 16);
+    return chunk === "VP8 " || chunk === "VP8L" || chunk === "VP8X" ? "image/webp" : null;
   }
   return null;
 }
