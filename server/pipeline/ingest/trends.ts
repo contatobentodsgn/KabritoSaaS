@@ -1,5 +1,5 @@
 import "server-only";
-import { safeFetchUrl } from "./safe-fetch";
+import { safeFetch } from "./safe-fetch";
 
 /**
  * Conector de tendências (fonte legal — sem scraping de redes).
@@ -22,17 +22,18 @@ export async function collectTrends(config: Record<string, unknown>): Promise<st
       .map((t) => `tema em alta: ${t}`);
   }
 
-  const url = typeof config.url === "string" ? safeFetchUrl(config.url) : null;
-  if (!url) return [];
-
-  const res = await fetch(url, {
-    headers: {
-      "user-agent": "InteligenciaCriativaBot/1.0 (+trends)",
-      accept: "application/json, application/rss+xml, application/xml;q=0.9, */*;q=0.8",
-    },
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!res.ok) throw new Error(`Trends ${res.status} em ${url}`);
+  const res =
+    typeof config.url === "string"
+      ? await safeFetch(config.url, {
+          headers: {
+            "user-agent": "InteligenciaCriativaBot/1.0 (+trends)",
+            accept: "application/json, application/rss+xml, application/xml;q=0.9, */*;q=0.8",
+          },
+          signal: AbortSignal.timeout(10_000),
+        })
+      : null;
+  if (!res) return [];
+  if (!res.ok) throw new Error(`Trends ${res.status} em ${res.url}`);
 
   const contentType = res.headers.get("content-type") ?? "";
   const body = await res.text();

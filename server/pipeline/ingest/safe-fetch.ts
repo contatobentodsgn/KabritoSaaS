@@ -51,3 +51,37 @@ export function safeFetchUrl(raw: string): URL | null {
   if (isPrivateHost(u.hostname)) return null;
   return u;
 }
+
+const MAX_REDIRECTS = 5;
+
+/**
+ * fetch ANTI-SSRF: valida a URL inicial E CADA redirect (3xx) antes de seguir.
+ * O fetch nativo segue 3xx automaticamente — então uma URL pública aprovada
+ * poderia redirecionar para um host bloqueado (metadata/rede interna) sem
+ * reaplicar o guard. Aqui usamos redirect:"manual" e revalidamos cada Location
+ * com safeFetchUrl, seguindo manualmente até MAX_REDIRECTS. Retorna null se a
+ * URL (inicial ou de redirect) for insegura, ou se exceder o limite.
+ * (Rebinding por DNS continua um risco residual — mitigar com egress allowlist.)
+ */
+export async function safeFetch(
+  raw: string,
+  init?: RequestInit,
+): Promise<Response | null> {
+  let current = safeFetchUrl(raw);
+  if (!current) return null;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const res = await fetch(current, { ...init, redirect: "manual" });
+    if (res.status < 300 || res.status >= 400) return res;
+    const location = res.headers.get("location");
+    if (!location) return res;
+    let next: URL | null;
+    try {
+      next = safeFetchUrl(new URL(location, current).toString());
+    } catch {
+      return null;
+    }
+    if (!next) return null; // redirect para host bloqueado → aborta (SSRF)
+    current = next;
+  }
+  return null; // excedeu o limite de redirects
+}
