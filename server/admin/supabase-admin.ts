@@ -67,6 +67,22 @@ export async function purgeAccountAccess(
     console.error("[account] purgeAccountAccess memberships:", err);
   }
   try {
+    // LGPD: anonimiza os comentários do titular (nome real denormalizado + corpo).
+    // edition_comments não tem FK para auth.users → deletar o usuário não cascateia.
+    await admin
+      .from("edition_comments")
+      .update({ author_name: null, body: "[comentário removido]" })
+      .eq("user_id", userId);
+  } catch (err) {
+    console.error("[account] purgeAccountAccess comments:", err);
+  }
+  try {
+    // LGPD: remove as sessões do titular (IP/user-agent) — não basta desativar.
+    await admin.from("user_sessions").delete().eq("user_id", userId);
+  } catch (err) {
+    console.error("[account] purgeAccountAccess sessions:", err);
+  }
+  try {
     const { error } = await admin.auth.admin.deleteUser(userId);
     return { authDeleted: !error };
   } catch (err) {

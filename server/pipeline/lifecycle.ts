@@ -1,7 +1,14 @@
 import "server-only";
-import { and, eq, isNotNull, lt } from "drizzle-orm";
+import { and, eq, isNotNull, lt, or } from "drizzle-orm";
 import { getServiceDbClient } from "@/server/db/service-client";
-import { contentEditions, rawSignals, accessLogs, auditLogs } from "@/db/schema";
+import {
+  contentEditions,
+  rawSignals,
+  accessLogs,
+  auditLogs,
+  userSessions,
+  orgInvites,
+} from "@/db/schema";
 
 /**
  * Ciclo de vida (PROJECT §2 estágio 5 / §10): rotina diária que aplica a
@@ -11,11 +18,14 @@ import { contentEditions, rawSignals, accessLogs, auditLogs } from "@/db/schema"
  */
 const RAW_SIGNAL_RETENTION_DAYS = 7;
 const LOG_RETENTION_DAYS = 180; // LGPD: retenção limitada de logs (§10)
+const ACCEPTED_INVITE_RETENTION_DAYS = 30; // convite cumpriu a finalidade → expurga
 
 export interface LifecycleResult {
   archived: number;
   cleanedSignals: number;
   purgedLogs: number;
+  purgedSessions: number;
+  purgedInvites: number;
 }
 
 export async function runLifecycle(now: Date = new Date()): Promise<LifecycleResult> {
@@ -52,9 +62,31 @@ export async function runLifecycle(now: Date = new Date()): Promise<LifecycleRes
     .where(lt(auditLogs.createdAt, logCutoff))
     .returning({ id: auditLogs.id });
 
+  // 4) LGPD: expurga sessões INATIVAS/revogadas antigas (guardam IP + user-agent).
+  // Sessões ativas são preservadas (necessárias); a exclusão de conta deleta todas.
+  const purgedSessions = await db
+    .delete(userSessions)
+    .where(and(eq(userSessions.isActive, false), lt(userSessions.createdAt, logCutoff)))
+    .returning({ id: userSessions.id });
+
+  // 5) LGPD: expurga convites que cumpriram a finalidade — aceitos há mais de 30d
+  // (o e-mail do convidado é dado pessoal) + pendentes obsoletos além da janela.
+  const inviteCutoff = new Date(now.getTime() - ACCEPTED_INVITE_RETENTION_DAYS * 86_400_000);
+  const purgedInvites = await db
+    .delete(orgInvites)
+    .where(
+      or(
+        and(isNotNull(orgInvites.acceptedAt), lt(orgInvites.acceptedAt, inviteCutoff)),
+        lt(orgInvites.createdAt, logCutoff),
+      ),
+    )
+    .returning({ id: orgInvites.id });
+
   return {
     archived: archived.length,
     cleanedSignals: cleaned.length,
     purgedLogs: purgedAccess.length + purgedAudit.length,
+    purgedSessions: purgedSessions.length,
+    purgedInvites: purgedInvites.length,
   };
 }
