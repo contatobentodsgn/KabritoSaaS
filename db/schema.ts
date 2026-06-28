@@ -416,6 +416,16 @@ export const subscriptions = pgTable("subscriptions", {
   ...ts,
 });
 
+/**
+ * Eventos do Stripe já PROCESSADOS (idempotência + anti-replay do webhook).
+ * Escrita só pelo webhook via service_role; RLS nega o resto. Ver migration 0016.
+ */
+export const stripeEvents = pgTable("stripe_events", {
+  eventId: varchar("event_id", { length: 120 }).primaryKey(),
+  type: varchar("type", { length: 120 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 /* ===========================================================================
  * E) COMUNIDADE (MVP 3) — comentários por edição
  * Leitura: assinante ativo numa edição publicada (ou staff). Escrita: o próprio.

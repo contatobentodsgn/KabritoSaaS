@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { desc, eq } from "drizzle-orm";
 import { serverEnv, requireEnv } from "@/server/env";
 import { getServiceDbClient } from "@/server/db/service-client";
-import { subscriptions, organizations } from "@/db/schema";
+import { subscriptions, organizations, stripeEvents } from "@/db/schema";
 import { ensureSinglePlan } from "@/server/admin/billing";
 
 /**
@@ -203,6 +203,15 @@ function periodFromSubscription(sub: Stripe.Subscription): {
  * Eventos não relevantes são ignorados (no-op, retorna sem erro).
  */
 export async function handleStripeEvent(event: Stripe.Event): Promise<void> {
+  // Idempotência + anti-replay: cada event.id é processado UMA vez. Entrega
+  // duplicada ou replay do mesmo evento colide no INSERT e é ignorada.
+  const recorded = await getServiceDbClient()
+    .insert(stripeEvents)
+    .values({ eventId: event.id, type: event.type })
+    .onConflictDoNothing({ target: stripeEvents.eventId })
+    .returning({ eventId: stripeEvents.eventId });
+  if (recorded.length === 0) return;
+
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object;
