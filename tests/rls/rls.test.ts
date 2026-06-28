@@ -541,3 +541,72 @@ describe("6.12 Escrita cross-org — outsider (B) não escreve na org A", () => 
     expect(res.count).toBe(0);
   });
 });
+
+/* ===========================================================================
+ * 6.13 PUBLICAÇÃO ATÔMICA — função approve_edition (G7 / RPC, migration 0013)
+ * UPDATE (gated a 'pending') + trilha de auditoria numa transação. Sob RLS:
+ * só staff publica. Testa a função de verdade (a migration roda antes no CI).
+ * =========================================================================== */
+describe("6.13 approve_edition — publicação atômica, gated a pending, staff-only", () => {
+  const expires = new Date(Date.now() + 30 * 86_400_000).toISOString();
+
+  it("staff publica edição pending E gera a trilha de auditoria (atômico)", async () => {
+    const [ed] = await asService(
+      (tx) =>
+        tx`insert into content_editions (title, slug, platform_id, edition_date, status, review_status)
+           values ('RPC test', 'rpc-test-edition', ${f.platformId}, current_date - 15, 'draft', 'pending')
+           returning id`,
+    );
+    const edId = ed!.id as string;
+
+    const res = await asUser(
+      f.staff,
+      (tx) => tx`select approve_edition(${edId}::uuid, ${expires}::timestamptz) as n`,
+    );
+    expect(Number(res[0]!.n)).toBe(1);
+
+    const [pub] = await asService(
+      (tx) =>
+        tx`select status, review_status, reviewed_by from content_editions where id = ${edId}`,
+    );
+    expect(pub!.status).toBe("published");
+    expect(pub!.review_status).toBe("approved");
+    expect(pub!.reviewed_by).toBe(f.staff);
+
+    const audit = await asService(
+      (tx) =>
+        tx`select id from audit_logs where entity_id = ${edId} and action = 'content.published'`,
+    );
+    expect(audit.length).toBe(1);
+  });
+
+  it("segunda chamada na edição já publicada retorna 0 (não republica)", async () => {
+    const [ed] = await asService(
+      (tx) => tx`select id from content_editions where slug = 'rpc-test-edition'`,
+    );
+    const res = await asUser(
+      f.staff,
+      (tx) => tx`select approve_edition(${ed!.id}::uuid, ${expires}::timestamptz) as n`,
+    );
+    expect(Number(res[0]!.n)).toBe(0);
+  });
+
+  it("usuário comum NÃO publica via approve_edition (RLS → 0 linhas, segue draft)", async () => {
+    const [ed] = await asService(
+      (tx) =>
+        tx`insert into content_editions (title, slug, platform_id, edition_date, status, review_status)
+           values ('RPC test 2', 'rpc-test-edition-2', ${f.platformId}, current_date - 16, 'draft', 'pending')
+           returning id`,
+    );
+    const res = await asUser(
+      f.userA,
+      (tx) => tx`select approve_edition(${ed!.id}::uuid, ${expires}::timestamptz) as n`,
+    );
+    expect(Number(res[0]!.n)).toBe(0);
+
+    const [still] = await asService(
+      (tx) => tx`select status from content_editions where id = ${ed!.id}`,
+    );
+    expect(still!.status).toBe("draft");
+  });
+});
