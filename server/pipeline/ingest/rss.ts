@@ -1,18 +1,20 @@
 import "server-only";
-import { safeFetchUrl } from "./safe-fetch";
+import { safeFetch } from "./safe-fetch";
 
 /**
  * Conector RSS (fonte legal). Faz fetch do feed e extrai títulos dos itens.
  * Parser mínimo por regex (sem dependência extra). Best-effort.
  */
 export async function collectRss(config: Record<string, unknown>): Promise<string[]> {
-  const url = typeof config.url === "string" ? safeFetchUrl(config.url) : null;
-  if (!url) return [];
-  const res = await fetch(url, {
-    headers: { "user-agent": "InteligenciaCriativaBot/1.0 (+rss)" },
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!res.ok) throw new Error(`RSS ${res.status} em ${url}`);
+  const res =
+    typeof config.url === "string"
+      ? await safeFetch(config.url, {
+          headers: { "user-agent": "InteligenciaCriativaBot/1.0 (+rss)" },
+          signal: AbortSignal.timeout(10_000),
+        })
+      : null;
+  if (!res) return [];
+  if (!res.ok) throw new Error(`RSS ${res.status} em ${res.url}`);
   const xml = await res.text();
   const titles: string[] = [];
   const re = /<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/gis;

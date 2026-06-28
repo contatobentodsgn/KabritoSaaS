@@ -1,5 +1,5 @@
 import "server-only";
-import { safeFetchUrl } from "./safe-fetch";
+import { safeFetch } from "./safe-fetch";
 
 /**
  * Conector de API genérico (fonte legal — sem scraping de redes).
@@ -13,17 +13,18 @@ import { safeFetchUrl } from "./safe-fetch";
  *  - field?: string (campo de cada item; default = item já é string)
  */
 export async function collectApi(config: Record<string, unknown>): Promise<string[]> {
-  const url = typeof config.url === "string" ? safeFetchUrl(config.url) : null;
-  if (!url) return [];
-
-  const res = await fetch(url, {
-    headers: {
-      "user-agent": "InteligenciaCriativaBot/1.0 (+api)",
-      accept: "application/json",
-    },
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!res.ok) throw new Error(`API ${res.status} em ${url}`);
+  const res =
+    typeof config.url === "string"
+      ? await safeFetch(config.url, {
+          headers: {
+            "user-agent": "InteligenciaCriativaBot/1.0 (+api)",
+            accept: "application/json",
+          },
+          signal: AbortSignal.timeout(10_000),
+        })
+      : null;
+  if (!res) return [];
+  if (!res.ok) throw new Error(`API ${res.status} em ${res.url}`);
 
   const json: unknown = await res.json();
 
