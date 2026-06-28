@@ -7,6 +7,44 @@ import { recordAudit } from "@/server/audit/log";
 import { purgeAccountAccess } from "@/server/admin/supabase-admin";
 import { AUDIT_ACTIONS } from "@/lib/constants";
 
+export type DataExport =
+  | { ok: true; data: Record<string, unknown> }
+  | { ok: false; error: string };
+
+/**
+ * PORTABILIDADE DE DADOS (LGPD Art. 18, V/II): devolve os dados pessoais do
+ * titular em JSON estruturado. Lê via cliente de USUÁRIO — a RLS garante que só
+ * retornam as linhas do próprio usuário. Operação auditada.
+ */
+export async function exportMyDataAction(): Promise<DataExport> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Não autenticado." };
+
+  const supabase = await createClient();
+  const [profile, favorites, comments, sessions, memberships] = await Promise.all([
+    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
+    supabase.from("user_favorites").select("*").eq("user_id", user.id),
+    supabase.from("edition_comments").select("*").eq("user_id", user.id),
+    supabase.from("user_sessions").select("*").eq("user_id", user.id),
+    supabase.from("organization_members").select("*").eq("user_id", user.id),
+  ]);
+
+  await recordAudit({ action: "account.data_exported", entityType: "profile" });
+
+  return {
+    ok: true,
+    data: {
+      exportedAt: new Date().toISOString(),
+      account: { id: user.id, email: user.email ?? null },
+      profile: profile.data ?? null,
+      favorites: favorites.data ?? [],
+      comments: comments.data ?? [],
+      sessions: sessions.data ?? [],
+      memberships: memberships.data ?? [],
+    },
+  };
+}
+
 /**
  * EXCLUSÃO DE CONTA (LGPD — SECURITY_GUIDE §10).
  *

@@ -38,19 +38,34 @@ export default function PrivacyPage() {
 
         <h2 className="text-lg font-semibold">4. Seus direitos</h2>
         <p>
-          Você pode acessar, corrigir e excluir seus dados. A exclusão de conta
-          está disponível em <strong>Configurações → Excluir conta</strong>, que
+          Você pode acessar, corrigir, <strong>exportar</strong> e excluir seus
+          dados. A exportação (portabilidade) está em{" "}
+          <strong>Configurações → Privacidade e dados → Baixar meus dados</strong>,
+          e a exclusão em <strong>Configurações → Excluir conta</strong>, que
           anonimiza/apaga os dados pessoais e encerra suas sessões.
         </p>
 
-        <h2 className="text-lg font-semibold">5. Segurança</h2>
+        <h2 className="text-lg font-semibold">5. Sub-processadores</h2>
+        <p>
+          Para operar o serviço, compartilhamos dados estritamente necessários
+          com fornecedores que atuam como operadores: <strong>Supabase</strong>{" "}
+          (banco de dados e autenticação), <strong>Vercel</strong> (hospedagem),{" "}
+          <strong>Upstash</strong> (rate-limit), <strong>Resend</strong> (e-mail
+          transacional), <strong>Sentry</strong> (monitoramento de erros) e{" "}
+          <strong>Have I Been Pwned</strong> (checagem de senha vazada, via
+          k-anonimato — a senha nunca é enviada). Alguns deles processam dados
+          fora do Brasil (transferência internacional), com as salvaguardas
+          contratuais dos respectivos fornecedores.
+        </p>
+
+        <h2 className="text-lg font-semibold">6. Segurança</h2>
         <p>
           Aplicamos isolamento por usuário no banco (RLS), autorização no
           servidor e segregação de segredos. Detalhes técnicos no nosso guia de
           segurança interno.
         </p>
 
-        <h2 className="text-lg font-semibold">6. Contato do encarregado (DPO)</h2>
+        <h2 className="text-lg font-semibold">7. Contato do encarregado (DPO)</h2>
         <p>privacidade@kabritodigital.com</p>
 
         <p className="pt-2">
