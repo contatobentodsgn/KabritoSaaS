@@ -20,6 +20,8 @@ const SERVER_SECRETS = new Set([
   "STRIPE_SECRET_KEY",
   "STRIPE_WEBHOOK_SECRET",
   "SENTRY_DSN",
+  "UPSTASH_REDIS_REST_URL",
+  "UPSTASH_REDIS_REST_TOKEN",
 ]);
 
 function isProcessEnv(objectNode) {

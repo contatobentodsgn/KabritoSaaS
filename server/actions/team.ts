@@ -164,6 +164,12 @@ export async function setMemberRoleAction(input: unknown): Promise<ActionResult>
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
 
+  // Anti-autoalvo: não alterar o próprio papel por aqui (evita self-lockout e
+  // remove atrito a manobras de papel). Transferência de propriedade é à parte.
+  if (parsed.data.userId === ctx.userId) {
+    return { ok: false, error: "Você não pode alterar o próprio papel." };
+  }
+
   const res = await setMemberRole(ctx.orgId, parsed.data.userId, parsed.data.role, ctx.userId);
   if (res.ok) {
     await recordAudit({
@@ -184,6 +190,11 @@ export async function removeMemberAction(input: unknown): Promise<ActionResult> 
 
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
+
+  // Anti-autoalvo: não remover a si mesmo por aqui (evita self-lockout).
+  if (parsed.data.userId === ctx.userId) {
+    return { ok: false, error: "Você não pode remover a si mesmo da equipe." };
+  }
 
   const res = await removeMember(ctx.orgId, parsed.data.userId, ctx.userId);
   if (res.ok) {
