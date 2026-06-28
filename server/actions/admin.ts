@@ -38,6 +38,7 @@ export async function approveEdition(editionId: string): Promise<ActionResult> {
     return { ok: false, error: "ID inválido." };
 
   const user = await getCurrentUser();
+  if (!user) return forbidden();
   const supabase = await createClient();
 
   // content_expires_at = now + plans.retention_days (plano único)
@@ -51,32 +52,49 @@ export async function approveEdition(editionId: string): Promise<ActionResult> {
   const now = new Date();
   const expires = new Date(now.getTime() + retentionDays * 86_400_000);
 
-  // G8 — guarda de estado: só aprova edição AGUARDANDO revisão. Sem isto, um
-  // UPDATE por id republicaria uma edição já arquivada/rejeitada (quebra o ciclo
-  // de vida). `.select()` revela quantas linhas casaram: 0 = estado inválido.
-  const { data: updated, error } = await supabase
-    .from("content_editions")
-    .update({
-      status: "published",
-      review_status: "approved",
-      published_at: now.toISOString(),
-      reviewed_by: user?.id ?? null,
-      reviewed_at: now.toISOString(),
-      content_expires_at: expires.toISOString(),
-    })
-    .eq("id", editionId)
-    .eq("review_status", "pending")
-    .select("id");
-  if (error) return { ok: false, error: "Falha ao publicar." };
-  if (!updated || updated.length === 0) {
-    return { ok: false, error: "Esta edição não está aguardando aprovação." };
-  }
-
-  await recordAudit({
-    action: AUDIT_ACTIONS.CONTENT_PUBLISHED,
-    entityType: "content_edition",
-    entityId: editionId,
+  // Publicação ATÔMICA (G7): a função approve_edition faz o UPDATE (gated a
+  // 'pending', G8) + INSERT na auditoria numa única transação — toda publicação
+  // tem trilha. FALLBACK p/ o caminho legado se a função ainda não existir no
+  // banco (migration 0013 não aplicada, ou ainda fora do schema cache do
+  // PostgREST → erro PGRST202) — deploy seguro independente da ordem
+  // migration↔deploy.
+  const rpc = await supabase.rpc("approve_edition", {
+    p_edition_id: editionId,
+    p_reviewer: user.id,
+    p_expires: expires.toISOString(),
   });
+
+  if (!rpc.error) {
+    if (Number(rpc.data ?? 0) === 0) {
+      return { ok: false, error: "Esta edição não está aguardando aprovação." };
+    }
+  } else if (rpc.error.code === "PGRST202") {
+    // Função ausente → caminho legado (UPDATE + audit separados).
+    const { data: updated, error } = await supabase
+      .from("content_editions")
+      .update({
+        status: "published",
+        review_status: "approved",
+        published_at: now.toISOString(),
+        reviewed_by: user.id,
+        reviewed_at: now.toISOString(),
+        content_expires_at: expires.toISOString(),
+      })
+      .eq("id", editionId)
+      .eq("review_status", "pending")
+      .select("id");
+    if (error) return { ok: false, error: "Falha ao publicar." };
+    if (!updated || updated.length === 0) {
+      return { ok: false, error: "Esta edição não está aguardando aprovação." };
+    }
+    await recordAudit({
+      action: AUDIT_ACTIONS.CONTENT_PUBLISHED,
+      entityType: "content_edition",
+      entityId: editionId,
+    });
+  } else {
+    return { ok: false, error: "Falha ao publicar." };
+  }
 
   // Digest: job de SISTEMA (fan-out a todos os assinantes), isolado em
   // server/admin com service_role. Best-effort: nunca quebra a publicação.
