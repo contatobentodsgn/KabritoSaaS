@@ -613,3 +613,69 @@ describe("6.13 approve_edition — publicação atômica, gated a pending, staff
     expect(still!.status).toBe("draft");
   });
 });
+
+/* ===========================================================================
+ * 6.14 ANTI-ESCALADA admin→owner (migration 0014) — só owner atribui owner.
+ * Fecha o caminho via PostgREST direto: a RLS de organization_members impede
+ * que um admin se torne owner ou altere o registro de um owner.
+ * =========================================================================== */
+describe("6.14 Atribuição de owner restrita ao owner (anti-escalada)", () => {
+  it("admin NÃO se autopromove a owner (WITH CHECK → 0 linhas)", async () => {
+    // owner A promove C a admin (setup)
+    await asUser(
+      f.userA,
+      (tx) =>
+        tx`update organization_members set role='admin' where organization_id=${f.orgA} and user_id=${f.userC}`,
+    );
+    const res = await asUser(
+      f.userC,
+      (tx) =>
+        tx`update organization_members set role='owner' where organization_id=${f.orgA} and user_id=${f.userC}`,
+    );
+    expect(res.count).toBe(0);
+    const [c] = await asService(
+      (tx) =>
+        tx`select role from organization_members where organization_id=${f.orgA} and user_id=${f.userC}`,
+    );
+    expect(c!.role).toBe("admin");
+  });
+
+  it("admin NÃO altera o papel de um OWNER (USING → 0 linhas)", async () => {
+    const res = await asUser(
+      f.userC,
+      (tx) =>
+        tx`update organization_members set role='member' where organization_id=${f.orgA} and user_id=${f.userA}`,
+    );
+    expect(res.count).toBe(0);
+    const [a] = await asService(
+      (tx) =>
+        tx`select role from organization_members where organization_id=${f.orgA} and user_id=${f.userA}`,
+    );
+    expect(a!.role).toBe("owner");
+  });
+
+  it("admin NÃO insere novo membro como owner (WITH CHECK rejeita)", async () => {
+    await expect(
+      asUser(
+        f.userC,
+        (tx) =>
+          tx`insert into organization_members (organization_id, user_id, role) values (${f.orgA}, ${crypto.randomUUID()}, 'owner')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("owner CONSEGUE promover (controle) e reverte C a member", async () => {
+    const res = await asUser(
+      f.userA,
+      (tx) =>
+        tx`update organization_members set role='owner' where organization_id=${f.orgA} and user_id=${f.userC}`,
+    );
+    expect(res.count).toBe(1);
+    // cleanup: com 2 owners, rebaixar C é permitido
+    await asUser(
+      f.userA,
+      (tx) =>
+        tx`update organization_members set role='member' where organization_id=${f.orgA} and user_id=${f.userC}`,
+    );
+  });
+});

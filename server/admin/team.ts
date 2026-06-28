@@ -154,7 +154,8 @@ export async function setMemberRole(
   actingUserId: string,
 ): Promise<AdminResult> {
   const db = getServiceDbClient();
-  if (!isManager(await actorRole(db, orgId, actingUserId))) {
+  const actor = await actorRole(db, orgId, actingUserId);
+  if (!isManager(actor)) {
     return { ok: false, error: NO_PERMISSION };
   }
 
@@ -170,6 +171,16 @@ export async function setMemberRole(
     .limit(1);
 
   if (!current) return { ok: false, error: "Membro não encontrado." };
+
+  // Anti-escalada de privilégio: só o OWNER pode ATRIBUIR o papel owner OU
+  // alterar o papel de quem já é owner. Sem isto, um admin se autopromoveria a
+  // owner (a guarda do "último owner" abaixo só protege contra rebaixamento).
+  if ((role === "owner" || current.role === "owner") && actor !== "owner") {
+    return {
+      ok: false,
+      error: "Apenas o owner pode atribuir ou alterar o papel de um owner.",
+    };
+  }
 
   // Rebaixando um owner: só se houver outro owner.
   if (current.role === "owner" && role !== "owner") {
