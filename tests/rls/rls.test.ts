@@ -620,19 +620,21 @@ describe("6.13 approve_edition — publicação atômica, gated a pending, staff
  * que um admin se torne owner ou altere o registro de um owner.
  * =========================================================================== */
 describe("6.14 Atribuição de owner restrita ao owner (anti-escalada)", () => {
-  it("admin NÃO se autopromove a owner (WITH CHECK → 0 linhas)", async () => {
+  it("admin NÃO se autopromove a owner (WITH CHECK rejeita)", async () => {
     // owner A promove C a admin (setup)
     await asUser(
       f.userA,
       (tx) =>
         tx`update organization_members set role='admin' where organization_id=${f.orgA} and user_id=${f.userC}`,
     );
-    const res = await asUser(
-      f.userC,
-      (tx) =>
-        tx`update organization_members set role='owner' where organization_id=${f.orgA} and user_id=${f.userC}`,
-    );
-    expect(res.count).toBe(0);
+    // USING passa (C é admin), mas o WITH CHECK do novo role='owner' lança erro.
+    await expect(
+      asUser(
+        f.userC,
+        (tx) =>
+          tx`update organization_members set role='owner' where organization_id=${f.orgA} and user_id=${f.userC}`,
+      ),
+    ).rejects.toThrow();
     const [c] = await asService(
       (tx) =>
         tx`select role from organization_members where organization_id=${f.orgA} and user_id=${f.userC}`,
