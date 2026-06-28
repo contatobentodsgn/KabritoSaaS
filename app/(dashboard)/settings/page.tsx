@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DeleteAccount } from "@/components/forms/delete-account";
+import { DataExport } from "@/components/forms/data-export";
 import { SignOutAll } from "@/components/forms/sign-out-all";
 import { MfaSettings } from "@/components/forms/mfa-settings";
 import { AvatarUpload } from "@/components/forms/avatar-upload";
@@ -143,7 +144,12 @@ export default async function SettingsPage({
                 Termos de uso
               </Link>
             </p>
-            <div className="space-y-2 pt-2">
+            <div className="space-y-2 border-t border-border pt-4">
+              <p className="font-medium text-foreground">Baixar meus dados</p>
+              <p>Exporte seus dados pessoais (perfil, favoritos, comentários, sessões) em JSON.</p>
+              <DataExport />
+            </div>
+            <div className="space-y-2 border-t border-border pt-4">
               <p className="font-medium text-foreground">Excluir conta e dados</p>
               <DeleteAccount />
             </div>
