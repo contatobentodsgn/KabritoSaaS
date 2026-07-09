@@ -50,6 +50,7 @@ jobs:
         run: npm run db:migrate
       - run: npm run typecheck
       - run: npm run lint
+      - run: npm run format:check
       # Inclui os 39 testes de RLS (defesa multi-tenant) — nunca regride sem barrar.
       - run: npm test
 
