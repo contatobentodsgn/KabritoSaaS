@@ -30,6 +30,14 @@ const nextConfig = {
             value:
               "camera=(), microphone=(), geolocation=(), browsing-topics=()",
           },
+          // Isolamento cross-origin (SEC-6). Sem OAuth por popup/window.opener
+          // no app (confirmado: só login por senha) — same-origin não quebra
+          // nada. COEP (o 3º header do trio, "require-corp") foi deixado de
+          // fora de propósito: exigiria que TODO recurso cross-origin (avatar
+          // no Supabase Storage, Sentry) enviasse CORP/CORS explícito, que não
+          // controlamos do lado deles — alto risco de quebrar upload de avatar.
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
         ],
       },
     ];
