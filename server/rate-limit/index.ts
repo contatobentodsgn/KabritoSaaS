@@ -41,6 +41,9 @@ export const RATE_LIMITS = {
   invite: { limit: 10, windowMs: 60_000 }, // convites/adições de membro (dispara e-mail)
   mfa_verify: { limit: 5, windowMs: 60_000 }, // anti brute-force do código TOTP (por usuário)
   csp_report: { limit: 30, windowMs: 60_000 }, // anti log-flooding no endpoint público de CSP
+  data_export: { limit: 5, windowMs: 60_000 }, // exportação de dados (LGPD) — 5 queries por chamada
+  avatar_upload: { limit: 10, windowMs: 60_000 }, // upload de avatar (Storage)
+  invite_accept: { limit: 10, windowMs: 60_000 }, // aceite de convite por token (por usuário)
 } as const;
 
 export type RateLimitAction = keyof typeof RATE_LIMITS;

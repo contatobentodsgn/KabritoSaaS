@@ -43,7 +43,7 @@ export const itemEditSchema = z.object({
     Object.keys(EDITABLE_ITEM_TABLES) as [EditableTable, ...EditableTable[]],
   ),
   id: z.string().uuid(),
-  field: z.string().min(1),
+  field: z.string().min(1).max(60),
   value: z.string().trim().min(1).max(2000),
 });
 
@@ -64,7 +64,7 @@ const slug = z
 export const sourceSchema = z.object({
   name: z.string().trim().min(2).max(120),
   type: z.enum(["api", "rss", "trends", "manual_seed"]),
-  configJson: z.string().trim().default("{}"),
+  configJson: z.string().trim().max(5000, "Config muito grande").default("{}"),
   isActive: z.boolean().default(true),
 });
 
@@ -96,8 +96,8 @@ export const templateSchema = z.object({
   title: z.string().trim().min(3).max(200),
   objective: z.string().trim().min(3).max(160),
   whenToUse: z.string().trim().min(3).max(600),
-  requiredInput: z.string().trim().default(""), // CSV → array
+  requiredInput: z.string().trim().max(500).default(""), // CSV → array
   promptBody: z.string().trim().min(3).max(2000),
   exampleOutput: z.string().trim().min(3).max(2000),
-  tags: z.string().trim().default(""), // CSV → array
+  tags: z.string().trim().max(500).default(""), // CSV → array
 });

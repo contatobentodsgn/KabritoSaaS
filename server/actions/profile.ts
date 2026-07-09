@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { uploadAvatar } from "@/server/admin/storage";
+import { consume } from "@/server/rate-limit";
 
 export type AvatarResult =
   { ok: true; url: string } | { ok: false; error: string };
@@ -19,6 +20,12 @@ export async function updateAvatarAction(
 ): Promise<AvatarResult> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
+  if (!(await consume("avatar_upload", user.id)).success) {
+    return {
+      ok: false,
+      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
+    };
+  }
 
   const file = formData.get("avatar");
   if (!(file instanceof File) || file.size === 0) {
