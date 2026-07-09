@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/server/auth/session";
+import { requireAal2 } from "@/server/auth/mfa";
 import { recordAudit } from "@/server/audit/log";
 import { purgeAccountAccess } from "@/server/admin/supabase-admin";
 import { consume } from "@/server/rate-limit";
@@ -68,6 +69,11 @@ export async function exportMyDataAction(): Promise<DataExport> {
 export async function deleteAccountAction(): Promise<void> {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+
+  // Ação irreversível: se a conta tem 2FA ativo mas a sessão está em aal1,
+  // exige verificar o código antes (mesmo destino que os layouts usam).
+  const aal2 = await requireAal2();
+  if (!aal2.ok) redirect("/verificar");
 
   const supabase = await createClient();
 

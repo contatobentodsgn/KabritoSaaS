@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { MFA_ENFORCE } from "@/lib/security/mfa";
 
 export interface MfaStatus {
   /** Nível atual da SESSÃO ('aal1' = só senha, 'aal2' = senha + 2FA). */
@@ -36,3 +37,27 @@ export const getMfaStatus = cache(async (): Promise<MfaStatus> => {
     pendingAal2: currentLevel === "aal1" && nextLevel === "aal2",
   };
 });
+
+/**
+ * Backstop de AAL2 (SEC-1) para Server Actions SENSÍVEIS: publicar edição,
+ * gerência de equipe, exclusão de conta. O gate de 2FA hoje só roda nos
+ * LAYOUTS — que só re-executam numa NAVEGAÇÃO (render de página); uma
+ * Server Action é invocada via POST de RSC e NÃO re-roda o corpo do layout.
+ * Um usuário com 2FA ativo mas ainda em aal1 (ex.: ativou o 2FA numa aba,
+ * mas outra aba/sessão mantém o cookie antigo) poderia chamar a action
+ * direto, pulando o /verificar. Mesmo flag staged que os layouts (MFA_ENFORCE).
+ */
+export async function requireAal2(): Promise<
+  { ok: true } | { ok: false; error: string }
+> {
+  if (!MFA_ENFORCE) return { ok: true };
+  const mfa = await getMfaStatus();
+  if (mfa.pendingAal2) {
+    return {
+      ok: false,
+      error:
+        "Confirme o código do seu autenticador para continuar (verificação em duas etapas).",
+    };
+  }
+  return { ok: true };
+}
