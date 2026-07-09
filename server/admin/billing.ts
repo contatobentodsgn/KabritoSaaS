@@ -78,7 +78,8 @@ export async function grantAccessByEmail(
     .from(profiles)
     .where(eq(profiles.email, email))
     .limit(1);
-  if (!profile) return { ok: false, message: `Usuário não encontrado: ${email}` };
+  if (!profile)
+    return { ok: false, message: `Usuário não encontrado: ${email}` };
 
   const [membership] = await db
     .select({ organizationId: organizationMembers.organizationId })

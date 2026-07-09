@@ -65,10 +65,17 @@ export function ConfirmDialog({
       >
         <h2 className="font-serif text-lg text-foreground">{title}</h2>
         {description && (
-          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         )}
         <div className="mt-5 flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={onCancel} disabled={pending}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onCancel}
+            disabled={pending}
+          >
             {cancelLabel}
           </Button>
           <Button

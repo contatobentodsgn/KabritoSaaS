@@ -52,8 +52,10 @@ export function OnboardingWelcome({ name }: { name: string }) {
       </h2>
       <p className="mt-2 max-w-xl text-muted-foreground">
         Toda manhã sua edição chega{" "}
-        <strong className="font-medium text-foreground">revisada por humanos</strong> — você
-        só adapta ao seu nicho e publica. Nada vai ao ar no automático.
+        <strong className="font-medium text-foreground">
+          revisada por humanos
+        </strong>{" "}
+        — você só adapta ao seu nicho e publica. Nada vai ao ar no automático.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">

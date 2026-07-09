@@ -54,7 +54,9 @@ for (const bin of candidates) {
 }
 
 if (!best) {
-  console.error("❌ pg_dump não encontrado. Instale: brew install postgresql@17");
+  console.error(
+    "❌ pg_dump não encontrado. Instale: brew install postgresql@17",
+  );
   process.exit(1);
 }
 
@@ -87,4 +89,6 @@ if (res.status !== 0) {
 }
 
 console.log(`\n✅ Backup salvo: ${out}`);
-console.log("   Copie para um armazenamento externo (Drive/etc.) periodicamente.");
+console.log(
+  "   Copie para um armazenamento externo (Drive/etc.) periodicamente.",
+);

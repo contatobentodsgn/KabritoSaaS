@@ -53,7 +53,10 @@ export function CollectionPicker({
   return (
     <div className="flex flex-wrap items-end gap-2">
       <div className="flex flex-1 flex-col gap-1.5">
-        <Label htmlFor={inputId} className="flex items-center gap-1.5 text-muted-foreground">
+        <Label
+          htmlFor={inputId}
+          className="flex items-center gap-1.5 text-muted-foreground"
+        >
           <FolderInput className="size-3.5" />
           Coleção
         </Label>

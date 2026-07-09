@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 /** Entrada da geração sob demanda "Adaptar ao meu nicho" (Zod em tudo). */
-export const PLATFORM_OPTIONS = ["instagram", "linkedin", "threads", "tiktok"] as const;
+export const PLATFORM_OPTIONS = [
+  "instagram",
+  "linkedin",
+  "threads",
+  "tiktok",
+] as const;
 export const FORMAT_OPTIONS = [
   "carrossel",
   "reels",

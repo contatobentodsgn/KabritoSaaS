@@ -120,7 +120,11 @@ export async function consume(
   if (limiter) {
     try {
       const res = await limiter.limit(identifier);
-      return { success: res.success, remaining: res.remaining, resetAt: res.reset };
+      return {
+        success: res.success,
+        remaining: res.remaining,
+        resetAt: res.reset,
+      };
     } catch (err) {
       // Redis indisponível em runtime → fail-open pro limiter em memória.
       // (Decisão deliberada: NÃO fail-closed no login — uma queda do Redis não

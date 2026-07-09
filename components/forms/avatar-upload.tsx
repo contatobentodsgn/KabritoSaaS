@@ -67,10 +67,16 @@ export function AvatarUpload({
           disabled={pending}
           onClick={() => inputRef.current?.click()}
         >
-          {pending ? <Loader2 className="animate-spin" /> : <Upload className="size-4" />}
+          {pending ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <Upload className="size-4" />
+          )}
           {pending ? "Enviando..." : "Trocar avatar"}
         </Button>
-        <p className="text-xs text-muted-foreground">PNG, JPG ou WEBP, até 2 MB.</p>
+        <p className="text-xs text-muted-foreground">
+          PNG, JPG ou WEBP, até 2 MB.
+        </p>
       </div>
     </div>
   );

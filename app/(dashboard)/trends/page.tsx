@@ -40,7 +40,11 @@ export default async function TrendsPage({
       </div>
       {trends.length === 0 ? (
         <EmptyState
-          title={filtering ? "Nenhuma pauta com esses filtros" : "Sem pautas no momento"}
+          title={
+            filtering
+              ? "Nenhuma pauta com esses filtros"
+              : "Sem pautas no momento"
+          }
           description={
             filtering
               ? "Ajuste o nicho/formato ou limpe os filtros."
@@ -50,7 +54,11 @@ export default async function TrendsPage({
       ) : (
         <div className="grid gap-4">
           {trends.map((t) => (
-            <TrendCard key={t.id} trend={t} favorited={favs.has(`trend_item:${t.id}`)} />
+            <TrendCard
+              key={t.id}
+              trend={t}
+              favorited={favs.has(`trend_item:${t.id}`)}
+            />
           ))}
         </div>
       )}

@@ -18,7 +18,9 @@ export function EmptyState({
         </span>
         <p className="font-serif text-lg text-foreground">{title}</p>
         {description && (
-          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">{description}</p>
+          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         )}
         {action && <div className="pt-2">{action}</div>}
       </CardContent>

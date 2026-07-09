@@ -111,9 +111,13 @@ export const tagSlug = z
  */
 const stripAccents = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
 const normEnumStr = (s: string) =>
-  stripAccents(s.trim().toLowerCase()).replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  stripAccents(s.trim().toLowerCase())
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 const toSlugStr = (s: string) =>
-  stripAccents(s.trim().toLowerCase()).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  stripAccents(s.trim().toLowerCase())
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 const preNorm = (v: unknown) => (typeof v === "string" ? normEnumStr(v) : v);
 const preSlug = (v: unknown) => (typeof v === "string" ? toSlugStr(v) : v);
 /**
@@ -122,9 +126,16 @@ const preSlug = (v: unknown) => (typeof v === "string" ? toSlugStr(v) : v);
  * via prompt). O cast para o schema original preserva o tipo de saída (union/slug) —
  * o z.preprocess sozinho infere `unknown` e quebra a tipagem em run.ts.
  */
-const loose = <T extends z.ZodTypeAny>(e: T): T => z.preprocess(preNorm, e) as unknown as T;
-const tagSlugLoose = z.preprocess(preSlug, tagSlug) as unknown as typeof tagSlug;
-const nicheSlugLoose = z.preprocess(preSlug, nicheSlug) as unknown as typeof nicheSlug;
+const loose = <T extends z.ZodTypeAny>(e: T): T =>
+  z.preprocess(preNorm, e) as unknown as T;
+const tagSlugLoose = z.preprocess(
+  preSlug,
+  tagSlug,
+) as unknown as typeof tagSlug;
+const nicheSlugLoose = z.preprocess(
+  preSlug,
+  nicheSlug,
+) as unknown as typeof nicheSlug;
 
 /* ===========================================================================
  * 2) PRIMITIVOS REUTILIZÁVEIS
@@ -300,12 +311,11 @@ export function stripCodeFences(raw: string): string {
 }
 
 export type ParseResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 export function safeParseGenerated<T>(
   schema: z.ZodSchema<T>,
-  raw: string
+  raw: string,
 ): ParseResult<T> {
   let json: unknown;
   try {

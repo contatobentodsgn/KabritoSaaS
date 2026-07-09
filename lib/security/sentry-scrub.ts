@@ -36,7 +36,9 @@ const ALLOWED_EXTRA_KEYS = new Set([
 ]);
 
 function truncate(value: string): string {
-  return value.length > MAX_STRING ? `${value.slice(0, MAX_STRING)}…[truncado]` : value;
+  return value.length > MAX_STRING
+    ? `${value.slice(0, MAX_STRING)}…[truncado]`
+    : value;
 }
 
 function redactDeep(value: unknown, depth = 0): unknown {

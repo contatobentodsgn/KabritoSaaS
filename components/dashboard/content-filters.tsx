@@ -68,7 +68,10 @@ export function ContentFilters({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <label className={chip}>
-        <Tag className="size-4 text-mint-700 dark:text-mint-300" strokeWidth={1.75} />
+        <Tag
+          className="size-4 text-mint-700 dark:text-mint-300"
+          strokeWidth={1.75}
+        />
         <span className="text-muted-foreground">Nicho:</span>
         <select
           className={selectCls}
@@ -87,7 +90,10 @@ export function ContentFilters({
 
       {showFormat && (
         <label className={chip}>
-          <LayoutGrid className="size-4 text-mint-700 dark:text-mint-300" strokeWidth={1.75} />
+          <LayoutGrid
+            className="size-4 text-mint-700 dark:text-mint-300"
+            strokeWidth={1.75}
+          />
           <span className="text-muted-foreground">Formato:</span>
           <select
             className={selectCls}

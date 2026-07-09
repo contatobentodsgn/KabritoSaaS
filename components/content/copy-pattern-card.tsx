@@ -22,11 +22,17 @@ export function CopyPatternCard({
             <Badge variant="secondary">{pattern.hook_type}</Badge>
           </div>
         </div>
-        <FavoriteButton entityType="copy_pattern" entityId={pattern.id} initial={favorited} />
+        <FavoriteButton
+          entityType="copy_pattern"
+          entityId={pattern.id}
+          initial={favorited}
+        />
       </CardHeader>
       <CardContent className="space-y-4">
         <Field label="Headline observada">
-          <span className="italic">&ldquo;{pattern.observed_headline}&rdquo;</span>
+          <span className="italic">
+            &ldquo;{pattern.observed_headline}&rdquo;
+          </span>
         </Field>
         <Field label="Por que chama atenção">{pattern.explanation}</Field>
         <Field label="Estrutura reutilizável">

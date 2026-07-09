@@ -12,7 +12,7 @@ quando o modelo de tenant evoluir.
   Cobertura em `tests/rls/rls.test.ts` — leitura cross-org (bloco 6.3) e
   **escrita** cross-org (bloco 6.12).
 - **Conteúdo editorial e pipeline são GLOBAIS por design** (sem
-  `organization_id`): o acesso é gated por *assinatura ativa em qualquer org*
+  `organization_id`): o acesso é gated por _assinatura ativa em qualquer org_
   (`has_active_subscription(auth.uid())`, `db/migrations/0001_rls.sql`), não pela
   org do usuário. É proposital no plano único atual — todo assinante vê o mesmo
   catálogo.
@@ -30,7 +30,7 @@ pontos precisarão mudar (hoje estão corretos, mas não isolam por org):
   membership (ex.: `is_org_member(auth.uid(), organization_id)`).
 - **Conteúdo (edições, trends, headlines, prompts…)**: se um dia houver conteúdo
   privado por org, os domínios editorial/pipeline precisarão de `organization_id`
-  + RLS por org — hoje são globais.
+  - RLS por org — hoje são globais.
 
 ## Defesa-em-profundidade
 

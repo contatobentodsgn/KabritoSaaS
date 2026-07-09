@@ -18,7 +18,11 @@ export function VisualPatternCard({
           <CardTitle>{pattern.title}</CardTitle>
           <Badge variant="outline">{pattern.visual_style}</Badge>
         </div>
-        <FavoriteButton entityType="visual_pattern" entityId={pattern.id} initial={favorited} />
+        <FavoriteButton
+          entityType="visual_pattern"
+          entityId={pattern.id}
+          initial={favorited}
+        />
       </CardHeader>
       <CardContent className="space-y-4">
         <Field label="Cores">

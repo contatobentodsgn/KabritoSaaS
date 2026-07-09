@@ -17,7 +17,11 @@ export function ExploreReportCard({
           <CardTitle>{report.title}</CardTitle>
           <p className="mt-1 text-sm text-muted-foreground">{report.summary}</p>
         </div>
-        <FavoriteButton entityType="explore_report" entityId={report.id} initial={favorited} />
+        <FavoriteButton
+          entityType="explore_report"
+          entityId={report.id}
+          initial={favorited}
+        />
       </CardHeader>
       <CardContent className="space-y-4">
         <Field label="Padrões observados">

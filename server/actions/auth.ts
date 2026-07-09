@@ -63,7 +63,11 @@ export async function signInAction(
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
     const meta = await clientMeta();
-    await recordFailedLogin({ email: parsed.data.email, ip: meta.ip, userAgent: meta.userAgent });
+    await recordFailedLogin({
+      email: parsed.data.email,
+      ip: meta.ip,
+      userAgent: meta.userAgent,
+    });
     return { error: "E-mail ou senha inválidos." };
   }
 
@@ -132,8 +136,16 @@ export async function signUpAction(
     // (e variantes) devolve o MESMO estado de um cadastro novo; outros erros
     // viram mensagem genérica (sem ecoar o texto interno do provedor).
     const m = error.message?.toLowerCase() ?? "";
-    if (m.includes("already") || m.includes("registered") || m.includes("exists")) {
-      return { ok: true, email, message: "Conta criada! Confirme seu e-mail para entrar." };
+    if (
+      m.includes("already") ||
+      m.includes("registered") ||
+      m.includes("exists")
+    ) {
+      return {
+        ok: true,
+        email,
+        message: "Conta criada! Confirme seu e-mail para entrar.",
+      };
     }
     return { error: "Não foi possível criar a conta. Tente novamente." };
   }
@@ -161,7 +173,9 @@ export async function signUpAction(
  * Reenvia o e-mail de confirmação de cadastro. Rate-limited; anti-enumeração
  * (resposta sempre igual). Usado no estado de sucesso do cadastro.
  */
-export async function resendConfirmationAction(email: string): Promise<FormState> {
+export async function resendConfirmationAction(
+  email: string,
+): Promise<FormState> {
   if (await limited("register")) {
     return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
   }
@@ -171,7 +185,10 @@ export async function resendConfirmationAction(email: string): Promise<FormState
   const supabase = await createClient();
   // Erros silenciados de propósito (não vazar existência/estado da conta).
   await supabase.auth.resend({ type: "signup", email });
-  return { ok: true, message: "Link reenviado. Confira sua caixa de entrada (e o spam)." };
+  return {
+    ok: true,
+    message: "Link reenviado. Confira sua caixa de entrada (e o spam).",
+  };
 }
 
 /**
@@ -237,7 +254,9 @@ export async function updatePasswordAction(
       },
     };
   }
-  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+  });
   if (error) return { error: "Não foi possível atualizar a senha." };
   redirect(DEFAULT_REDIRECT);
 }

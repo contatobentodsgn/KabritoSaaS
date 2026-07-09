@@ -17,7 +17,11 @@ export const metadata = { title: "Edição diária · Inteligência Criativa" };
 
 function formatDate(d: string) {
   const date = new Date(`${d}T00:00:00`);
-  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export default async function DailyBriefingHistoryPage({
@@ -72,11 +76,16 @@ export default async function DailyBriefingHistoryPage({
                     </span>
                     <div>
                       <p className="font-medium text-foreground">{e.title}</p>
-                      <p className="text-sm text-muted-foreground">{formatDate(e.edition_date)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(e.edition_date)}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant="secondary" className="hidden sm:inline-flex">
+                    <Badge
+                      variant="secondary"
+                      className="hidden sm:inline-flex"
+                    >
                       publicada
                     </Badge>
                     <ArrowRight className="size-4 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5" />

@@ -9,7 +9,10 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
  * Retorna o usuário atual + a resposta com cookies atualizados.
  * Usado pelo middleware.ts para decidir redirects.
  */
-export async function updateSession(request: NextRequest, requestHeaders: Headers) {
+export async function updateSession(
+  request: NextRequest,
+  requestHeaders: Headers,
+) {
   // requestHeaders carrega o x-nonce + CSP (para o Next aplicar o nonce aos scripts).
   let response = NextResponse.next({ request: { headers: requestHeaders } });
 
@@ -27,7 +30,9 @@ export async function updateSession(request: NextRequest, requestHeaders: Header
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          response = NextResponse.next({ request: { headers: requestHeaders } });
+          response = NextResponse.next({
+            request: { headers: requestHeaders },
+          });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
           );

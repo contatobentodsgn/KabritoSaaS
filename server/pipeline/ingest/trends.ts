@@ -12,7 +12,9 @@ import { safeFetch } from "./safe-fetch";
  *  - url?: string
  *  - field?: string (campo de cada item JSON; default = item já é string)
  */
-export async function collectTrends(config: Record<string, unknown>): Promise<string[]> {
+export async function collectTrends(
+  config: Record<string, unknown>,
+): Promise<string[]> {
   if (Array.isArray(config.terms)) {
     return config.terms
       .filter((x): x is string => typeof x === "string")
@@ -27,7 +29,8 @@ export async function collectTrends(config: Record<string, unknown>): Promise<st
       ? await safeFetch(config.url, {
           headers: {
             "user-agent": "InteligenciaCriativaBot/1.0 (+trends)",
-            accept: "application/json, application/rss+xml, application/xml;q=0.9, */*;q=0.8",
+            accept:
+              "application/json, application/rss+xml, application/xml;q=0.9, */*;q=0.8",
           },
           signal: AbortSignal.timeout(10_000),
         })
@@ -62,7 +65,10 @@ function extractFromRss(xml: string): string[] {
 }
 
 /** Extrai termos de um JSON (array na raiz ou objeto best-effort). */
-function extractFromJson(body: string, config: Record<string, unknown>): string[] {
+function extractFromJson(
+  body: string,
+  config: Record<string, unknown>,
+): string[] {
   let json: unknown;
   try {
     json = JSON.parse(body);
@@ -79,7 +85,9 @@ function extractFromJson(body: string, config: Record<string, unknown>): string[
     if (typeof item === "string") {
       out.push(item);
     } else if (isRecord(item)) {
-      const v = field ? item[field] : (item.title ?? item.name ?? item.query ?? item.term);
+      const v = field
+        ? item[field]
+        : (item.title ?? item.name ?? item.query ?? item.term);
       if (typeof v === "string") out.push(v);
     }
   }

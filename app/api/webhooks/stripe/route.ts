@@ -19,10 +19,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request): Promise<NextResponse> {
   if (!STRIPE_ENABLED) {
-    return NextResponse.json(
-      { error: "stripe_disabled" },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: "stripe_disabled" }, { status: 503 });
   }
 
   const payload = await req.text();

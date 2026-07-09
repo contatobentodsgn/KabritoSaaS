@@ -1,6 +1,10 @@
 import "server-only";
 import { serverEnv } from "@/server/env";
-import { SYSTEM_BASE, type GenModule, type PromptVars } from "@/server/pipeline/prompts";
+import {
+  SYSTEM_BASE,
+  type GenModule,
+  type PromptVars,
+} from "@/server/pipeline/prompts";
 
 /**
  * Provedor de IA do pipeline — desacoplado de um fornecedor único. Implementações:
@@ -24,7 +28,11 @@ export interface ModelCall {
 export interface AiProvider {
   name: string;
   model: string;
-  generateModule(module: GenModule, userPrompt: string, vars: PromptVars): Promise<ModelCall>;
+  generateModule(
+    module: GenModule,
+    userPrompt: string,
+    vars: PromptVars,
+  ): Promise<ModelCall>;
 }
 
 /** Tabela de custo (US$/milhão de tokens). Aproximada; ajuste conforme provider. */
@@ -34,7 +42,11 @@ const RATES: Record<string, { in: number; out: number }> = {
   default: { in: 3, out: 15 },
 };
 
-export function estimateCostUsd(model: string, inTok: number, outTok: number): number {
+export function estimateCostUsd(
+  model: string,
+  inTok: number,
+  outTok: number,
+): number {
   const r = RATES[model] ?? RATES.default!;
   return (inTok / 1_000_000) * r.in + (outTok / 1_000_000) * r.out;
 }
@@ -84,7 +96,9 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 class OpenAiCompatibleProvider implements AiProvider {
   name = "openai-compatible";
   model = serverEnv.AI_MODEL;
-  private baseUrl = (serverEnv.AI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/$/, "");
+  private baseUrl = (
+    serverEnv.AI_BASE_URL ?? "https://api.openai.com/v1"
+  ).replace(/\/$/, "");
 
   async generateModule(_m: GenModule, userPrompt: string): Promise<ModelCall> {
     const maxRetries = 4;
@@ -135,7 +149,11 @@ class MockProvider implements AiProvider {
   name = "mock";
   model = "mock-generator-v1";
 
-  async generateModule(module: GenModule, _userPrompt: string, vars: PromptVars): Promise<ModelCall> {
+  async generateModule(
+    module: GenModule,
+    _userPrompt: string,
+    vars: PromptVars,
+  ): Promise<ModelCall> {
     // Gatilho de teste: força saída inválida p/ provar que NÃO é gravada.
     if (process.env.PIPELINE_FORCE_INVALID === module) {
       const raw = JSON.stringify({ broken: true });
@@ -152,18 +170,23 @@ export function getAiProvider(): AiProvider {
   const provider = (serverEnv.AI_PROVIDER ?? "").toLowerCase();
   if (provider === "anthropic") return new RealAnthropicProvider();
   // openai explícito OU base url customizada (OpenRouter/Groq/Gemini-compat/…).
-  if (provider === "openai" || serverEnv.AI_BASE_URL) return new OpenAiCompatibleProvider();
+  if (provider === "openai" || serverEnv.AI_BASE_URL)
+    return new OpenAiCompatibleProvider();
   // Padrão histórico (compatível): Anthropic nativo.
   return new RealAnthropicProvider();
 }
 
 /* --------------------------- Mock data builders --------------------------- */
 function pickNiches(vars: PromptVars, n = 2): string[] {
-  const base = vars.niches.length ? vars.niches : ["marketing", "negocios", "criadores"];
+  const base = vars.niches.length
+    ? vars.niches
+    : ["marketing", "negocios", "criadores"];
   return base.slice(0, Math.max(1, n));
 }
 function pickFormats(vars: PromptVars, n = 2): string[] {
-  const base = vars.formats.length ? vars.formats : ["carrossel", "reels", "post_unico"];
+  const base = vars.formats.length
+    ? vars.formats
+    : ["carrossel", "reels", "post_unico"];
   return base.slice(0, Math.max(1, n));
 }
 const SEED = (vars: PromptVars) =>
@@ -172,7 +195,10 @@ const SEED = (vars: PromptVars) =>
 function buildMock(module: GenModule, vars: PromptVars): unknown {
   const niches = pickNiches(vars);
   const formats = pickFormats(vars);
-  const ex = niches.map((niche) => ({ niche, example: `Aplique ao nicho ${niche} com um gancho forte.` }));
+  const ex = niches.map((niche) => ({
+    niche,
+    example: `Aplique ao nicho ${niche} com um gancho forte.`,
+  }));
   switch (module) {
     case "briefing":
       return {
@@ -187,8 +213,10 @@ function buildMock(module: GenModule, vars: PromptVars): unknown {
       return [0, 1, 2].map((i) => ({
         title: `Pauta quente ${i + 1} em ${vars.platform}`,
         context: `Contexto da pauta ${i + 1}: o que é e por que surgiu agora. ${SEED(vars)}`,
-        why_it_matters: "Importa porque oferece janela de baixa saturação para criadores.",
-        adaptation_tips: "Transforme em carrossel: slide 1 gancho, slides 2–4 desenvolvimento, último com CTA.",
+        why_it_matters:
+          "Importa porque oferece janela de baixa saturação para criadores.",
+        adaptation_tips:
+          "Transforme em carrossel: slide 1 gancho, slides 2–4 desenvolvimento, último com CTA.",
         risk_level: "baixo",
         saturation_level: i === 0 ? "emergente" : "baixo",
         opportunity_score: 80 - i * 5,
@@ -200,9 +228,15 @@ function buildMock(module: GenModule, vars: PromptVars): unknown {
       return [
         {
           title: "Padrões observados em fontes legais",
-          summary: "Análise de ganchos e formatos recorrentes a partir de sinais autorizados.",
-          observed_patterns: ["Ganchos de pergunta", "Listas numeradas", "Provas com dados"],
-          recommendation: "Combine prova social com um gancho de curiosidade no primeiro segundo.",
+          summary:
+            "Análise de ganchos e formatos recorrentes a partir de sinais autorizados.",
+          observed_patterns: [
+            "Ganchos de pergunta",
+            "Listas numeradas",
+            "Provas com dados",
+          ],
+          recommendation:
+            "Combine prova social com um gancho de curiosidade no primeiro segundo.",
         },
       ];
     case "copy_patterns":
@@ -212,7 +246,8 @@ function buildMock(module: GenModule, vars: PromptVars): unknown {
         category: "quebra_de_crenca",
         hook_type: "pergunta provocativa",
         trigger_type: "curiosidade",
-        explanation: "Chama atenção porque desafia uma crença comum do público.",
+        explanation:
+          "Chama atenção porque desafia uma crença comum do público.",
         structure: "Você está fazendo X do jeito errado",
         adaptation_examples: ex,
         tags: ["copy", "gancho"],
@@ -223,7 +258,8 @@ function buildMock(module: GenModule, vars: PromptVars): unknown {
           title: "Minimalista editorial",
           visual_style: "minimalista editorial",
           colors: ["fundo claro", "texto escuro", "destaque em uma cor"],
-          typography_notes: "Tipografia serifada para títulos, sans para corpo.",
+          typography_notes:
+            "Tipografia serifada para títulos, sans para corpo.",
           composition_notes: "Bastante respiro, um foco por slide.",
           why_it_works: "Transmite autoridade e facilita a leitura no feed.",
           how_to_adapt: "Use um template fixo de cores e troque só o texto.",
@@ -234,7 +270,10 @@ function buildMock(module: GenModule, vars: PromptVars): unknown {
       return [0, 1, 2, 3, 4].map((i) => ({
         headline: `Headline de teste número ${i + 1} que prende atenção`,
         category: "alerta / quebra de padrão",
-        trigger_type: ["curiosidade", "medo_de_errar", "prova_social", "novidade", "ganho"][i] ?? "curiosidade",
+        trigger_type:
+          ["curiosidade", "medo_de_errar", "prova_social", "novidade", "ganho"][
+            i
+          ] ?? "curiosidade",
         why_it_works: "Funciona porque ativa um gatilho emocional específico.",
         adaptations: ["Variação A do título", "Variação B do título"],
         saturation_level: "baixo",
@@ -243,16 +282,20 @@ function buildMock(module: GenModule, vars: PromptVars): unknown {
     case "content_suggestions":
       return [0, 1, 2].map((i) => ({
         title: `Sugestão de post ${i + 1}`,
-        central_idea: "Ensinar um conceito difícil de forma simples em poucos slides.",
+        central_idea:
+          "Ensinar um conceito difícil de forma simples em poucos slides.",
         recommended_format: formats[0] ?? "carrossel",
         suggested_headline: "O erro que trava seu crescimento",
-        post_structure: "Slide 1: gancho. Slides 2–4: passos. Slide final: CTA.",
-        caption_base: "Legenda base com contexto, valor e chamada para salvar o post.",
+        post_structure:
+          "Slide 1: gancho. Slides 2–4: passos. Slide final: CTA.",
+        caption_base:
+          "Legenda base com contexto, valor e chamada para salvar o post.",
         cta: "Salva esse post para aplicar depois.",
         recommended_niches: niches,
         difficulty_level: "facil",
         opportunity_score: 75 - i * 5,
-        personalization_prompt: "Adapte esta ideia para o nicho {seu_nicho} mantendo o gancho.",
+        personalization_prompt:
+          "Adapte esta ideia para o nicho {seu_nicho} mantendo o gancho.",
       }));
   }
 }

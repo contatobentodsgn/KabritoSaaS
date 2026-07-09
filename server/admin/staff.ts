@@ -24,9 +24,15 @@ export async function setStaffRole(
     .where(eq(profiles.email, email))
     .limit(1);
   if (!before) {
-    return { ok: false, message: `Conta não encontrada: ${email} (cadastre-se primeiro).` };
+    return {
+      ok: false,
+      message: `Conta não encontrada: ${email} (cadastre-se primeiro).`,
+    };
   }
-  await db.update(profiles).set({ staffRole: role }).where(eq(profiles.id, before.id));
+  await db
+    .update(profiles)
+    .set({ staffRole: role })
+    .where(eq(profiles.id, before.id));
   // Trilha de auditoria: concessão/rebaixamento de privilégio de staff (de→para).
   await recordSystemAudit({
     action: AUDIT_ACTIONS.STAFF_ROLE_SET,
@@ -35,5 +41,8 @@ export async function setStaffRole(
     entityId: before.id,
     metadata: { email, from: before.role ?? null, to: role },
   });
-  return { ok: true, message: `${email} agora é ${role ?? "assinante comum"}.` };
+  return {
+    ok: true,
+    message: `${email} agora é ${role ?? "assinante comum"}.`,
+  };
 }

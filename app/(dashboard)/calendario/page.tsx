@@ -2,7 +2,9 @@ import { requireActiveSubscription } from "@/server/permissions";
 import { PageHeader } from "@/components/layout/page-header";
 import { CalendarForm } from "@/components/forms/calendar-form";
 
-export const metadata = { title: "Calendário editorial · Inteligência Criativa" };
+export const metadata = {
+  title: "Calendário editorial · Inteligência Criativa",
+};
 
 export default async function CalendarioPage() {
   await requireActiveSubscription();

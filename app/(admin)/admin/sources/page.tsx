@@ -31,13 +31,20 @@ export default async function SourcesPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {sources.length === 0 && (
-              <p className="text-sm text-muted-foreground">Nenhuma fonte ainda.</p>
+              <p className="text-sm text-muted-foreground">
+                Nenhuma fonte ainda.
+              </p>
             )}
             {sources.map((s) => (
-              <div key={s.id} className="flex items-center justify-between gap-3 rounded-md border p-3">
+              <div
+                key={s.id}
+                className="flex items-center justify-between gap-3 rounded-md border p-3"
+              >
                 <div className="min-w-0">
                   <p className="truncate font-medium">{s.name}</p>
-                  <p className="text-xs text-muted-foreground">tipo: {s.type}</p>
+                  <p className="text-xs text-muted-foreground">
+                    tipo: {s.type}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant={s.is_active ? "success" : "outline"}>
@@ -55,7 +62,12 @@ export default async function SourcesPage() {
                   action={createSource}
                   submitLabel="Adicionar fonte"
                   fields={[
-                    { name: "name", label: "Nome", required: true, placeholder: "Ex.: Google Trends BR" },
+                    {
+                      name: "name",
+                      label: "Nome",
+                      required: true,
+                      placeholder: "Ex.: Google Trends BR",
+                    },
                     {
                       name: "type",
                       label: "Tipo",
@@ -73,7 +85,12 @@ export default async function SourcesPage() {
                       type: "textarea",
                       placeholder: '{ "url": "https://exemplo.com/feed" }',
                     },
-                    { name: "isActive", label: "Ativa", type: "checkbox", defaultChecked: true },
+                    {
+                      name: "isActive",
+                      label: "Ativa",
+                      type: "checkbox",
+                      defaultChecked: true,
+                    },
                   ]}
                 />
               </div>
@@ -91,7 +108,10 @@ export default async function SourcesPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {platforms.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-3 rounded-md border p-3">
+              <div
+                key={p.id}
+                className="flex items-center justify-between gap-3 rounded-md border p-3"
+              >
                 <div className="min-w-0">
                   <p className="truncate font-medium">{p.name}</p>
                   <p className="text-xs text-muted-foreground">{p.slug}</p>
@@ -107,9 +127,24 @@ export default async function SourcesPage() {
                 action={createPlatform}
                 submitLabel="Adicionar plataforma"
                 fields={[
-                  { name: "name", label: "Nome", required: true, placeholder: "LinkedIn" },
-                  { name: "slug", label: "Slug", required: true, placeholder: "linkedin" },
-                  { name: "isActive", label: "Ativa", type: "checkbox", defaultChecked: true },
+                  {
+                    name: "name",
+                    label: "Nome",
+                    required: true,
+                    placeholder: "LinkedIn",
+                  },
+                  {
+                    name: "slug",
+                    label: "Slug",
+                    required: true,
+                    placeholder: "linkedin",
+                  },
+                  {
+                    name: "isActive",
+                    label: "Ativa",
+                    type: "checkbox",
+                    defaultChecked: true,
+                  },
                 ]}
               />
             </div>

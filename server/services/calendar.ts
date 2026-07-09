@@ -108,26 +108,39 @@ function mockCalendar(i: CalendarInput): string {
     };
   });
   return JSON.stringify({
-    week_theme: `Semana de ${i.niche} no ${i.platform}: conteúdo para ${goal}.`.slice(0, 160),
+    week_theme:
+      `Semana de ${i.niche} no ${i.platform}: conteúdo para ${goal}.`.slice(
+        0,
+        160,
+      ),
     days,
   });
 }
 
 export type CalendarResult =
-  | { ok: true; data: Calendar }
-  | { ok: false; error: string };
+  { ok: true; data: Calendar } | { ok: false; error: string };
 
-export async function gerarCalendario(input: CalendarInput): Promise<CalendarResult> {
+export async function gerarCalendario(
+  input: CalendarInput,
+): Promise<CalendarResult> {
   let raw: string;
   try {
-    raw = serverEnv.AI_API_KEY ? await callAnthropic(buildUser(input)) : mockCalendar(input);
+    raw = serverEnv.AI_API_KEY
+      ? await callAnthropic(buildUser(input))
+      : mockCalendar(input);
   } catch (err) {
     console.error("[calendar] falha na chamada do modelo:", err);
-    return { ok: false, error: "Não foi possível gerar o calendário agora. Tente de novo." };
+    return {
+      ok: false,
+      error: "Não foi possível gerar o calendário agora. Tente de novo.",
+    };
   }
   const parsed = safeParseGenerated(calendarSchema, raw);
   if (!parsed.ok) {
-    return { ok: false, error: "A saída não passou na validação. Tente novamente." };
+    return {
+      ok: false,
+      error: "A saída não passou na validação. Tente novamente.",
+    };
   }
   return { ok: true, data: parsed.data };
 }

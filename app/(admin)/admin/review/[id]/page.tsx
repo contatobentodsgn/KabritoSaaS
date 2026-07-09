@@ -30,11 +30,17 @@ export default async function ReviewDetailPage({
     ? { label: "Publicada · no ar", variant: "forest" as const }
     : data.edition.review_status === "rejected"
       ? { label: "Rascunho · rejeitada", variant: "destructive" as const }
-      : { label: "Rascunho da IA · não publicada", variant: "warning" as const };
+      : {
+          label: "Rascunho da IA · não publicada",
+          variant: "warning" as const,
+        };
 
   return (
     <>
-      <PageHeader title={data.edition.title} description={`${data.edition.edition_date}`}>
+      <PageHeader
+        title={data.edition.title}
+        description={`${data.edition.edition_date}`}
+      >
         <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
       </PageHeader>
 
@@ -42,8 +48,8 @@ export default async function ReviewDetailPage({
         <p className="mb-6 flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-foreground">
           <span aria-hidden>🔒</span>
           <span>
-            Rascunho gerado por IA — <strong>ainda NÃO publicado</strong>. Nada vai
-            ao ar até você aprovar.
+            Rascunho gerado por IA — <strong>ainda NÃO publicado</strong>. Nada
+            vai ao ar até você aprovar.
           </span>
         </p>
       )}
@@ -54,15 +60,21 @@ export default async function ReviewDetailPage({
             <span className="k-eyebrow text-rose-700 dark:text-blush-300">
               Rejeitada anteriormente — motivo registrado
             </span>
-            <p className="mt-1 text-sm leading-relaxed text-foreground">{rejectionReason}</p>
+            <p className="mt-1 text-sm leading-relaxed text-foreground">
+              {rejectionReason}
+            </p>
           </CardContent>
         </Card>
       )}
 
       <Card className="mb-6 border-rose-200 dark:border-rose-500/40 bg-rose-50/60 shadow-k-1">
         <CardHeader className="pb-3">
-          <span className="k-eyebrow text-rose-900 dark:text-blush-200">Decisão</span>
-          <CardTitle className="text-lg">Aprovar ou ajustar esta edição</CardTitle>
+          <span className="k-eyebrow text-rose-900 dark:text-blush-200">
+            Decisão
+          </span>
+          <CardTitle className="text-lg">
+            Aprovar ou ajustar esta edição
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="mb-4 text-sm text-muted-foreground">
@@ -97,8 +109,16 @@ export default async function ReviewDetailPage({
                 fields={[
                   { name: "title", label: "Título", value: t.title },
                   { name: "context", label: "Contexto", value: t.context },
-                  { name: "why_it_matters", label: "Por que importa", value: t.why_it_matters },
-                  { name: "adaptation_tips", label: "Como adaptar", value: t.adaptation_tips },
+                  {
+                    name: "why_it_matters",
+                    label: "Por que importa",
+                    value: t.why_it_matters,
+                  },
+                  {
+                    name: "adaptation_tips",
+                    label: "Como adaptar",
+                    value: t.adaptation_tips,
+                  },
                 ]}
               />
             ))}
@@ -119,7 +139,11 @@ export default async function ReviewDetailPage({
                 fields={[
                   { name: "headline", label: "Headline", value: h.headline },
                   { name: "category", label: "Categoria", value: h.category },
-                  { name: "why_it_works", label: "Por que funciona", value: h.why_it_works },
+                  {
+                    name: "why_it_works",
+                    label: "Por que funciona",
+                    value: h.why_it_works,
+                  },
                 ]}
               />
             ))}
@@ -139,8 +163,16 @@ export default async function ReviewDetailPage({
                 title={c.title}
                 fields={[
                   { name: "title", label: "Título", value: c.title },
-                  { name: "observed_headline", label: "Headline observada", value: c.observed_headline },
-                  { name: "explanation", label: "Explicação", value: c.explanation },
+                  {
+                    name: "observed_headline",
+                    label: "Headline observada",
+                    value: c.observed_headline,
+                  },
+                  {
+                    name: "explanation",
+                    label: "Explicação",
+                    value: c.explanation,
+                  },
                   { name: "structure", label: "Estrutura", value: c.structure },
                 ]}
               />
@@ -151,7 +183,9 @@ export default async function ReviewDetailPage({
 
       {data.content_suggestions.length > 0 && (
         <>
-          <SectionTitle>Sugestões ({data.content_suggestions.length})</SectionTitle>
+          <SectionTitle>
+            Sugestões ({data.content_suggestions.length})
+          </SectionTitle>
           <div className="grid gap-3">
             {data.content_suggestions.map((s) => (
               <ItemEditor
@@ -161,8 +195,16 @@ export default async function ReviewDetailPage({
                 title={s.title}
                 fields={[
                   { name: "title", label: "Título", value: s.title },
-                  { name: "central_idea", label: "Ideia central", value: s.central_idea },
-                  { name: "caption_base", label: "Legenda base", value: s.caption_base },
+                  {
+                    name: "central_idea",
+                    label: "Ideia central",
+                    value: s.central_idea,
+                  },
+                  {
+                    name: "caption_base",
+                    label: "Legenda base",
+                    value: s.caption_base,
+                  },
                   { name: "cta", label: "CTA", value: s.cta },
                 ]}
               />

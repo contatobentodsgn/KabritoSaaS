@@ -9,15 +9,26 @@ import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/forms/submit-button";
 
 export function ResetRequestForm() {
-  const [state, action] = useActionState(requestPasswordResetAction, emptyFormState);
+  const [state, action] = useActionState(
+    requestPasswordResetAction,
+    emptyFormState,
+  );
 
   return (
     <form action={action} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="email">E-mail</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+        />
         {state.fieldErrors?.email && (
-          <p className="text-sm text-destructive">{state.fieldErrors.email[0]}</p>
+          <p className="text-sm text-destructive">
+            {state.fieldErrors.email[0]}
+          </p>
         )}
       </div>
       {state.error && (

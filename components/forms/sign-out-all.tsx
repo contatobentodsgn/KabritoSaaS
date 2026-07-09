@@ -12,7 +12,12 @@ export function SignOutAll() {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)} disabled={pending}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setOpen(true)}
+        disabled={pending}
+      >
         Sair de todos os dispositivos
       </Button>
       <ConfirmDialog

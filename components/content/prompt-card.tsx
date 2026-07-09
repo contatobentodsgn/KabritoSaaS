@@ -16,9 +16,15 @@ export function PromptCard({
       <CardHeader className="flex flex-row items-start justify-between gap-2">
         <div>
           <CardTitle>{prompt.title}</CardTitle>
-          <p className="mt-1 text-sm text-muted-foreground">{prompt.objective}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {prompt.objective}
+          </p>
         </div>
-        <FavoriteButton entityType="prompt_template" entityId={prompt.id} initial={favorited} />
+        <FavoriteButton
+          entityType="prompt_template"
+          entityId={prompt.id}
+          initial={favorited}
+        />
       </CardHeader>
       <CardContent className="space-y-4">
         <Field label="Quando usar">{prompt.when_to_use}</Field>
@@ -29,13 +35,19 @@ export function PromptCard({
         )}
         <div className="rounded-lg border border-mint-200 dark:border-forest-800 bg-mint-50 dark:bg-forest-950/40 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="k-eyebrow text-forest-700 dark:text-forest-200">Prompt</p>
+            <p className="k-eyebrow text-forest-700 dark:text-forest-200">
+              Prompt
+            </p>
             <CopyButton text={prompt.prompt_body} />
           </div>
-          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">{prompt.prompt_body}</pre>
+          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+            {prompt.prompt_body}
+          </pre>
         </div>
         <Field label="Exemplo de saída">
-          <p className="whitespace-pre-line text-muted-foreground">{prompt.example_output}</p>
+          <p className="whitespace-pre-line text-muted-foreground">
+            {prompt.example_output}
+          </p>
         </Field>
         <Pills items={prompt.tags} />
       </CardContent>

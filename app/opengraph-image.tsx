@@ -12,47 +12,53 @@ const MARK = `<svg width="96" height="96" viewBox="0 0 44 44" xmlns="http://www.
 
 export default function OpengraphImage() {
   return new ImageResponse(
-    (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          height: "100%",
-          background: "#EBF2EB",
-          padding: "76px 84px",
-          justifyContent: "space-between",
-          fontFamily: "sans-serif",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <img width={96} height={96} src={`data:image/svg+xml,${encodeURIComponent(MARK)}`} alt="" />
-          <span style={{ fontSize: 38, color: "#075102", fontWeight: 700 }}>Kabrito</span>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 34, color: "#3e783a", letterSpacing: 2 }}>
-            INTELIGÊNCIA CRIATIVA DIÁRIA
-          </span>
-          <span
-            style={{
-              fontSize: 82,
-              color: "#0b3d0b",
-              fontWeight: 700,
-              lineHeight: 1.05,
-              marginTop: 14,
-              maxWidth: 940,
-            }}
-          >
-            Conteúdo que cuida, com respiro.
-          </span>
-        </div>
-
-        <span style={{ fontSize: 28, color: "#598b56", maxWidth: 980 }}>
-          Pautas, copy, headlines e prompts — gerados por IA, revisados por humanos antes de publicar.
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        background: "#EBF2EB",
+        padding: "76px 84px",
+        justifyContent: "space-between",
+        fontFamily: "sans-serif",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <img
+          width={96}
+          height={96}
+          src={`data:image/svg+xml,${encodeURIComponent(MARK)}`}
+          alt=""
+        />
+        <span style={{ fontSize: 38, color: "#075102", fontWeight: 700 }}>
+          Kabrito
         </span>
       </div>
-    ),
+
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <span style={{ fontSize: 34, color: "#3e783a", letterSpacing: 2 }}>
+          INTELIGÊNCIA CRIATIVA DIÁRIA
+        </span>
+        <span
+          style={{
+            fontSize: 82,
+            color: "#0b3d0b",
+            fontWeight: 700,
+            lineHeight: 1.05,
+            marginTop: 14,
+            maxWidth: 940,
+          }}
+        >
+          Conteúdo que cuida, com respiro.
+        </span>
+      </div>
+
+      <span style={{ fontSize: 28, color: "#598b56", maxWidth: 980 }}>
+        Pautas, copy, headlines e prompts — gerados por IA, revisados por
+        humanos antes de publicar.
+      </span>
+    </div>,
     { ...size },
   );
 }

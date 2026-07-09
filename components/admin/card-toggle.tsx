@@ -6,7 +6,13 @@ import { toast } from "sonner";
 import { toggleDashboardCard } from "@/server/actions/admin";
 import { Button } from "@/components/ui/button";
 
-export function CardToggle({ cardKey, enabled }: { cardKey: string; enabled: boolean }) {
+export function CardToggle({
+  cardKey,
+  enabled,
+}: {
+  cardKey: string;
+  enabled: boolean;
+}) {
   const router = useRouter();
   const [pending, start] = useTransition();
   return (

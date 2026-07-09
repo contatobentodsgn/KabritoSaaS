@@ -32,7 +32,10 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set(CSP_REQUEST_HEADER, csp);
 
-  const { response, user, supabase } = await updateSession(request, requestHeaders);
+  const { response, user, supabase } = await updateSession(
+    request,
+    requestHeaders,
+  );
   // CSP na resposta. Enforcing ou Report-Only conforme CSP_ENFORCE (lib/security/csp.ts).
   response.headers.set(CSP_RESPONSE_HEADER, csp);
   const path = request.nextUrl.pathname;

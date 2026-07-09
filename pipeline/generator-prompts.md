@@ -3,6 +3,7 @@
 Prompts (system + user) de cada gerador. A saída de cada um é validada pelo schema Zod correspondente em `generation-schemas.ts`. **Gerar módulo a módulo** (não a edição inteira de uma vez): isola falhas, reduz custo por chamada e permite reprocessar só o módulo que quebrou.
 
 ## Regras gerais (válidas para todos)
+
 - O `SYSTEM` exige **JSON puro** que satisfaça o schema; sem texto fora do JSON, sem crases, sem explicação.
 - Enums usam **exatamente** os valores permitidos do schema. Slugs em minúsculas, sem acento, com hífen.
 - Toda saída passa por `safeParseGenerated()` antes de gravar. Inválida → `generation_runs.error_message` e reprocessa.
@@ -10,6 +11,7 @@ Prompts (system + user) de cada gerador. A saída de cada um é validada pelo sc
 - Idioma do conteúdo: **português do Brasil**.
 
 ## Variáveis injetadas no USER prompt
+
 - `{{platform}}` — ex.: `instagram`
 - `{{edition_date}}` — `YYYY-MM-DD`
 - `{{signals}}` — sinais coletados de `raw_signals` (resumo/itens das fontes legais)
@@ -19,6 +21,7 @@ Prompts (system + user) de cada gerador. A saída de cada um é validada pelo sc
 ---
 
 ## SYSTEM base (reutilizar em todos)
+
 ```
 Você é um gerador de inteligência criativa para criadores de conteúdo e social media.
 Responda SOMENTE com um objeto JSON válido que satisfaça EXATAMENTE o schema indicado.
@@ -31,7 +34,9 @@ Não invente dados de redes sociais; baseie-se apenas nos sinais fornecidos e em
 ---
 
 ## 1. Briefing (`briefingSchema`)
+
 **USER**
+
 ```
 Plataforma: {{platform}} | Data: {{edition_date}}
 Sinais do dia:
@@ -44,7 +49,9 @@ Saída: JSON conforme briefingSchema.
 ```
 
 ## 2. Pautas quentes (`trendItemSchema[]`, 1–8)
+
 **USER**
+
 ```
 Plataforma: {{platform}} | Data: {{edition_date}}
 Sinais do dia:
@@ -61,7 +68,9 @@ Saída: JSON array conforme trendItemSchema.
 ```
 
 ## 3. Radar de Descoberta (`exploreReportSchema[]`, 1–4)
+
 **USER**
+
 ```
 Plataforma: {{platform}} | Data: {{edition_date}}
 Sinais do dia:
@@ -74,7 +83,9 @@ Saída: JSON array conforme exploreReportSchema.
 ```
 
 ## 4. Análise de copy (`copyPatternSchema[]`, 1–6)
+
 **USER**
+
 ```
 Plataforma: {{platform}} | Data: {{edition_date}}
 Sinais/headlines observadas:
@@ -89,7 +100,9 @@ Saída: JSON array conforme copyPatternSchema.
 ```
 
 ## 5. Análise visual (`visualPatternSchema[]`, 1–6)
+
 **USER**
+
 ```
 Plataforma: {{platform}} | Data: {{edition_date}}
 Sinais visuais do dia:
@@ -102,7 +115,9 @@ Saída: JSON array conforme visualPatternSchema.
 ```
 
 ## 6. Headlines (`headlineSchema[]`, 3–20)
+
 **USER**
+
 ```
 Plataforma: {{platform}} | Data: {{edition_date}}
 Sinais/temas do dia:
@@ -116,7 +131,9 @@ Saída: JSON array conforme headlineSchema.
 ```
 
 ## 7. Sugestões de posts (`contentSuggestionSchema[]`, 1–10)
+
 **USER**
+
 ```
 Plataforma: {{platform}} | Data: {{edition_date}}
 Pautas/headlines do dia (use como base):
@@ -132,7 +149,9 @@ Saída: JSON array conforme contentSuggestionSchema.
 ```
 
 ## 8. Prompts sugeridos (`promptTemplateSchema[]`, opcional, 0–6)
+
 **USER**
+
 ```
 Com base nos temas do dia, sugira de 0 a 4 novos prompts úteis para revisão.
 Cada um: title, category_slug, objective, when_to_use, required_input,
@@ -144,6 +163,7 @@ Saída: JSON array conforme promptTemplateSchema.
 ---
 
 ## Montagem da edição
+
 Após validar todos os módulos, o orquestrador monta o objeto `editionGenerationSchema`
 (com `title`, `summary`, `meta.prompt_version`, `meta.model_used`) e grava a edição como
 `draft` / `review_status=pending`. Nada é publicado até a aprovação humana na fila de revisão.

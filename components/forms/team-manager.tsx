@@ -4,19 +4,18 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import type { TeamMember, MemberRole, PendingInvite } from "@/server/admin/team";
+import type {
+  TeamMember,
+  MemberRole,
+  PendingInvite,
+} from "@/server/admin/team";
 import {
   addMemberAction,
   setMemberRoleAction,
   removeMemberAction,
   cancelInviteAction,
 } from "@/server/actions/team";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -195,9 +194,12 @@ export function TeamManager({
                   className="flex items-center justify-between gap-3 px-6 py-3"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm text-foreground">{inv.email}</p>
+                    <p className="truncate text-sm text-foreground">
+                      {inv.email}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      Convidado como {inv.role === "admin" ? "Administrador" : "Membro"}
+                      Convidado como{" "}
+                      {inv.role === "admin" ? "Administrador" : "Membro"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

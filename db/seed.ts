@@ -46,7 +46,9 @@ async function ensureSource(
     .where(eq(schema.ingestionSources.name, name))
     .limit(1);
   if (existing[0]) return;
-  await db.insert(schema.ingestionSources).values({ name, type, config, isActive: true });
+  await db
+    .insert(schema.ingestionSources)
+    .values({ name, type, config, isActive: true });
 }
 
 async function main() {
@@ -81,22 +83,34 @@ async function main() {
     .where(inArray(schema.platforms.slug, ["linkedin", "threads", "tiktok"]));
 
   for (const [name, slug] of NICHES) {
-    await db.insert(schema.niches).values({ name: name!, slug: slug! }).onConflictDoNothing({ target: schema.niches.slug });
+    await db
+      .insert(schema.niches)
+      .values({ name: name!, slug: slug! })
+      .onConflictDoNothing({ target: schema.niches.slug });
   }
   for (const [name, slug] of TAGS) {
-    await db.insert(schema.contentTags).values({ name: name!, slug: slug! }).onConflictDoNothing({ target: schema.contentTags.slug });
+    await db
+      .insert(schema.contentTags)
+      .values({ name: name!, slug: slug! })
+      .onConflictDoNothing({ target: schema.contentTags.slug });
   }
 
   await db
     .insert(schema.promptCategories)
-    .values({ name: "Copywriting", slug: "copywriting", description: "Prompts de copy" })
+    .values({
+      name: "Copywriting",
+      slug: "copywriting",
+      description: "Prompts de copy",
+    })
     .onConflictDoNothing({ target: schema.promptCategories.slug });
   const [cat] = await db
     .select()
     .from(schema.promptCategories)
     .where(eq(schema.promptCategories.slug, "copywriting"))
     .limit(1);
-  const promptCount = await db.select({ c: dsql<number>`count(*)` }).from(schema.promptTemplates);
+  const promptCount = await db
+    .select({ c: dsql<number>`count(*)` })
+    .from(schema.promptTemplates);
   if (cat && Number(promptCount[0]?.c ?? 0) === 0) {
     await db.insert(schema.promptTemplates).values({
       categoryId: cat.id,
@@ -133,7 +147,12 @@ async function main() {
     url: "https://news.google.com/rss/search?q=tend%C3%AAncias+marketing+digital&hl=pt-BR&gl=BR&ceid=BR:pt-419",
   });
   await ensureSource("Termos em alta (Trends)", "trends", {
-    terms: ["IA no marketing", "vídeos curtos", "storytelling de marca", "prova social"],
+    terms: [
+      "IA no marketing",
+      "vídeos curtos",
+      "storytelling de marca",
+      "prova social",
+    ],
   });
 
   console.log("Seed concluído.");

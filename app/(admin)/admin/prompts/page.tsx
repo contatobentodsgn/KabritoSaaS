@@ -41,7 +41,9 @@ export default async function AdminPromptsPage() {
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-1.5">
               {categories.map((c) => (
-                <Badge key={c.id} variant="secondary">{c.name}</Badge>
+                <Badge key={c.id} variant="secondary">
+                  {c.name}
+                </Badge>
               ))}
             </div>
             <CreateForm
@@ -49,7 +51,12 @@ export default async function AdminPromptsPage() {
               submitLabel="Nova categoria"
               fields={[
                 { name: "name", label: "Nome", required: true },
-                { name: "slug", label: "Slug", required: true, placeholder: "copywriting" },
+                {
+                  name: "slug",
+                  label: "Slug",
+                  required: true,
+                  placeholder: "copywriting",
+                },
                 { name: "description", label: "Descrição", type: "textarea" },
               ]}
             />
@@ -65,7 +72,9 @@ export default async function AdminPromptsPage() {
               <p className="k-eyebrow mb-1">Nichos</p>
               <div className="mb-2 flex flex-wrap gap-1.5">
                 {niches.map((n) => (
-                  <Badge key={n.id} variant="outline">{n.slug}</Badge>
+                  <Badge key={n.id} variant="outline">
+                    {n.slug}
+                  </Badge>
                 ))}
               </div>
               <CreateForm
@@ -73,7 +82,12 @@ export default async function AdminPromptsPage() {
                 submitLabel="Novo nicho"
                 fields={[
                   { name: "name", label: "Nome", required: true },
-                  { name: "slug", label: "Slug", required: true, placeholder: "marketing" },
+                  {
+                    name: "slug",
+                    label: "Slug",
+                    required: true,
+                    placeholder: "marketing",
+                  },
                   { name: "description", label: "Descrição", type: "textarea" },
                 ]}
               />
@@ -82,7 +96,9 @@ export default async function AdminPromptsPage() {
               <p className="k-eyebrow mb-1">Tags</p>
               <div className="mb-2 flex flex-wrap gap-1.5">
                 {tags.map((t) => (
-                  <Badge key={t.id} variant="outline">{t.slug}</Badge>
+                  <Badge key={t.id} variant="outline">
+                    {t.slug}
+                  </Badge>
                 ))}
               </div>
               <CreateForm
@@ -100,14 +116,18 @@ export default async function AdminPromptsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Prompts ({templates.length})</CardTitle>
+          <CardTitle className="text-lg">
+            Prompts ({templates.length})
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2">
             {templates.map((t) => (
               <div key={t.id} className="rounded-md border p-3">
                 <p className="font-medium">{t.title}</p>
-                <p className="mt-0.5 text-sm text-muted-foreground">{t.objective}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {t.objective}
+                </p>
               </div>
             ))}
           </div>
@@ -122,20 +142,43 @@ export default async function AdminPromptsPage() {
                     name: "categoryId",
                     label: "Categoria",
                     type: "select",
-                    options: categories.map((c) => ({ value: c.id, label: c.name })),
+                    options: categories.map((c) => ({
+                      value: c.id,
+                      label: c.name,
+                    })),
                   },
                   { name: "title", label: "Título", required: true },
                   { name: "objective", label: "Objetivo", required: true },
-                  { name: "whenToUse", label: "Quando usar", type: "textarea", required: true },
-                  { name: "requiredInput", label: "Inputs necessários (separados por vírgula)" },
-                  { name: "promptBody", label: "Prompt", type: "textarea", required: true },
-                  { name: "exampleOutput", label: "Exemplo de saída", type: "textarea", required: true },
+                  {
+                    name: "whenToUse",
+                    label: "Quando usar",
+                    type: "textarea",
+                    required: true,
+                  },
+                  {
+                    name: "requiredInput",
+                    label: "Inputs necessários (separados por vírgula)",
+                  },
+                  {
+                    name: "promptBody",
+                    label: "Prompt",
+                    type: "textarea",
+                    required: true,
+                  },
+                  {
+                    name: "exampleOutput",
+                    label: "Exemplo de saída",
+                    type: "textarea",
+                    required: true,
+                  },
                   { name: "tags", label: "Tags (separadas por vírgula)" },
                 ]}
               />
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Crie uma categoria antes de adicionar prompts.</p>
+            <p className="text-sm text-muted-foreground">
+              Crie uma categoria antes de adicionar prompts.
+            </p>
           )}
         </CardContent>
       </Card>

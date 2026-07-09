@@ -5,7 +5,13 @@ import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-export function CopyButton({ text, label = "Copiar" }: { text: string; label?: string }) {
+export function CopyButton({
+  text,
+  label = "Copiar",
+}: {
+  text: string;
+  label?: string;
+}) {
   const [copied, setCopied] = useState(false);
   async function onClick() {
     try {

@@ -47,7 +47,11 @@ export default async function PromptsPage() {
           <SectionTitle>{catName.get(catId) ?? "Outros"}</SectionTitle>
           <div className="grid gap-4">
             {items.map((p) => (
-              <PromptCard key={p.id} prompt={p} favorited={favs.has(`prompt_template:${p.id}`)} />
+              <PromptCard
+                key={p.id}
+                prompt={p}
+                favorited={favs.has(`prompt_template:${p.id}`)}
+              />
             ))}
           </div>
         </section>

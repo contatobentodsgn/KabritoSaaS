@@ -9,7 +9,11 @@ export function DeleteAccount() {
 
   if (!confirming) {
     return (
-      <Button variant="destructive" size="sm" onClick={() => setConfirming(true)}>
+      <Button
+        variant="destructive"
+        size="sm"
+        onClick={() => setConfirming(true)}
+      >
         Excluir conta
       </Button>
     );
@@ -25,7 +29,12 @@ export function DeleteAccount() {
         <Button variant="destructive" size="sm" type="submit">
           Confirmar exclusão
         </Button>
-        <Button variant="outline" size="sm" type="button" onClick={() => setConfirming(false)}>
+        <Button
+          variant="outline"
+          size="sm"
+          type="button"
+          onClick={() => setConfirming(false)}
+        >
           Cancelar
         </Button>
       </div>

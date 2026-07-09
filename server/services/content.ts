@@ -126,13 +126,20 @@ export async function getEditionWithModules(
   const ed = edition as EditionRow & { briefing: BriefingBlock | null };
   const [platform, trends, explore, copy, visual, heads, suggestions] =
     await Promise.all([
-      supabase.from("platforms").select("id, name, slug, is_active").eq("id", ed.platform_id).maybeSingle(),
+      supabase
+        .from("platforms")
+        .select("id, name, slug, is_active")
+        .eq("id", ed.platform_id)
+        .maybeSingle(),
       supabase.from("trend_items").select("*").eq("edition_id", editionId),
       supabase.from("explore_reports").select("*").eq("edition_id", editionId),
       supabase.from("copy_patterns").select("*").eq("edition_id", editionId),
       supabase.from("visual_patterns").select("*").eq("edition_id", editionId),
       supabase.from("headlines").select("*").eq("edition_id", editionId),
-      supabase.from("content_suggestions").select("*").eq("edition_id", editionId),
+      supabase
+        .from("content_suggestions")
+        .select("*")
+        .eq("edition_id", editionId),
     ]);
 
   return {
@@ -174,7 +181,10 @@ export async function listPrompts(): Promise<{
 }> {
   const supabase = await createClient();
   const [cats, prompts] = await Promise.all([
-    supabase.from("prompt_categories").select("id, name, slug, description").order("name"),
+    supabase
+      .from("prompt_categories")
+      .select("id, name, slug, description")
+      .order("name"),
     supabase.from("prompt_templates").select("*").order("title").limit(200),
   ]);
   return {

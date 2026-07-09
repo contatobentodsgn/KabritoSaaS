@@ -41,9 +41,9 @@ export default function TermsPage() {
         <p>
           O acesso ao conteúdo depende de uma assinatura ativa (plano único). O
           acesso permanece disponível enquanto a assinatura estiver ativa e é
-          interrompido quando ela termina. Você pode cancelar a qualquer momento;
-          o cancelamento encerra a renovação seguinte, sem reembolso de período
-          já em curso, salvo exigência legal.
+          interrompido quando ela termina. Você pode cancelar a qualquer
+          momento; o cancelamento encerra a renovação seguinte, sem reembolso de
+          período já em curso, salvo exigência legal.
         </p>
 
         <h2 className="text-lg font-semibold">4. Uso aceitável</h2>
@@ -64,12 +64,14 @@ export default function TermsPage() {
 
         <h2 className="text-lg font-semibold">6. Isenção de garantias</h2>
         <p>
-          O conteúdo gerado por IA pode conter imprecisões e é entregue &quot;como
-          está&quot;. Não garantimos resultados específicos de desempenho,
-          alcance ou conversão. Revise sempre antes de usar.
+          O conteúdo gerado por IA pode conter imprecisões e é entregue
+          &quot;como está&quot;. Não garantimos resultados específicos de
+          desempenho, alcance ou conversão. Revise sempre antes de usar.
         </p>
 
-        <h2 className="text-lg font-semibold">7. Limitação de responsabilidade</h2>
+        <h2 className="text-lg font-semibold">
+          7. Limitação de responsabilidade
+        </h2>
         <p>
           Na máxima extensão permitida pela lei, não respondemos por danos
           indiretos, lucros cessantes ou decisões tomadas com base no conteúdo.

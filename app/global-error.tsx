@@ -16,7 +16,8 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    if (typeof Sentry.captureException === "function") Sentry.captureException(error);
+    if (typeof Sentry.captureException === "function")
+      Sentry.captureException(error);
   }, [error]);
 
   // Substitui o root layout → globals.css não se aplica; estilo inline na marca.
@@ -36,9 +37,12 @@ export default function GlobalError({
         }}
       >
         <div style={{ textAlign: "center", maxWidth: 420 }}>
-          <h2 style={{ fontSize: 24, fontWeight: 600, margin: "0 0 8px" }}>Algo saiu do lugar</h2>
+          <h2 style={{ fontSize: 24, fontWeight: 600, margin: "0 0 8px" }}>
+            Algo saiu do lugar
+          </h2>
           <p style={{ color: "#598b56", margin: "0 0 20px", lineHeight: 1.5 }}>
-            Tivemos um problema inesperado. Já fomos avisados — tente recarregar.
+            Tivemos um problema inesperado. Já fomos avisados — tente
+            recarregar.
           </p>
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
             <button

@@ -15,7 +15,8 @@ function routeFiles(dir: string): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, entry.name);
     if (entry.isDirectory()) out.push(...routeFiles(p));
-    else if (entry.name === "route.ts" || entry.name === "route.tsx") out.push(p);
+    else if (entry.name === "route.ts" || entry.name === "route.tsx")
+      out.push(p);
   }
   return out;
 }
@@ -30,7 +31,10 @@ describe("S3 — rotas cron/webhook exigem segredo no handler", () => {
     expect(files.length).toBeGreaterThan(0);
     for (const f of files) {
       const src = readFileSync(f, "utf8");
-      expect(src.includes("isCronAuthorized"), `${f} deve chamar isCronAuthorized`).toBe(true);
+      expect(
+        src.includes("isCronAuthorized"),
+        `${f} deve chamar isCronAuthorized`,
+      ).toBe(true);
     }
   });
 

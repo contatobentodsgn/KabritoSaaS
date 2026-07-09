@@ -25,7 +25,8 @@ export const getMfaStatus = cache(async (): Promise<MfaStatus> => {
     supabase.auth.mfa.listFactors(),
   ]);
   const verified = factors?.totp?.find((f) => f.status === "verified") ?? null;
-  const currentLevel = (aal?.currentLevel as "aal1" | "aal2" | undefined) ?? null;
+  const currentLevel =
+    (aal?.currentLevel as "aal1" | "aal2" | undefined) ?? null;
   const nextLevel = (aal?.nextLevel as "aal1" | "aal2" | undefined) ?? null;
   return {
     currentLevel,

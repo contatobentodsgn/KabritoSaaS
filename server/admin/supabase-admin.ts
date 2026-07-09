@@ -122,7 +122,10 @@ export async function resetUserMfa(
   }
   const factors = data?.factors ?? [];
   if (factors.length === 0) {
-    return { ok: true, message: `${email} não tem 2FA ativo (nada a remover).` };
+    return {
+      ok: true,
+      message: `${email} não tem 2FA ativo (nada a remover).`,
+    };
   }
 
   let removed = 0;
@@ -131,7 +134,11 @@ export async function resetUserMfa(
       id: f.id,
       userId,
     });
-    if (delErr) console.error(`[mfa-reset] falha ao remover fator ${f.id}:`, delErr.message);
+    if (delErr)
+      console.error(
+        `[mfa-reset] falha ao remover fator ${f.id}:`,
+        delErr.message,
+      );
     else removed++;
   }
 

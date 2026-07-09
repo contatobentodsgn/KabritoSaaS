@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { getCurrentProfile, getCurrentOrganization } from "@/server/auth/session";
-import { getMfaStatus } from "@/server/auth/mfa";
-import { getCurrentSubscription, hasActiveSubscription } from "@/server/permissions";
-import { PageHeader } from "@/components/layout/page-header";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  getCurrentProfile,
+  getCurrentOrganization,
+} from "@/server/auth/session";
+import { getMfaStatus } from "@/server/auth/mfa";
+import {
+  getCurrentSubscription,
+  hasActiveSubscription,
+} from "@/server/permissions";
+import { PageHeader } from "@/components/layout/page-header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DeleteAccount } from "@/components/forms/delete-account";
 import { DataExport } from "@/components/forms/data-export";
@@ -62,7 +63,8 @@ export default async function SettingsPage({
         <Card className="mb-8 border-forest-200 dark:border-forest-700 bg-forest-50 dark:bg-forest-900">
           <CardContent className="py-4 text-sm text-forest-900 dark:text-forest-100">
             Pagamento recebido. A assinatura é ativada assim que o Stripe
-            confirma — atualize a página em instantes se ainda aparecer pendente.
+            confirma — atualize a página em instantes se ainda aparecer
+            pendente.
           </CardContent>
         </Card>
       )}
@@ -73,7 +75,10 @@ export default async function SettingsPage({
             <CardTitle className="text-base">Perfil</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground">
-            <AvatarUpload currentUrl={profile?.avatarUrl} name={profile?.name} />
+            <AvatarUpload
+              currentUrl={profile?.avatarUrl}
+              name={profile?.name}
+            />
             <div className="space-y-1">
               <p>Nome: {profile?.name ?? "—"}</p>
               <p>E-mail: {profile?.email ?? "—"}</p>
@@ -84,15 +89,20 @@ export default async function SettingsPage({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Assinatura — Plano Único</CardTitle>
+            <CardTitle className="text-base">
+              Assinatura — Plano Único
+            </CardTitle>
             <Badge variant={active ? "success" : "secondary"}>
-              {sub ? (STATUS_LABEL[sub.subscriptionStatus] ?? sub.subscriptionStatus) : "Sem assinatura"}
+              {sub
+                ? (STATUS_LABEL[sub.subscriptionStatus] ??
+                  sub.subscriptionStatus)
+                : "Sem assinatura"}
             </Badge>
           </CardHeader>
           <CardContent className="space-y-1 text-sm text-muted-foreground">
             <p>
-              Plano único: acesso total enquanto a assinatura estiver ativa
-              (sem níveis). Cobrança mensal ou anual.
+              Plano único: acesso total enquanto a assinatura estiver ativa (sem
+              níveis). Cobrança mensal ou anual.
             </p>
             {sub?.currentPeriodEnd && (
               <p>
@@ -117,14 +127,16 @@ export default async function SettingsPage({
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground">
             <div className="space-y-2">
-              <p className="font-medium text-foreground">Verificação em duas etapas (2FA)</p>
+              <p className="font-medium text-foreground">
+                Verificação em duas etapas (2FA)
+              </p>
               <MfaSettings enrolled={mfa.enrolled} factorId={mfa.factorId} />
             </div>
             <div className="space-y-2 border-t border-border pt-4">
               <p className="font-medium text-foreground">Dispositivos</p>
               <p>
-                Seu acesso é limitado a poucos dispositivos ativos — ao entrar num
-                aparelho novo além do limite, o mais antigo é desconectado.
+                Seu acesso é limitado a poucos dispositivos ativos — ao entrar
+                num aparelho novo além do limite, o mais antigo é desconectado.
               </p>
               <SignOutAll />
             </div>
@@ -133,7 +145,9 @@ export default async function SettingsPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Privacidade e dados (LGPD)</CardTitle>
+            <CardTitle className="text-base">
+              Privacidade e dados (LGPD)
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p className="flex gap-4">
@@ -146,11 +160,16 @@ export default async function SettingsPage({
             </p>
             <div className="space-y-2 border-t border-border pt-4">
               <p className="font-medium text-foreground">Baixar meus dados</p>
-              <p>Exporte seus dados pessoais (perfil, favoritos, comentários, sessões) em JSON.</p>
+              <p>
+                Exporte seus dados pessoais (perfil, favoritos, comentários,
+                sessões) em JSON.
+              </p>
               <DataExport />
             </div>
             <div className="space-y-2 border-t border-border pt-4">
-              <p className="font-medium text-foreground">Excluir conta e dados</p>
+              <p className="font-medium text-foreground">
+                Excluir conta e dados
+              </p>
               <DeleteAccount />
             </div>
           </CardContent>

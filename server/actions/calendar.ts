@@ -5,7 +5,10 @@ import { hasActiveSubscription } from "@/server/permissions";
 import { consume } from "@/server/rate-limit";
 import { recordAudit } from "@/server/audit/log";
 import { calendarInputSchema } from "@/lib/validations/calendar";
-import { gerarCalendario, type CalendarResult } from "@/server/services/calendar";
+import {
+  gerarCalendario,
+  type CalendarResult,
+} from "@/server/services/calendar";
 import { AUDIT_ACTIONS } from "@/lib/constants";
 
 /**
@@ -13,12 +16,17 @@ import { AUDIT_ACTIONS } from "@/lib/constants";
  * Defesas: autenticação + assinatura ativa + RATE LIMIT POR USUÁRIO
  * (PROJECT §6/§9) + Zod na entrada. A saída é validada no service.
  */
-export async function generateCalendarAction(input: unknown): Promise<CalendarResult> {
+export async function generateCalendarAction(
+  input: unknown,
+): Promise<CalendarResult> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
 
   if (!(await hasActiveSubscription())) {
-    return { ok: false, error: "Ative sua assinatura para gerar o calendário." };
+    return {
+      ok: false,
+      error: "Ative sua assinatura para gerar o calendário.",
+    };
   }
 
   // Rate limit por usuário (custo de IA sob demanda).
@@ -26,7 +34,8 @@ export async function generateCalendarAction(input: unknown): Promise<CalendarRe
   if (!success) {
     return {
       ok: false,
-      error: "Você atingiu o limite de gerações por minuto. Aguarde um instante.",
+      error:
+        "Você atingiu o limite de gerações por minuto. Aguarde um instante.",
     };
   }
 

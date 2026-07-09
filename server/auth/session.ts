@@ -73,7 +73,8 @@ export async function getCurrentOrganization(): Promise<Organization | null> {
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
-  const orgRaw = (data as { organizations?: Record<string, unknown> } | null)?.organizations;
+  const orgRaw = (data as { organizations?: Record<string, unknown> } | null)
+    ?.organizations;
   if (!orgRaw) return null;
   return {
     id: orgRaw.id,
@@ -109,5 +110,5 @@ export async function getCurrentOrgRole(): Promise<
     .eq("user_id", user.id)
     .eq("organization_id", org.id)
     .maybeSingle();
-  return ((data as { role?: "owner" | "admin" | "member" } | null)?.role) ?? null;
+  return (data as { role?: "owner" | "admin" | "member" } | null)?.role ?? null;
 }

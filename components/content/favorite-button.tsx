@@ -25,7 +25,9 @@ export function FavoriteButton({
       const res = await toggleFavorite({ entityType, entityId });
       if (res.ok) {
         setFav(res.favorited);
-        toast.success(res.favorited ? "Salvo nos favoritos" : "Removido dos favoritos");
+        toast.success(
+          res.favorited ? "Salvo nos favoritos" : "Removido dos favoritos",
+        );
       } else {
         toast.error(res.error);
       }

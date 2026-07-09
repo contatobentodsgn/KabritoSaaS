@@ -29,7 +29,13 @@ const dateFmt = new Intl.DateTimeFormat("pt-BR", {
 /** Avatar público do autor (imagem ou inicial). */
 function CommentAvatar({ name, src }: { name: string; src: string | null }) {
   if (src) {
-    return <img src={src} alt="" className="size-8 shrink-0 rounded-full object-cover" />;
+    return (
+      <img
+        src={src}
+        alt=""
+        className="size-8 shrink-0 rounded-full object-cover"
+      />
+    );
   }
   const initial = (name.trim()[0] ?? "?").toUpperCase();
   return (
@@ -105,7 +111,10 @@ export function Comments({
               <li key={c.id}>
                 <Card>
                   <CardContent className="flex items-start gap-3 py-4">
-                    <CommentAvatar name={c.author_name ?? displayName} src={c.author_avatar} />
+                    <CommentAvatar
+                      name={c.author_name ?? displayName}
+                      src={c.author_avatar}
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-foreground">
                         {displayName}
@@ -149,7 +158,10 @@ export function Comments({
             aria-label="Novo comentário"
           />
           <div className="flex justify-end">
-            <Button type="submit" disabled={pending || body.trim().length === 0}>
+            <Button
+              type="submit"
+              disabled={pending || body.trim().length === 0}
+            >
               Comentar
             </Button>
           </div>

@@ -66,7 +66,11 @@ function bodyFor(module: GenModule, v: PromptVars): string {
  * Monta o prompt do módulo. Em retry (retryError preenchido), realimenta os erros
  * de validação para o modelo se autocorrigir — crucial p/ modelos menores/grátis.
  */
-export function buildUserPrompt(module: GenModule, v: PromptVars, retryError?: string): string {
+export function buildUserPrompt(
+  module: GenModule,
+  v: PromptVars,
+  retryError?: string,
+): string {
   const body = bodyFor(module, v);
   if (!retryError) return body;
   return `${body}\n\nATENÇÃO: sua resposta anterior foi REJEITADA pela validação com estes erros:\n${retryError}\nCorrija EXATAMENTE esses pontos. Use somente os valores de enum permitidos (em snake_case, minúsculas, sem acento) e slugs válidos.`;

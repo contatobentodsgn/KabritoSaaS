@@ -23,7 +23,9 @@ export function NewPasswordForm() {
           required
         />
         {state.fieldErrors?.password ? (
-          <p className="text-sm text-destructive">{state.fieldErrors.password[0]}</p>
+          <p className="text-sm text-destructive">
+            {state.fieldErrors.password[0]}
+          </p>
         ) : (
           <p className="text-xs text-muted-foreground">{PASSWORD_RULES_HINT}</p>
         )}

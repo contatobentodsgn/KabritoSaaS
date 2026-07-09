@@ -34,7 +34,8 @@ export default async function LoginPage({
             role="status"
             className="mb-5 rounded-sm border border-rose-200 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/15 px-4 py-3 text-sm text-rose-800"
           >
-            Sua sessão expirou com tranquilidade. Entre novamente para continuar.
+            Sua sessão expirou com tranquilidade. Entre novamente para
+            continuar.
           </div>
         )}
         <LoginForm />

@@ -25,10 +25,14 @@ export function ErrorState({
         </span>
         <p className="font-serif text-lg text-foreground">{title}</p>
         {description && (
-          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">{description}</p>
+          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         )}
         {children && (
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">{children}</div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            {children}
+          </div>
         )}
       </CardContent>
     </Card>

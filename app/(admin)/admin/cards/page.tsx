@@ -14,7 +14,10 @@ const LABELS: Record<string, string> = Object.fromEntries(
 );
 
 export default async function AdminCardsPage() {
-  const [flags, canManage] = await Promise.all([listCardFlags(), canManagePipeline()]);
+  const [flags, canManage] = await Promise.all([
+    listCardFlags(),
+    canManagePipeline(),
+  ]);
 
   return (
     <>
@@ -25,7 +28,9 @@ export default async function AdminCardsPage() {
       />
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Visibilidade e ordem dos cards</CardTitle>
+          <CardTitle className="text-lg">
+            Visibilidade e ordem dos cards
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {flags.length === 0 && (
@@ -47,7 +52,9 @@ export default async function AdminCardsPage() {
                   />
                 )}
                 <div className="min-w-0">
-                  <p className="truncate font-medium">{LABELS[c.key] ?? c.key}</p>
+                  <p className="truncate font-medium">
+                    {LABELS[c.key] ?? c.key}
+                  </p>
                   <p className="text-xs text-muted-foreground">{c.key}</p>
                 </div>
               </div>
@@ -55,7 +62,9 @@ export default async function AdminCardsPage() {
                 <Badge variant={c.enabled ? "success" : "secondary"}>
                   {c.enabled ? "Ativo" : "Oculto"}
                 </Badge>
-                {canManage && <CardToggle cardKey={c.key} enabled={c.enabled} />}
+                {canManage && (
+                  <CardToggle cardKey={c.key} enabled={c.enabled} />
+                )}
               </div>
             </div>
           ))}

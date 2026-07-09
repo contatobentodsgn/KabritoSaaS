@@ -60,9 +60,14 @@ export async function requireActiveSubscription(): Promise<void> {
 }
 
 /** Defesa em profundidade na leitura de edição (além da RLS). */
-export function canReadEdition(edition: Pick<ContentEdition, "status" | "contentExpiresAt">): boolean {
+export function canReadEdition(
+  edition: Pick<ContentEdition, "status" | "contentExpiresAt">,
+): boolean {
   if (edition.status !== "published") return false;
-  if (edition.contentExpiresAt && new Date(edition.contentExpiresAt) < new Date()) {
+  if (
+    edition.contentExpiresAt &&
+    new Date(edition.contentExpiresAt) < new Date()
+  ) {
     return false;
   }
   return true;

@@ -34,7 +34,12 @@ function isPrivateHost(host: string): boolean {
   }
 
   // IPv6 loopback / ULA (fc00::/7) / link-local (fe80::/10).
-  if (h === "::1" || h.startsWith("fc") || h.startsWith("fd") || h.startsWith("fe8")) {
+  if (
+    h === "::1" ||
+    h.startsWith("fc") ||
+    h.startsWith("fd") ||
+    h.startsWith("fe8")
+  ) {
     return true;
   }
   return false;

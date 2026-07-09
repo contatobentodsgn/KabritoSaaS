@@ -26,7 +26,8 @@ export async function adaptAction(input: unknown): Promise<AdaptResult> {
   if (!success) {
     return {
       ok: false,
-      error: "Você atingiu o limite de gerações por minuto. Aguarde um instante.",
+      error:
+        "Você atingiu o limite de gerações por minuto. Aguarde um instante.",
     };
   }
 

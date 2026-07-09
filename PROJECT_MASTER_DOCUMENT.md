@@ -1,6 +1,7 @@
 # SaaS de Inteligência Criativa — Documento Mestre (v2, automação-first)
 
 > **O que mudou em relação à v1**
+>
 > 1. O produto deixa de ser uma operação editorial manual e passa a ser um **pipeline de geração automatizado**. A equipe humana atua **apenas na revisão/aprovação** do material gerado — nunca na produção.
 > 2. **Plano único** (decisão definitiva). Não há tiers, gating premium nem retenção variável por plano.
 > 3. O **modelo de dados foi corrigido**: conteúdo editorial é **global** (catálogo compartilhado), e foi separado dos **dados de usuário** (escopados). Isso elimina o `organization_id` indevido nas tabelas de conteúdo.
@@ -36,13 +37,17 @@ Esta é a espinha dorsal da v2. O ciclo diário tem cinco estágios; apenas o es
 ```
 
 ### Estágio 1 — Ingestão (automático)
+
 Rotina agendada coleta sinais de fontes **legalmente seguras** (ver seção 7). Os itens brutos são salvos em `raw_signals`, vinculados a um `generation_run`.
 
 ### Estágio 2 — Geração (automático)
+
 Para cada módulo da edição (briefing, pautas, análise de copy, análise visual, headlines, sugestões de post, prompts), uma rotina chama o modelo de IA com um prompt estruturado e exige **saída em JSON validável por Zod**. O resultado é gravado como uma edição com `status = draft` e `review_status = pending`. Toda a geração registra custo, tokens e a versão do prompt usado em `generation_runs`.
 
 ### Estágio 3 — Revisão (único passo humano)
+
 A equipe abre a **fila de revisão** no admin e vê a edição gerada, item por item. Pode:
+
 - **Aprovar** (item ou edição inteira);
 - **Editar** o texto antes de aprovar;
 - **Rejeitar** (com motivo, que volta como feedback para ajustar prompts).
@@ -50,12 +55,15 @@ A equipe abre a **fila de revisão** no admin e vê a edição gerada, item por 
 Nenhuma edição vai ao ar sem aprovação. Esse é o ponto de controle de qualidade e o que protege a marca de erros da IA.
 
 ### Estágio 4 — Publicação (automático)
+
 Ao aprovar, a edição passa a `published`, recebe `publish_date`, fica visível aos assinantes ativos e dispara o **e-mail digest** (Resend/Brevo).
 
 ### Estágio 5 — Ciclo de vida (automático)
+
 Rotina diária aplica a política de retenção única (seção 10): arquiva/expira conteúdo antigo e limpa `raw_signals` já processados.
 
 ### Orquestração
+
 - Agendamento via **Vercel Cron** (ou Supabase Scheduled Functions / Edge Functions com cron).
 - Cada estágio é **idempotente**: rodar duas vezes no mesmo dia não duplica a edição (chave única por `platform_id + edition_date`).
 - Falhas geram alerta (Sentry + e-mail interno) e **não publicam nada** — o pior caso é "não saiu edição hoje", nunca "saiu edição errada".
@@ -79,17 +87,19 @@ Oferta comercial sugerida dentro do plano único: cobrança **mensal** e **anual
 ## 4. Arquitetura técnica
 
 ### Stack
+
 Next.js (App Router) · React · TypeScript · Tailwind CSS · shadcn/ui · Supabase Auth · PostgreSQL com RLS · Drizzle ORM · Zod · Vercel (deploy + cron) · Cloudflare (DNS/proteção futura) · Sentry (monitoramento) · Resend ou Brevo (e-mail) · Stripe (preparado, não implementado agora).
 
 Frontend e backend no mesmo projeto Next.js (Server Actions + Route Handlers). Sem backend separado.
 
 ### Regra crítica: Drizzle × RLS
+
 A RLS no Postgres **só protege se a conexão respeitar o JWT do usuário**. Conexões com a connection string direta ou com a `service_role` rodam como dono do banco e **ignoram a RLS por completo**. Portanto:
 
-| Tipo de operação | Conexão | RLS |
-|---|---|---|
-| Leitura/escrita disparada por requisição de usuário | Cliente Supabase com JWT do usuário | **Aplicada** |
-| Pipeline de geração, cron, rotinas administrativas | `service_role` / Drizzle direto | **Ignorada (proposital, isolado)** |
+| Tipo de operação                                    | Conexão                             | RLS                                |
+| --------------------------------------------------- | ----------------------------------- | ---------------------------------- |
+| Leitura/escrita disparada por requisição de usuário | Cliente Supabase com JWT do usuário | **Aplicada**                       |
+| Pipeline de geração, cron, rotinas administrativas  | `service_role` / Drizzle direto     | **Ignorada (proposital, isolado)** |
 
 Regra dura para o `SECURITY_GUIDE.md`: a `SUPABASE_SERVICE_ROLE_KEY` **só** é usada em rotinas do servidor isoladas (pipeline, cron, admin), **nunca** em queries originadas por requisição de usuário final. Drizzle é usado para schema/migrations e para o pipeline; as queries de usuário passam pelo cliente Supabase para que a RLS seja a rede de segurança real.
 
@@ -121,7 +131,7 @@ D) BILLING (plano único)
 
 **content_editions**
 `id`, `title`, `slug`, `summary`, `platform_id`, `edition_date`, `status` (draft|scheduled|published|archived), `review_status` (pending|in_review|approved|rejected), `generated_by_run_id`, `generation_prompt_version`, `reviewed_by` (staff user), `reviewed_at`, `published_at`, `content_expires_at`, `is_archived`, `created_at`, `updated_at`
-*Restrição única: `(platform_id, edition_date)` — garante idempotência da geração.*
+_Restrição única: `(platform_id, edition_date)` — garante idempotência da geração._
 
 **trend_items**
 `id`, `edition_id`, `platform_id`, `title`, `context`, `why_it_matters`, `adaptation_tips`, `risk_level`, `saturation_level`, `opportunity_score`, `content_format`, `recommended_niches`, `created_at`, `updated_at`
@@ -143,6 +153,7 @@ D) BILLING (plano único)
 
 **prompt_categories** — `id`, `name`, `slug`, `description`, timestamps
 **prompt_templates** — `id`, `category_id`, `title`, `objective`, `when_to_use`, `required_input`, `prompt_body`, `example_output`, `platform_id`, `tags`, `created_at`, `updated_at`
+
 > Removido `is_premium` (plano único).
 
 **niches** — `id`, `name`, `slug`, `description`, timestamps
@@ -160,6 +171,7 @@ D) BILLING (plano único)
 
 **generation_runs**
 `id`, `edition_date`, `platform_id`, `status` (started|ingesting|generating|completed|failed), `prompt_version`, `model_used`, `input_tokens`, `output_tokens`, `cost_estimate`, `error_message`, `started_at`, `finished_at`, `created_at`
+
 > Permite auditar custo de IA por dia, detectar regressões de qualidade por versão de prompt e reprocessar falhas.
 
 ### C) Dados de usuário / conta — ESCOPADO
@@ -167,11 +179,13 @@ D) BILLING (plano único)
 **profiles** — `id`, `user_id`, `name`, `email`, `avatar_url`, `created_at`, `updated_at`
 
 **organizations** — `id`, `name`, `slug`, `owner_id`, `created_at`, `updated_at`
+
 > Mantida como container do usuário e base para o workspace de agências (futuro). **Invisível na UX do MVP** — criada automaticamente no cadastro, sem seletor, sem gestão de membros.
 
 **organization_members** — `id`, `organization_id`, `user_id`, `role`, `created_at`, `updated_at`
 
 **user_favorites** — `id`, `user_id`, `organization_id`, `entity_type`, `entity_id`, `collection_name`, `created_at`
+
 > `entity_type` aponta para conteúdo global (headline, prompt, trend, etc.). O favorito é do usuário; o item favoritado é global.
 
 **user_sessions** — `id`, `user_id`, `device_id`, `session_token_hash`, `user_agent`, `ip_address`, `last_seen_at`, `is_active`, `created_at`, `revoked_at`
@@ -182,6 +196,7 @@ D) BILLING (plano único)
 ### D) Billing — PLANO ÚNICO
 
 **plans** — `id`, `name`, `slug`, `price_monthly`, `price_annual`, `billing_cycle`, `features` (jsonb), `retention_days`, `is_active`, `created_at`, `updated_at`
+
 > Conterá **uma única linha ativa**.
 
 **subscriptions** — `id`, `organization_id`, `plan_id`, `customer_id`, `subscription_status` (active|past_due|canceled|trialing), `current_period_start`, `current_period_end`, `created_at`, `updated_at`
@@ -191,6 +206,7 @@ D) BILLING (plano único)
 ## 6. Pipeline de geração — detalhe técnico
 
 ### Onde mora o código
+
 ```
 server/pipeline/
   ingest/        → conectores por fonte (api, rss, trends)
@@ -204,6 +220,7 @@ app/api/cron/
 ```
 
 ### Boas práticas obrigatórias do pipeline
+
 - **Saída sempre validada por Zod.** Se a IA devolver algo fora do schema, o item é descartado/reprocessado, nunca salvo cru.
 - **Prompts versionados.** Cada `generation_run` grava `prompt_version`. Isso permite saber qual versão gerou qual qualidade e reverter.
 - **Idempotência por `(platform_id, edition_date)`.**
@@ -212,6 +229,7 @@ app/api/cron/
 - **Falha = não publica.** Erros nunca produzem conteúdo visível.
 
 ### Custo de IA
+
 Registre tokens e custo por run desde o dia 1. Mesmo com plano único e geração ilimitada pelo lado do usuário, **a geração tem custo fixo diário** (uma edição por plataforma por dia), então o custo é previsível e baixo. As features generativas sob demanda (adaptar para meu nicho, Trend Translator) têm custo por uso e devem ter **rate limiting por usuário** (seção 9), mesmo no plano único, para evitar abuso.
 
 ---
@@ -233,11 +251,13 @@ Estratégia recomendada, em ordem de prioridade:
 ## 8. Segurança (RLS corrigida para o modelo global × usuário)
 
 ### Princípios (mantidos da v1)
+
 Nunca confiar no frontend; autorização sempre no backend; validar tudo com Zod; segredos nunca no client; separar auth/permissions/queries/services/UI; auditoria e rate limiting preparados.
 
 ### RLS por domínio
 
 **Conteúdo editorial (global):**
+
 - **Leitura**: permitida se `status = 'published'` **E** `content_expires_at` no futuro **E** o usuário tem **assinatura ativa**. (Plano único → não há checagem de tier.)
 - **Escrita**: apenas via `service_role` (pipeline) ou usuários com papel de staff editorial. Usuário final nunca escreve aqui.
 
@@ -250,6 +270,7 @@ Nunca confiar no frontend; autorização sempre no backend; validar tudo com Zod
 > Garantia: mesmo que uma query esqueça de filtrar, a RLS bloqueia — **desde que a query passe pelo cliente Supabase com JWT** (ver seção 4).
 
 ### Itens adicionais
+
 - IDOR: nunca aceitar `organization_id`/`user_id` vindo do frontend como fonte de verdade — sempre derivar do contexto autenticado.
 - Webhooks do Stripe (futuro): validar assinatura do webhook.
 - LGPD: base legal documentada, política de privacidade, fluxo de exclusão de conta e dados (`deleted_at` já previsto), retenção de logs definida.
@@ -261,9 +282,11 @@ Nunca confiar no frontend; autorização sempre no backend; validar tudo com Zod
 Com automação + plano único, separamos **clientes** de **equipe interna**:
 
 **Clientes (assinantes)**
+
 - `subscriber` — papel padrão. Lê conteúdo publicado se a assinatura está ativa; favorita; acessa histórico dentro da retenção. Não acessa admin nem pipeline.
 
 **Equipe interna (staff)**
+
 - `editor` — acessa a fila de revisão; aprova/edita/rejeita conteúdo gerado; gerencia prompts, nichos, plataformas, fontes de ingestão.
 - `superadmin` — tudo do editor + configuração de pipeline, custos, usuários internos.
 
@@ -298,11 +321,12 @@ Em vez de "1 conta = 1 sessão" (que pune o uso legítimo celular + desktop), us
 ## 12. MVP enxuto
 
 **MVP 1 (foco: provar o pipeline + a qualidade revisada)**
+
 1. Auth (login/cadastro/logout) + middleware de proteção.
 2. Criação automática de profile + organization (oculta) no cadastro.
 3. **Pipeline de geração** com ingestão básica (1–2 fontes legais + seed manual) → edição em draft.
 4. **Fila de revisão** no admin (aprovar/editar/rejeitar).
-5. Publicação + **e-mail digest** (Resend/Brevo) — *core de retenção, não adiar*.
+5. Publicação + **e-mail digest** (Resend/Brevo) — _core de retenção, não adiar_.
 6. Dashboard + edição diária do Instagram.
 7. Módulos de conteúdo essenciais: pautas, copy, visual, headlines, sugestões, prompts.
 8. Favoritos.
@@ -320,17 +344,17 @@ Em vez de "1 conta = 1 sessão" (que pune o uso legítimo celular + desktop), us
 
 ## 13. Riscos e mitigações
 
-| Risco | Mitigação |
-|---|---|
-| IA publica erro/algo fora de marca | Revisão humana obrigatória antes de publicar; falha nunca publica |
-| Sinal de entrada fraco/ilegal | Fontes autorizadas + seed mínimo + banco evergreen; sem scraping |
-| Custo de IA descontrolado | Teto por run, log de tokens/custo, rate limit em geração sob demanda |
+| Risco                                         | Mitigação                                                                             |
+| --------------------------------------------- | ------------------------------------------------------------------------------------- |
+| IA publica erro/algo fora de marca            | Revisão humana obrigatória antes de publicar; falha nunca publica                     |
+| Sinal de entrada fraco/ilegal                 | Fontes autorizadas + seed mínimo + banco evergreen; sem scraping                      |
+| Custo de IA descontrolado                     | Teto por run, log de tokens/custo, rate limit em geração sob demanda                  |
 | RLS "decorativa" por uso errado da connection | Regra dura: service_role só no pipeline/cron; queries de usuário via cliente Supabase |
-| Conteúdo global modelado como tenant | Schema separa global × usuário; conteúdo sem organization_id |
-| Baixa retenção em produto "diário" | E-mail digest no MVP 1; banco evergreen para dias sem trends fortes |
-| Compartilhamento de conta | Limite de dispositivos, não sessão única |
-| Banco crescendo sem controle | Retenção única automática + limpeza de raw_signals |
-| LGPD | Base legal, política, exclusão de conta, retenção de logs documentadas |
+| Conteúdo global modelado como tenant          | Schema separa global × usuário; conteúdo sem organization_id                          |
+| Baixa retenção em produto "diário"            | E-mail digest no MVP 1; banco evergreen para dias sem trends fortes                   |
+| Compartilhamento de conta                     | Limite de dispositivos, não sessão única                                              |
+| Banco crescendo sem controle                  | Retenção única automática + limpeza de raw_signals                                    |
+| LGPD                                          | Base legal, política, exclusão de conta, retenção de logs documentadas                |
 
 ---
 
@@ -363,4 +387,5 @@ RESEND_API_KEY=                 # (ou BREVO_API_KEY)
 SENTRY_DSN=
 STRIPE_SECRET_KEY=              # futuro, não usar agora
 ```
+
 `NEXT_PUBLIC_*` podem ir ao client. Todo o resto é segredo de servidor e **nunca** pode ser importado em componente client.

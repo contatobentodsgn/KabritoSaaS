@@ -26,7 +26,11 @@ export function AcceptInvite({ token }: { token: string }) {
 
   return (
     <Button onClick={onAccept} disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" /> : <Check className="size-4" />}
+      {pending ? (
+        <Loader2 className="animate-spin" />
+      ) : (
+        <Check className="size-4" />
+      )}
       {pending ? "Aceitando..." : "Aceitar convite"}
     </Button>
   );

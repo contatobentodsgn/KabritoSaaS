@@ -34,7 +34,9 @@
     /* Kabrito raw tokens (para sombras/foco) */
     --k-rose-soft: #f6e9e9;
     --shadow-focus: 0 0 0 3px var(--k-rose-soft);
-    --shadow-1: 0 0.5px 1px rgba(7, 81, 2, 0.04), 0 1px 3px rgba(7, 81, 2, 0.05), 0 4px 12px rgba(7, 81, 2, 0.05);
+    --shadow-1:
+      0 0.5px 1px rgba(7, 81, 2, 0.04), 0 1px 3px rgba(7, 81, 2, 0.05),
+      0 4px 12px rgba(7, 81, 2, 0.05);
   }
 
   .dark {

@@ -22,13 +22,18 @@ import {
   type GenModule,
   type PromptVars,
 } from "@/server/pipeline/prompts";
-import { getAiProvider, estimateCostUsd, type AiProvider } from "@/server/pipeline/ai/provider";
+import {
+  getAiProvider,
+  estimateCostUsd,
+  type AiProvider,
+} from "@/server/pipeline/ai/provider";
 
 export class PipelineError extends Error {
   constructor(
     message: string,
     public module?: string,
-    public kind: "invalid_output" | "cost_cap" | "ingest" | "persist" | "other" = "other",
+    public kind:
+      "invalid_output" | "cost_cap" | "ingest" | "persist" | "other" = "other",
   ) {
     super(message);
     this.name = "PipelineError";
@@ -67,11 +72,19 @@ async function genModule<T>(
   let lastError = "";
   for (let attempt = 1; attempt <= 2; attempt++) {
     // No retry, realimenta o erro de validação para o modelo se autocorrigir.
-    const userPrompt = buildUserPrompt(module, vars, attempt > 1 ? lastError : undefined);
+    const userPrompt = buildUserPrompt(
+      module,
+      vars,
+      attempt > 1 ? lastError : undefined,
+    );
     const call = await provider.generateModule(module, userPrompt, vars);
     acc.inputTokens += call.inputTokens;
     acc.outputTokens += call.outputTokens;
-    acc.costUsd += estimateCostUsd(provider.model, call.inputTokens, call.outputTokens);
+    acc.costUsd += estimateCostUsd(
+      provider.model,
+      call.inputTokens,
+      call.outputTokens,
+    );
 
     // Teto de custo/tokens por run — estourou: para e alerta (não publica).
     if (acc.costUsd > caps.costCapUsd) {
@@ -100,17 +113,69 @@ async function genModule<T>(
  * Gera a edição completa, MÓDULO A MÓDULO (isola falhas/custo). Cada módulo é
  * validado por Zod; saída inválida nunca vira dado. Respeita o teto de custo.
  */
-export async function generateEdition(vars: PromptVars, caps: Caps): Promise<GeneratedEdition> {
+export async function generateEdition(
+  vars: PromptVars,
+  caps: Caps,
+): Promise<GeneratedEdition> {
   const provider = getAiProvider();
   const acc = { inputTokens: 0, outputTokens: 0, costUsd: 0 };
 
-  const briefing = await genModule(provider, "briefing", briefingSchema, vars, acc, caps);
-  const trend_items = await genModule(provider, "trend_items", z.array(trendItemSchema).min(1), vars, acc, caps);
-  const explore_reports = await genModule(provider, "explore_reports", z.array(exploreReportSchema).min(1), vars, acc, caps);
-  const copy_patterns = await genModule(provider, "copy_patterns", z.array(copyPatternSchema).min(1), vars, acc, caps);
-  const visual_patterns = await genModule(provider, "visual_patterns", z.array(visualPatternSchema).min(1), vars, acc, caps);
-  const headlines = await genModule(provider, "headlines", z.array(headlineSchema).min(3), vars, acc, caps);
-  const content_suggestions = await genModule(provider, "content_suggestions", z.array(contentSuggestionSchema).min(1), vars, acc, caps);
+  const briefing = await genModule(
+    provider,
+    "briefing",
+    briefingSchema,
+    vars,
+    acc,
+    caps,
+  );
+  const trend_items = await genModule(
+    provider,
+    "trend_items",
+    z.array(trendItemSchema).min(1),
+    vars,
+    acc,
+    caps,
+  );
+  const explore_reports = await genModule(
+    provider,
+    "explore_reports",
+    z.array(exploreReportSchema).min(1),
+    vars,
+    acc,
+    caps,
+  );
+  const copy_patterns = await genModule(
+    provider,
+    "copy_patterns",
+    z.array(copyPatternSchema).min(1),
+    vars,
+    acc,
+    caps,
+  );
+  const visual_patterns = await genModule(
+    provider,
+    "visual_patterns",
+    z.array(visualPatternSchema).min(1),
+    vars,
+    acc,
+    caps,
+  );
+  const headlines = await genModule(
+    provider,
+    "headlines",
+    z.array(headlineSchema).min(3),
+    vars,
+    acc,
+    caps,
+  );
+  const content_suggestions = await genModule(
+    provider,
+    "content_suggestions",
+    z.array(contentSuggestionSchema).min(1),
+    vars,
+    acc,
+    caps,
+  );
 
   return {
     promptVersion: PROMPT_VERSION,

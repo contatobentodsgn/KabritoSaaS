@@ -36,7 +36,10 @@ export async function generateForActivePlatforms(
   editionDate: string,
 ): Promise<RunResult[]> {
   const db = getServiceDbClient();
-  const rows = await db.select().from(platforms).where(eq(platforms.isActive, true));
+  const rows = await db
+    .select()
+    .from(platforms)
+    .where(eq(platforms.isActive, true));
   const results: RunResult[] = [];
   for (const p of rows) {
     results.push(

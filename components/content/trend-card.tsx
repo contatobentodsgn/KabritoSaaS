@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Pills,
   Field,
@@ -32,7 +27,11 @@ export function TrendCard({
             <RiskBadge level={trend.risk_level} />
           </div>
         </div>
-        <FavoriteButton entityType="trend_item" entityId={trend.id} initial={favorited} />
+        <FavoriteButton
+          entityType="trend_item"
+          entityId={trend.id}
+          initial={favorited}
+        />
       </CardHeader>
       <CardContent className="space-y-4">
         <Field label="Contexto">{trend.context}</Field>

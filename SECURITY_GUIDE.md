@@ -6,18 +6,18 @@ Guia de segurança do SaaS de Inteligência Criativa. Cobre os riscos evitados, 
 
 ## 1. Principais riscos evitados
 
-| Risco | Defesa |
-|---|---|
-| Vazamento de dados entre usuários | RLS por domínio + queries de usuário sempre via cliente Supabase (com JWT) |
+| Risco                                       | Defesa                                                                             |
+| ------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Vazamento de dados entre usuários           | RLS por domínio + queries de usuário sempre via cliente Supabase (com JWT)         |
 | Acesso de uma conta a dados de outra (IDOR) | Backend deriva `user_id`/`organization_id` do contexto autenticado, nunca do input |
-| Conteúdo pago acessado sem assinatura | RLS de leitura exige assinatura ativa + conteúdo publicado e não expirado |
-| Permissão só no frontend | Toda autorização validada no servidor (helpers de permissão) |
-| Segredos expostos no client | Segredos só em código de servidor; nunca importados em componente client |
-| RLS "decorativa" | Regra dura sobre uso da `service_role` (seção 3) |
-| Cron disparado por qualquer um | Endpoints de cron protegidos por `CRON_SECRET` |
-| Custo de IA descontrolado | Teto por run + log de tokens/custo |
-| Compartilhamento de conta | Limite de dispositivos ativos |
-| Dados pessoais sem base legal (LGPD) | Política, base legal, exclusão de conta, retenção de logs |
+| Conteúdo pago acessado sem assinatura       | RLS de leitura exige assinatura ativa + conteúdo publicado e não expirado          |
+| Permissão só no frontend                    | Toda autorização validada no servidor (helpers de permissão)                       |
+| Segredos expostos no client                 | Segredos só em código de servidor; nunca importados em componente client           |
+| RLS "decorativa"                            | Regra dura sobre uso da `service_role` (seção 3)                                   |
+| Cron disparado por qualquer um              | Endpoints de cron protegidos por `CRON_SECRET`                                     |
+| Custo de IA descontrolado                   | Teto por run + log de tokens/custo                                                 |
+| Compartilhamento de conta                   | Limite de dispositivos ativos                                                      |
+| Dados pessoais sem base legal (LGPD)        | Política, base legal, exclusão de conta, retenção de logs                          |
 
 ---
 
@@ -47,6 +47,7 @@ A RLS do Postgres **só é aplicada** quando a conexão roda no contexto do usu�
 - Queries de usuário final → **sempre** cliente Supabase com o JWT do usuário, para que a RLS seja a rede de segurança real.
 
 **Como impor isso no código:**
+
 - Dois clientes separados e nomeados: `getUserDbClient()` (Supabase, JWT) e `getServiceDbClient()` (service_role, isolado em `server/pipeline/` e `server/admin/`).
 - Lint/code review: proibir import de `getServiceDbClient` fora dessas pastas.
 - Nenhum componente client importa qualquer cliente de banco.
@@ -85,6 +86,7 @@ IDOR = trocar um ID na URL/API para acessar dado alheio.
 Crie um conjunto de testes que rode contra um banco de teste com policies aplicadas. O teste mais importante prova a própria premissa da seção 3.
 
 ### 6.1 Teste-âncora: service_role ignora RLS, cliente respeita
+
 ```
 Dado: usuário A (org A) e usuário B (org B), cada um com 1 favorito.
 1. Cliente Supabase autenticado como A → SELECT em user_favorites
@@ -94,9 +96,11 @@ Dado: usuário A (org A) e usuário B (org B), cada um com 1 favorito.
    ESPERADO: vê os dois. (RLS ignorada — comprova por que service_role
    só pode rodar em código isolado.)
 ```
+
 Se o passo 1 retornar o favorito de B, a RLS está quebrada — bloqueie o deploy.
 
 ### 6.2 Conteúdo editorial: assinatura controla leitura
+
 ```
 Dado: edição publicada e não expirada.
 1. Usuário com assinatura ATIVA → vê a edição e seus itens.
@@ -106,12 +110,14 @@ Dado: edição publicada e não expirada.
 ```
 
 ### 6.3 Isolamento de dados de usuário
+
 ```
 1. A tenta ler favoritos/sessões de B (via id direto) → bloqueado.
 2. A tenta ler membros/assinatura da org de B → bloqueado.
 ```
 
 ### 6.4 Escrita restrita
+
 ```
 1. Usuário final tenta INSERT/UPDATE em content_editions → bloqueado.
 2. Usuário final tenta acessar raw_signals/generation_runs → bloqueado.
@@ -119,6 +125,7 @@ Dado: edição publicada e não expirada.
 ```
 
 ### Esqueleto de policy (referência)
+
 ```sql
 -- Leitura de edição: assinatura ativa + publicada + não expirada
 create policy "read_published_editions"
@@ -193,37 +200,44 @@ Limite de dispositivos = N (ex.: 2).
 ## 11. Checklist antes de produção
 
 **Banco e RLS**
+
 - [ ] RLS habilitada em **todas** as tabelas sensíveis.
 - [ ] Teste-âncora (6.1) passa: cliente respeita RLS, service_role ignora.
 - [ ] Testes 6.2–6.4 passam (assinatura, isolamento, escrita restrita).
 - [ ] Nenhuma policy permite leitura ampla por engano (revisar cada `using`).
 
 **Conexões e segredos**
+
 - [ ] `service_role`/Drizzle direto só em `server/pipeline`, `server/admin`, cron.
 - [ ] Lint bloqueia import de cliente de serviço fora dessas pastas.
 - [ ] Nenhum segredo importado em arquivo `"use client"`.
 - [ ] `.env` fora do versionamento; `.env.example` atualizado.
 
 **Autorização**
+
 - [ ] Toda ação sensível tem teste negativo (403 no caminho não autorizado).
 - [ ] `organization_id`/`user_id` nunca vêm do frontend como fonte de verdade.
 - [ ] Helpers de permissão cobrem leitura, escrita, admin e billing.
 
 **Pipeline / cron**
+
 - [ ] `/api/cron/*` rejeita requisição sem `CRON_SECRET`.
 - [ ] Saída da IA validada por Zod; inválida não é gravada.
 - [ ] Teto de custo/tokens ativo; falha não publica.
 
 **Sessão**
+
 - [ ] Limite de dispositivos funciona e gera `access_logs`.
 - [ ] Sessão revogada não consegue navegar.
 
 **LGPD / dados**
+
 - [ ] Política de privacidade publicada.
 - [ ] Fluxo de exclusão de conta funcional.
 - [ ] Retenção automática de logs e conteúdo aplicada.
 
 **Operacional**
+
 - [ ] Sentry capturando erros de servidor e do pipeline.
 - [ ] Alertas de falha do pipeline chegam à equipe.
 - [ ] Backup do banco configurado.
@@ -237,6 +251,7 @@ Esta seção foi adicionada na Fase 9. O checklist da §11 foi executado e está
 preenchido com evidências em **`SECURITY_CHECKLIST.md`**.
 
 Mapa rápido código ↔ defesa:
+
 - **Regra Drizzle × RLS (§3):** `server/db/service-client.ts` (isolado, `server-only`)
   vs `lib/supabase/server.ts` (JWT). Isolamento imposto por `eslint.config.mjs`
   (bloqueia o import fora de `server/pipeline|admin` e `app/api/cron`) — verificado.

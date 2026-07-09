@@ -103,11 +103,26 @@ export async function getFavoritedContent(): Promise<FavoritedContent> {
   return {
     total: favs.length,
     trend_item: await fetchIn<TrendItemRow>("trend_items", byType.trend_item),
-    explore_report: await fetchIn<ExploreReportRow>("explore_reports", byType.explore_report),
-    copy_pattern: await fetchIn<CopyPatternRow>("copy_patterns", byType.copy_pattern),
-    visual_pattern: await fetchIn<VisualPatternRow>("visual_patterns", byType.visual_pattern),
+    explore_report: await fetchIn<ExploreReportRow>(
+      "explore_reports",
+      byType.explore_report,
+    ),
+    copy_pattern: await fetchIn<CopyPatternRow>(
+      "copy_patterns",
+      byType.copy_pattern,
+    ),
+    visual_pattern: await fetchIn<VisualPatternRow>(
+      "visual_patterns",
+      byType.visual_pattern,
+    ),
     headline: await fetchIn<HeadlineRow>("headlines", byType.headline),
-    content_suggestion: await fetchIn<ContentSuggestionRow>("content_suggestions", byType.content_suggestion),
-    prompt_template: await fetchIn<PromptTemplateRow>("prompt_templates", byType.prompt_template),
+    content_suggestion: await fetchIn<ContentSuggestionRow>(
+      "content_suggestions",
+      byType.content_suggestion,
+    ),
+    prompt_template: await fetchIn<PromptTemplateRow>(
+      "prompt_templates",
+      byType.prompt_template,
+    ),
   };
 }

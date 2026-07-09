@@ -90,7 +90,10 @@ export async function notifyCommentParticipants(
           isNull(profiles.deletedAt),
         ),
       );
-    const emails = [...new Set(rows.map((r) => r.email).filter(Boolean))].slice(0, 20);
+    const emails = [...new Set(rows.map((r) => r.email).filter(Boolean))].slice(
+      0,
+      20,
+    );
     if (emails.length === 0) return { notified: 0 };
 
     const resend = new Resend(serverEnv.RESEND_API_KEY);
@@ -162,7 +165,9 @@ export async function sendInviteEmail(params: {
   }
 }
 
-export async function sendEditionDigest(editionId: string): Promise<DigestResult> {
+export async function sendEditionDigest(
+  editionId: string,
+): Promise<DigestResult> {
   try {
     const db = getServiceDbClient();
     const [edition] = await db
@@ -182,7 +187,8 @@ export async function sendEditionDigest(editionId: string): Promise<DigestResult
     }
 
     const recipients = await getActiveSubscriberEmails();
-    if (recipients.length === 0) return { sent: 0, skipped: "sem assinantes ativos" };
+    if (recipients.length === 0)
+      return { sent: 0, skipped: "sem assinantes ativos" };
 
     const resend = new Resend(serverEnv.RESEND_API_KEY);
     const url = `${serverEnv.APP_URL}/daily-briefing`;
