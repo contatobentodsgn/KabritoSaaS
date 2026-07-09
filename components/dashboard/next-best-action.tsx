@@ -24,7 +24,9 @@ export function NextBestAction({
             <h3 className="font-serif text-lg font-medium text-foreground">
               Próxima melhor ação
             </h3>
-            <p className="mt-0.5 max-w-xl text-sm text-muted-foreground">{text}</p>
+            <p className="mt-0.5 max-w-xl text-sm text-muted-foreground">
+              {text}
+            </p>
           </div>
         </div>
         <Button asChild className="shrink-0">

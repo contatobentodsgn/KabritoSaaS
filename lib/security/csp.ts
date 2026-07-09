@@ -43,7 +43,9 @@ function sentryOrigin(): string {
 
 export function buildCsp(nonce: string): string {
   const sb = supabaseSources();
-  const connect = ["'self'", sb.http, sb.ws, sentryOrigin()].filter(Boolean).join(" ");
+  const connect = ["'self'", sb.http, sb.ws, sentryOrigin()]
+    .filter(Boolean)
+    .join(" ");
   const img = ["'self'", "data:", "blob:", sb.http].filter(Boolean).join(" ");
 
   return [

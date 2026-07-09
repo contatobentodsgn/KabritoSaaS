@@ -5,6 +5,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 0 — Fundação (antes de qualquer feature)
+
 1. Projeto Next.js (App Router) + TypeScript + Tailwind + shadcn/ui.
 2. Estrutura de pastas conforme `TECHNICAL_SPEC.md` §1.
 3. Supabase configurado; Drizzle com `db/schema.ts`; migrations rodando.
@@ -17,6 +18,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 1 — Auth + multi-tenant latente
+
 1. Login, cadastro, logout (Supabase Auth).
 2. Pós-cadastro cria `profiles` + `organizations` (oculta) + `organization_members` (owner), em transação.
 3. `middleware.ts` protege rotas privadas e faz os redirects.
@@ -27,6 +29,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 2 — RLS por domínio + testes
+
 1. RLS habilitada em todas as tabelas sensíveis.
 2. Policies dos 4 domínios (`SECURITY_GUIDE.md` §6).
 3. Testes de RLS: teste-âncora (6.1), assinatura (6.2), isolamento (6.3), escrita restrita (6.4).
@@ -36,6 +39,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 3 — Conteúdo + leitura autorizada
+
 1. Render dos módulos de conteúdo (briefing, trend, copy, visual, headline, suggestion, prompt).
 2. Dashboard + página de edição diária (Instagram).
 3. `requireActiveSubscription` + `canReadEdition` aplicados.
@@ -46,6 +50,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 4 — Admin + fila de revisão
+
 1. `/admin` restrito a staff (`editor`/`superadmin`).
 2. Fila de revisão: listar `draft`, aprovar/editar/rejeitar (item e edição).
 3. Aprovar → `published` + `publish_date`. Rejeitar → motivo registrado.
@@ -56,6 +61,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 5 — Pipeline de geração
+
 1. `server/pipeline/run.ts`: ingest → generate (módulo a módulo, Zod) → draft.
 2. Conectores de ingestão (1–2 fontes legais + seed manual).
 3. Geradores usando `pipeline/generator-prompts.md` + `generation-schemas.ts`.
@@ -67,6 +73,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 6 — Publicação + e-mail + ciclo de vida
+
 1. E-mail digest (Resend/Brevo) disparado na publicação.
 2. Cron `lifecycle`: aplica retenção única (arquiva/expira) e limpa `raw_signals`.
 3. `content_expires_at` calculado a partir de `plans.retention_days`.
@@ -76,6 +83,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 7 — Sessão + auditoria + rate limit
+
 1. Controle de sessão por limite de dispositivos (N configurável).
 2. `audit_logs` para eventos-chave; `access_logs` para login/revogação.
 3. Estrutura de rate limiting (simples agora; preparada para Upstash).
@@ -85,6 +93,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 8 — Billing preparado (sem Stripe)
+
 1. `plans` com uma linha (mensal + anual). `subscriptions` funcional.
 2. Concessão de acesso manual no MVP.
 3. TODOs estruturados para Stripe (com validação de webhook no futuro).
@@ -94,6 +103,7 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Fase 9 — Documentação + checklist de produção
+
 1. `PROJECT_MASTER_DOCUMENT.md` e `SECURITY_GUIDE.md` atualizados ao código real.
 2. Rodar o **checklist de produção** (`SECURITY_GUIDE.md` §11) inteiro.
 3. LGPD: política, exclusão de conta, retenção de logs.
@@ -103,5 +113,6 @@ Fases de construção, ordenadas. Cada fase tem critérios de aceite. Não pular
 ---
 
 ## Depois do MVP (resumo)
+
 - **MVP 2:** LinkedIn/Threads; Trend Translator e "adaptar para meu nicho" (generativos sob demanda, com rate limit); coleções de favoritos; mais fontes de ingestão; analytics de uso para melhorar prompts.
 - **MVP 3:** TikTok; gerador de calendário; workspace de agência (ativa a org na UX); Stripe; comunidade.

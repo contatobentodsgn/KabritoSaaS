@@ -38,11 +38,17 @@ export default {
   create(context) {
     return {
       JSXAttribute(node) {
-        if (node.name?.type !== "JSXIdentifier" || node.name.name !== "dangerouslySetInnerHTML") {
+        if (
+          node.name?.type !== "JSXIdentifier" ||
+          node.name.name !== "dangerouslySetInnerHTML"
+        ) {
           return;
         }
         const filename = context.filename ?? context.getFilename();
-        const rel = path.relative(process.cwd(), filename).split(path.sep).join("/");
+        const rel = path
+          .relative(process.cwd(), filename)
+          .split(path.sep)
+          .join("/");
         if (ALLOWLIST.has(rel)) return;
         context.report({ node, messageId: "notAllowlisted" });
       },

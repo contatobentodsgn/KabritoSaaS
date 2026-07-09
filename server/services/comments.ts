@@ -35,9 +35,13 @@ export async function listComments(editionId: string): Promise<CommentRow[]> {
     .select("user_id, name, avatar_url")
     .in("user_id", ids);
   const byUser = new Map(
-    ((profs as { user_id: string; name: string | null; avatar_url: string | null }[]) ?? []).map(
-      (p) => [p.user_id, p],
-    ),
+    (
+      (profs as {
+        user_id: string;
+        name: string | null;
+        avatar_url: string | null;
+      }[]) ?? []
+    ).map((p) => [p.user_id, p]),
   );
 
   return rows.map((r) => {

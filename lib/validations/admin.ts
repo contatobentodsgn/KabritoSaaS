@@ -18,9 +18,22 @@ export const EDITABLE_ITEM_TABLES = {
   trend_items: ["title", "context", "why_it_matters", "adaptation_tips"],
   explore_reports: ["title", "summary", "recommendation"],
   copy_patterns: ["title", "observed_headline", "explanation", "structure"],
-  visual_patterns: ["title", "typography_notes", "composition_notes", "why_it_works", "how_to_adapt"],
+  visual_patterns: [
+    "title",
+    "typography_notes",
+    "composition_notes",
+    "why_it_works",
+    "how_to_adapt",
+  ],
   headlines: ["headline", "category", "why_it_works"],
-  content_suggestions: ["title", "central_idea", "suggested_headline", "post_structure", "caption_base", "cta"],
+  content_suggestions: [
+    "title",
+    "central_idea",
+    "suggested_headline",
+    "post_structure",
+    "caption_base",
+    "cta",
+  ],
 } as const;
 
 export type EditableTable = keyof typeof EDITABLE_ITEM_TABLES;

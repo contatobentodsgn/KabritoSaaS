@@ -33,15 +33,15 @@ for testar lá). Marque os segredos como **Sensitive**.
 
 ### Obrigatórias (sem elas o app/crons não funcionam)
 
-| Variável | Tipo | Valor / origem |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | pública | Supabase → Settings → API → Project URL (`https://xxxx.supabase.co`) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | pública | Supabase → Settings → API → **publishable/anon** key (NÃO a secret) |
-| `NEXT_PUBLIC_APP_URL` | pública | domínio HTTPS de produção, **sem barra final** (ex.: `https://app.kabritodigital.com`) |
-| `DATABASE_URL` | **segredo** | Supabase → Settings → Database → connection string. Use o **pooler** (porta 6543) para serverless |
-| `SUPABASE_SERVICE_ROLE_KEY` | **segredo** | Supabase → Settings → API → **secret** key (bypassa RLS — nunca pública) |
-| `CRON_SECRET` | **segredo** | gere forte: `openssl rand -hex 32`. A Vercel injeta como `Bearer` nas crons |
-| `AI_API_KEY` | **segredo** | Anthropic (`sk-ant-...`). **Sem ela o pipeline usa mock e não gera conteúdo real** |
+| Variável                        | Tipo        | Valor / origem                                                                                    |
+| ------------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | pública     | Supabase → Settings → API → Project URL (`https://xxxx.supabase.co`)                              |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | pública     | Supabase → Settings → API → **publishable/anon** key (NÃO a secret)                               |
+| `NEXT_PUBLIC_APP_URL`           | pública     | domínio HTTPS de produção, **sem barra final** (ex.: `https://app.kabritodigital.com`)            |
+| `DATABASE_URL`                  | **segredo** | Supabase → Settings → Database → connection string. Use o **pooler** (porta 6543) para serverless |
+| `SUPABASE_SERVICE_ROLE_KEY`     | **segredo** | Supabase → Settings → API → **secret** key (bypassa RLS — nunca pública)                          |
+| `CRON_SECRET`                   | **segredo** | gere forte: `openssl rand -hex 32`. A Vercel injeta como `Bearer` nas crons                       |
+| `AI_API_KEY`                    | **segredo** | Anthropic (`sk-ant-...`). **Sem ela o pipeline usa mock e não gera conteúdo real**                |
 
 > ⚠️ `NEXT_PUBLIC_APP_URL` no default (`localhost:3000`) **quebra silenciosamente**
 > links de convite/digest (e-mail) e as success/cancel URLs do Stripe. Sempre
@@ -49,15 +49,15 @@ for testar lá). Marque os segredos como **Sensitive**.
 
 ### Opcionais (têm default no código)
 
-| Variável | Default | Quando setar |
-|---|---|---|
-| `RESEND_API_KEY` | — | **necessária para e-mails** (convite/digest); sem ela o envio é pulado |
-| `EMAIL_FROM` | `Inteligência Criativa <digest@example.com>` | remetente verificado no Resend |
-| `AI_MODEL` | `claude-3-5-sonnet-latest` | trocar o modelo |
-| `AI_RUN_COST_CAP_USD` | `2.00` | teto de custo por run |
-| `AI_RUN_TOKEN_CAP` | `200000` | teto de tokens por run |
-| `DEVICE_LIMIT` | `2` | dispositivos ativos por usuário |
-| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_ANNUAL` | vazio = billing OFF | ativar Stripe real |
+| Variável                                                                                       | Default                                      | Quando setar                                                           |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------- |
+| `RESEND_API_KEY`                                                                               | —                                            | **necessária para e-mails** (convite/digest); sem ela o envio é pulado |
+| `EMAIL_FROM`                                                                                   | `Inteligência Criativa <digest@example.com>` | remetente verificado no Resend                                         |
+| `AI_MODEL`                                                                                     | `claude-3-5-sonnet-latest`                   | trocar o modelo                                                        |
+| `AI_RUN_COST_CAP_USD`                                                                          | `2.00`                                       | teto de custo por run                                                  |
+| `AI_RUN_TOKEN_CAP`                                                                             | `200000`                                     | teto de tokens por run                                                 |
+| `DEVICE_LIMIT`                                                                                 | `2`                                          | dispositivos ativos por usuário                                        |
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_ANNUAL` | vazio = billing OFF                          | ativar Stripe real                                                     |
 
 > `SENTRY_DSN` está documentado mas **não tem consumidor no código** (Sentry ainda
 > não foi instrumentado). Não precisa setar agora.
@@ -72,8 +72,8 @@ Authentication → **URL Configuration**:
   dos links dos e-mails de confirmação/recuperação (o código não passa
   `emailRedirectTo`, então isso depende 100% da Site URL).
 - **Redirect URLs** — adicionar:
-  - `https://SEU-DOMINIO/api/auth/callback`  ← path exato do callback
-  - `https://SEU-DOMINIO/**`  ← wildcard (cobre `?redirectTo=` e futuros OAuth)
+  - `https://SEU-DOMINIO/api/auth/callback` ← path exato do callback
+  - `https://SEU-DOMINIO/**` ← wildcard (cobre `?redirectTo=` e futuros OAuth)
 
 > Se o redirect **não** estiver allowlistado, a confirmação de e-mail quebra
 > (o `code` nunca chega ao app → `/login?error=auth_callback`). Cadastre **antes**

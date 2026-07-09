@@ -12,7 +12,9 @@ import { safeFetch } from "./safe-fetch";
  *  - path?: string (dot-path até o array; default = raiz se já for array)
  *  - field?: string (campo de cada item; default = item já é string)
  */
-export async function collectApi(config: Record<string, unknown>): Promise<string[]> {
+export async function collectApi(
+  config: Record<string, unknown>,
+): Promise<string[]> {
   const res =
     typeof config.url === "string"
       ? await safeFetch(config.url, {

@@ -12,7 +12,8 @@ import { Resend } from "resend";
  */
 async function main(): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.EMAIL_FROM?.trim() ?? "Kabrito <onboarding@resend.dev>";
+  const from =
+    process.env.EMAIL_FROM?.trim() ?? "Kabrito <onboarding@resend.dev>";
   const to = process.argv[2]?.trim() ?? process.env.CHECK_EMAIL_TO?.trim();
 
   console.log("RESEND_API_KEY presente:", !!apiKey);
@@ -20,12 +21,18 @@ async function main(): Promise<void> {
   console.log("destinatário:", to ?? "(não informado)");
 
   if (!apiKey) {
-    console.error("❌ RESEND_API_KEY ausente — e-mails do app ficam desativados (best-effort).");
+    console.error(
+      "❌ RESEND_API_KEY ausente — e-mails do app ficam desativados (best-effort).",
+    );
     process.exit(1);
   }
   if (!to) {
-    console.error("ℹ️  Informe o destinatário: npm run check:resend -- voce@email.com");
-    console.error("    (no modo de teste do Resend, use o e-mail da SUA conta Resend.)");
+    console.error(
+      "ℹ️  Informe o destinatário: npm run check:resend -- voce@email.com",
+    );
+    console.error(
+      "    (no modo de teste do Resend, use o e-mail da SUA conta Resend.)",
+    );
     process.exit(1);
   }
 
@@ -39,13 +46,20 @@ async function main(): Promise<void> {
     });
     if (error) {
       console.error("❌ Resend recusou o envio:", error.message);
-      console.error("   (token errado, remetente não verificado, ou destinatário não permitido no modo de teste.)");
+      console.error(
+        "   (token errado, remetente não verificado, ou destinatário não permitido no modo de teste.)",
+      );
       process.exit(1);
     }
     console.log("✅ Enviado! id:", data?.id);
-    console.log("   Confira a caixa de entrada do destinatário e o log em resend.com → Emails.");
+    console.log(
+      "   Confira a caixa de entrada do destinatário e o log em resend.com → Emails.",
+    );
   } catch (err) {
-    console.error("❌ Falha ao enviar:", err instanceof Error ? err.message : String(err));
+    console.error(
+      "❌ Falha ao enviar:",
+      err instanceof Error ? err.message : String(err),
+    );
     process.exit(1);
   }
 }

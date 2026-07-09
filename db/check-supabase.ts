@@ -35,7 +35,9 @@ try {
 
 // 2) anon key (auth/settings deve responder 200)
 try {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/settings`, { headers: { apikey: ANON } });
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+    headers: { apikey: ANON },
+  });
   check("anon key válida", res.ok, `HTTP ${res.status}`);
 } catch (err) {
   check("anon key válida", false, (err as Error).message);
@@ -43,13 +45,20 @@ try {
 
 // 3) service_role key (admin endpoint exige service_role)
 try {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users?page=1&per_page=1`, {
-    headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` },
-  });
+  const res = await fetch(
+    `${SUPABASE_URL}/auth/v1/admin/users?page=1&per_page=1`,
+    {
+      headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` },
+    },
+  );
   check("service_role key válida", res.ok, `HTTP ${res.status}`);
 } catch (err) {
   check("service_role key válida", false, (err as Error).message);
 }
 
-console.log(fail === 0 ? "\n✅ Credenciais OK" : `\n❌ ${fail} credencial(is) com problema`);
+console.log(
+  fail === 0
+    ? "\n✅ Credenciais OK"
+    : `\n❌ ${fail} credencial(is) com problema`,
+);
 process.exit(fail === 0 ? 0 : 1);

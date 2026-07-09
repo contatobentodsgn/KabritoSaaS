@@ -63,10 +63,12 @@ export function ReviewActions({ editionId }: { editionId: string }) {
       </div>
       {confirming && (
         <div className="space-y-2 rounded-md border border-mint-200 dark:border-forest-800 bg-mint-50/60 dark:bg-forest-950/40 p-3">
-          <p className="font-serif text-base text-foreground">Publicar e enviar o digest?</p>
+          <p className="font-serif text-base text-foreground">
+            Publicar e enviar o digest?
+          </p>
           <p className="text-sm text-muted-foreground">
-            A edição vai ao ar e o e-mail é enviado a todos os assinantes ativos.
-            Isso não pode ser desfeito.
+            A edição vai ao ar e o e-mail é enviado a todos os assinantes
+            ativos. Isso não pode ser desfeito.
           </p>
           <div className="flex gap-2">
             <Button size="sm" onClick={onApprove} disabled={pending}>
@@ -90,7 +92,12 @@ export function ReviewActions({ editionId }: { editionId: string }) {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
-          <Button variant="destructive" size="sm" onClick={onReject} disabled={pending}>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={onReject}
+            disabled={pending}
+          >
             Confirmar rejeição
           </Button>
         </div>

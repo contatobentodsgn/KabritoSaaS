@@ -15,9 +15,17 @@ export function LoginForm() {
     <form action={action} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="email">E-mail</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+        />
         {state.fieldErrors?.email && (
-          <p className="text-sm text-destructive">{state.fieldErrors.email[0]}</p>
+          <p className="text-sm text-destructive">
+            {state.fieldErrors.email[0]}
+          </p>
         )}
       </div>
       <div className="space-y-2">

@@ -18,14 +18,20 @@ afterAll(async () => {
  * =========================================================================== */
 describe("6.1 Teste-âncora — RLS aplicada via cliente, ignorada via service_role", () => {
   it("usuário A (authenticated) vê só o próprio favorito", async () => {
-    const rows = await asUser(f.userA, (tx) => tx`select id, user_id from user_favorites`);
+    const rows = await asUser(
+      f.userA,
+      (tx) => tx`select id, user_id from user_favorites`,
+    );
     expect(rows.length).toBe(1);
     expect(rows[0]!.id).toBe(f.favA);
     expect(rows[0]!.user_id).toBe(f.userA);
   });
 
   it("usuário B (authenticated) vê só o próprio favorito", async () => {
-    const rows = await asUser(f.userB, (tx) => tx`select id from user_favorites`);
+    const rows = await asUser(
+      f.userB,
+      (tx) => tx`select id from user_favorites`,
+    );
     expect(rows.length).toBe(1);
     expect(rows[0]!.id).toBe(f.favB);
   });
@@ -59,7 +65,10 @@ describe("6.2 Conteúdo editorial — assinatura ativa + publicado + não expira
     const ids = editions.map((r) => r.id);
     expect(ids).toContain(f.publishedEditionId);
 
-    const trends = await asUser(f.userA, (tx) => tx`select id from trend_items`);
+    const trends = await asUser(
+      f.userA,
+      (tx) => tx`select id from trend_items`,
+    );
     expect(trends.map((r) => r.id)).toContain(f.trendItemId);
 
     const heads = await asUser(f.userA, (tx) => tx`select id from headlines`);
@@ -67,9 +76,15 @@ describe("6.2 Conteúdo editorial — assinatura ativa + publicado + não expira
   });
 
   it("sem assinatura ativa NÃO vê nada do conteúdo editorial", async () => {
-    const editions = await asUser(f.noSub, (tx) => tx`select id from content_editions`);
+    const editions = await asUser(
+      f.noSub,
+      (tx) => tx`select id from content_editions`,
+    );
     expect(editions.length).toBe(0);
-    const trends = await asUser(f.noSub, (tx) => tx`select id from trend_items`);
+    const trends = await asUser(
+      f.noSub,
+      (tx) => tx`select id from trend_items`,
+    );
     expect(trends.length).toBe(0);
     const heads = await asUser(f.noSub, (tx) => tx`select id from headlines`);
     expect(heads.length).toBe(0);
@@ -78,13 +93,15 @@ describe("6.2 Conteúdo editorial — assinatura ativa + publicado + não expira
   it("edição em DRAFT não é vista por usuário final (nem seus itens)", async () => {
     const editions = await asUser(
       f.userA,
-      (tx) => tx`select id from content_editions where id = ${f.draftEditionId}`,
+      (tx) =>
+        tx`select id from content_editions where id = ${f.draftEditionId}`,
     );
     expect(editions.length).toBe(0);
     // a headline da edição draft não aparece
     const heads = await asUser(
       f.userA,
-      (tx) => tx`select id from headlines where edition_id = ${f.draftEditionId}`,
+      (tx) =>
+        tx`select id from headlines where edition_id = ${f.draftEditionId}`,
     );
     expect(heads.length).toBe(0);
   });
@@ -92,7 +109,8 @@ describe("6.2 Conteúdo editorial — assinatura ativa + publicado + não expira
   it("edição publicada mas EXPIRADA não aparece para ninguém", async () => {
     const editions = await asUser(
       f.userA,
-      (tx) => tx`select id from content_editions where id = ${f.expiredEditionId}`,
+      (tx) =>
+        tx`select id from content_editions where id = ${f.expiredEditionId}`,
     );
     expect(editions.length).toBe(0);
   });
@@ -105,7 +123,8 @@ describe("6.3 Isolamento — A não acessa dados de B por id direto", () => {
   it("A não lê assinatura da org de B", async () => {
     const rows = await asUser(
       f.userA,
-      (tx) => tx`select id from subscriptions where organization_id = ${f.orgB}`,
+      (tx) =>
+        tx`select id from subscriptions where organization_id = ${f.orgB}`,
     );
     expect(rows.length).toBe(0);
   });
@@ -113,7 +132,8 @@ describe("6.3 Isolamento — A não acessa dados de B por id direto", () => {
   it("A não lê membros da org de B", async () => {
     const rows = await asUser(
       f.userA,
-      (tx) => tx`select id from organization_members where organization_id = ${f.orgB}`,
+      (tx) =>
+        tx`select id from organization_members where organization_id = ${f.orgB}`,
     );
     expect(rows.length).toBe(0);
   });
@@ -129,7 +149,8 @@ describe("6.3 Isolamento — A não acessa dados de B por id direto", () => {
   it("A vê a própria org/assinatura (controle positivo)", async () => {
     const own = await asUser(
       f.userA,
-      (tx) => tx`select id from subscriptions where organization_id = ${f.orgA}`,
+      (tx) =>
+        tx`select id from subscriptions where organization_id = ${f.orgA}`,
     );
     expect(own.length).toBe(1);
   });
@@ -161,8 +182,14 @@ describe("6.4 Escrita restrita ao staff; pipeline interno bloqueado p/ usuário"
 
   it("usuário final NÃO acessa raw_signals / generation_runs / ingestion_sources", async () => {
     const rs = await asUser(f.userA, (tx) => tx`select id from raw_signals`);
-    const gr = await asUser(f.userA, (tx) => tx`select id from generation_runs`);
-    const src = await asUser(f.userA, (tx) => tx`select id from ingestion_sources`);
+    const gr = await asUser(
+      f.userA,
+      (tx) => tx`select id from generation_runs`,
+    );
+    const src = await asUser(
+      f.userA,
+      (tx) => tx`select id from ingestion_sources`,
+    );
     expect(rs.length).toBe(0);
     expect(gr.length).toBe(0);
     expect(src.length).toBe(0);
@@ -182,7 +209,10 @@ describe("6.4 Escrita restrita ao staff; pipeline interno bloqueado p/ usuário"
 
   it("staff vê o pipeline interno (raw_signals/generation_runs)", async () => {
     const rs = await asUser(f.staff, (tx) => tx`select id from raw_signals`);
-    const gr = await asUser(f.staff, (tx) => tx`select id from generation_runs`);
+    const gr = await asUser(
+      f.staff,
+      (tx) => tx`select id from generation_runs`,
+    );
     expect(rs.length).toBeGreaterThanOrEqual(1);
     expect(gr.length).toBeGreaterThanOrEqual(1);
   });
@@ -214,7 +244,8 @@ describe("6.5 Anti-escalada — usuário não vira staff alterando profiles.staf
   it("controle: A ainda atualiza colunas próprias permitidas (name)", async () => {
     const res = await asUser(
       f.userA,
-      (tx) => tx`update profiles set name = 'Nome Atualizado A' where user_id = ${f.userA}`,
+      (tx) =>
+        tx`update profiles set name = 'Nome Atualizado A' where user_id = ${f.userA}`,
     );
     expect(res.count).toBe(1);
   });
@@ -225,7 +256,10 @@ describe("6.5 Anti-escalada — usuário não vira staff alterando profiles.staf
  * =========================================================================== */
 describe("6.6 Comentários — leitura/escrita por assinatura + edição publicada", () => {
   it("assinante ativo vê os comentários da edição publicada", async () => {
-    const rows = await asUser(f.userA, (tx) => tx`select id from edition_comments`);
+    const rows = await asUser(
+      f.userA,
+      (tx) => tx`select id from edition_comments`,
+    );
     const ids = rows.map((r) => r.id);
     expect(ids).toContain(f.commentA);
     expect(ids).toContain(f.commentB);
@@ -241,7 +275,10 @@ describe("6.6 Comentários — leitura/escrita por assinatura + edição publica
   });
 
   it("sem assinatura ativa NÃO vê nem comenta", async () => {
-    const seen = await asUser(f.noSub, (tx) => tx`select id from edition_comments`);
+    const seen = await asUser(
+      f.noSub,
+      (tx) => tx`select id from edition_comments`,
+    );
     expect(seen.length).toBe(0);
     await expect(
       asUser(
@@ -290,11 +327,13 @@ describe("6.7 Workspace — co-membros visíveis; só owner/admin gerenciam", ()
   it("membros da org veem os co-membros (owner e member)", async () => {
     const asOwner = await asUser(
       f.userA,
-      (tx) => tx`select user_id from organization_members where organization_id = ${f.orgA}`,
+      (tx) =>
+        tx`select user_id from organization_members where organization_id = ${f.orgA}`,
     );
     const asMember = await asUser(
       f.userC,
-      (tx) => tx`select user_id from organization_members where organization_id = ${f.orgA}`,
+      (tx) =>
+        tx`select user_id from organization_members where organization_id = ${f.orgA}`,
     );
     expect(asOwner.length).toBe(2);
     expect(asMember.length).toBe(2);
@@ -303,7 +342,8 @@ describe("6.7 Workspace — co-membros visíveis; só owner/admin gerenciam", ()
   it("quem não é membro NÃO vê os membros da org", async () => {
     const rows = await asUser(
       f.userB,
-      (tx) => tx`select user_id from organization_members where organization_id = ${f.orgA}`,
+      (tx) =>
+        tx`select user_id from organization_members where organization_id = ${f.orgA}`,
     );
     expect(rows.length).toBe(0);
   });
@@ -328,14 +368,16 @@ describe("6.7 Workspace — co-membros visíveis; só owner/admin gerenciam", ()
   it("owner atualiza papel de membro; membro comum não (0 linhas)", async () => {
     const ownerUpdates = await asUser(
       f.userA,
-      (tx) => tx`update organization_members set role = 'admin' where organization_id = ${f.orgA} and user_id = ${f.userC}`,
+      (tx) =>
+        tx`update organization_members set role = 'admin' where organization_id = ${f.orgA} and user_id = ${f.userC}`,
     );
     expect(ownerUpdates.count).toBe(1);
 
     // Reverte C para "member" para não contaminar os testes seguintes (6.8).
     await asUser(
       f.userA,
-      (tx) => tx`update organization_members set role = 'member' where organization_id = ${f.orgA} and user_id = ${f.userC}`,
+      (tx) =>
+        tx`update organization_members set role = 'member' where organization_id = ${f.orgA} and user_id = ${f.userC}`,
     );
   });
 });
@@ -390,7 +432,8 @@ describe("6.9 public_profiles — nome cross-user sem vazar o profile", () => {
   it("A lê o NOME público de B via public_profiles", async () => {
     const rows = await asUser(
       f.userA,
-      (tx) => tx`select user_id, name from public_profiles where user_id = ${f.userB}`,
+      (tx) =>
+        tx`select user_id, name from public_profiles where user_id = ${f.userB}`,
     );
     expect(rows.length).toBe(1);
     expect(rows[0]!.name).toBe("B");
@@ -415,7 +458,8 @@ describe("6.10 Anti auto-ressurreição — usuário não escreve profiles.delet
     await expect(
       asUser(
         f.userA,
-        (tx) => tx`update profiles set deleted_at = null where user_id = ${f.userA}`,
+        (tx) =>
+          tx`update profiles set deleted_at = null where user_id = ${f.userA}`,
       ),
     ).rejects.toThrow();
   });
@@ -437,14 +481,18 @@ describe("6.10 Anti auto-ressurreição — usuário não escreve profiles.delet
  * =========================================================================== */
 describe("6.11 dashboard_cards — leitura geral, escrita só staff", () => {
   it("usuário comum LÊ os cards (config global)", async () => {
-    const rows = await asUser(f.userA, (tx) => tx`select key from dashboard_cards`);
+    const rows = await asUser(
+      f.userA,
+      (tx) => tx`select key from dashboard_cards`,
+    );
     expect(rows.length).toBeGreaterThan(0);
   });
 
   it("usuário comum NÃO consegue alternar (0 linhas afetadas)", async () => {
     const res = await asUser(
       f.userA,
-      (tx) => tx`update dashboard_cards set enabled = false where key = 'trends'`,
+      (tx) =>
+        tx`update dashboard_cards set enabled = false where key = 'trends'`,
     );
     expect(res.count).toBe(0);
   });
@@ -452,7 +500,8 @@ describe("6.11 dashboard_cards — leitura geral, escrita só staff", () => {
   it("staff CONSEGUE alternar (idempotente: calendario permanece off)", async () => {
     const res = await asUser(
       f.staff,
-      (tx) => tx`update dashboard_cards set enabled = false where key = 'calendario'`,
+      (tx) =>
+        tx`update dashboard_cards set enabled = false where key = 'calendario'`,
     );
     expect(res.count).toBe(1);
   });
@@ -498,7 +547,8 @@ describe("6.12 Escrita cross-org — outsider (B) não escreve na org A", () => 
   it("B NÃO renomeia a organização A (0 linhas)", async () => {
     const res = await asUser(
       f.userB,
-      (tx) => tx`update organizations set name = 'Hijacked' where id = ${f.orgA}`,
+      (tx) =>
+        tx`update organizations set name = 'Hijacked' where id = ${f.orgA}`,
     );
     expect(res.count).toBe(0);
   });
@@ -583,7 +633,8 @@ describe("6.13 approve_edition — publicação atômica, gated a pending, staff
 
   it("segunda chamada na edição já publicada retorna 0 (não republica)", async () => {
     const [ed] = await asService(
-      (tx) => tx`select id from content_editions where slug = 'rpc-test-edition'`,
+      (tx) =>
+        tx`select id from content_editions where slug = 'rpc-test-edition'`,
     );
     const res = await asUser(
       f.staff,

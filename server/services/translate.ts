@@ -65,7 +65,11 @@ async function callAnthropic(user: string): Promise<string> {
 function mockAdaptation(i: AdaptInput): string {
   const base = i.source.replace(/\s+/g, " ").trim().slice(0, 80);
   return JSON.stringify({
-    adapted_headline: `${base.charAt(0).toUpperCase() + base.slice(1)} — para ${i.niche}`.slice(0, 160),
+    adapted_headline:
+      `${base.charAt(0).toUpperCase() + base.slice(1)} — para ${i.niche}`.slice(
+        0,
+        160,
+      ),
     central_idea: `Traga a ideia "${base}" para a realidade de ${i.niche}, falando a linguagem desse público e usando um exemplo concreto do dia a dia.`,
     post_structure: `Slide 1: gancho conectando "${base}" com uma dor de quem atua em ${i.niche}.\nSlides 2–4: desenvolva em 3 passos práticos com exemplos do nicho.\nSlide final: CTA claro para ${i.format} de ${i.platform}.`,
     caption: `Se você trabalha com ${i.niche}, isto é para você. Adaptei a pauta do dia para o seu contexto: ${base}. Salve este post e aplique ainda esta semana.`,
@@ -79,20 +83,27 @@ function mockAdaptation(i: AdaptInput): string {
 }
 
 export type AdaptResult =
-  | { ok: true; data: Adaptation }
-  | { ok: false; error: string };
+  { ok: true; data: Adaptation } | { ok: false; error: string };
 
 export async function adaptToNiche(input: AdaptInput): Promise<AdaptResult> {
   let raw: string;
   try {
-    raw = serverEnv.AI_API_KEY ? await callAnthropic(buildUser(input)) : mockAdaptation(input);
+    raw = serverEnv.AI_API_KEY
+      ? await callAnthropic(buildUser(input))
+      : mockAdaptation(input);
   } catch (err) {
     console.error("[adapt] falha na chamada do modelo:", err);
-    return { ok: false, error: "Não foi possível gerar a adaptação agora. Tente de novo." };
+    return {
+      ok: false,
+      error: "Não foi possível gerar a adaptação agora. Tente de novo.",
+    };
   }
   const parsed = safeParseGenerated(adaptationSchema, raw);
   if (!parsed.ok) {
-    return { ok: false, error: "A saída não passou na validação. Tente novamente." };
+    return {
+      ok: false,
+      error: "A saída não passou na validação. Tente novamente.",
+    };
   }
   return { ok: true, data: parsed.data };
 }

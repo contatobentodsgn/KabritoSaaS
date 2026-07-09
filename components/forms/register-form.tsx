@@ -32,7 +32,9 @@ export function RegisterForm() {
           <Mail className="size-6" strokeWidth={1.5} />
         </span>
         <div className="space-y-1.5">
-          <h2 className="font-serif text-xl text-foreground">Confirme seu e-mail</h2>
+          <h2 className="font-serif text-xl text-foreground">
+            Confirme seu e-mail
+          </h2>
           <p className="text-sm leading-relaxed text-muted-foreground">
             Enviamos um link de confirmação para{" "}
             <span className="font-medium text-foreground">{email}</span>. Abra o
@@ -60,14 +62,24 @@ export function RegisterForm() {
         <Label htmlFor="name">Nome</Label>
         <Input id="name" name="name" type="text" autoComplete="name" required />
         {state.fieldErrors?.name && (
-          <p className="text-sm text-destructive">{state.fieldErrors.name[0]}</p>
+          <p className="text-sm text-destructive">
+            {state.fieldErrors.name[0]}
+          </p>
         )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">E-mail</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+        />
         {state.fieldErrors?.email && (
-          <p className="text-sm text-destructive">{state.fieldErrors.email[0]}</p>
+          <p className="text-sm text-destructive">
+            {state.fieldErrors.email[0]}
+          </p>
         )}
       </div>
       <div className="space-y-2">

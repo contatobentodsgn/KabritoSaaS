@@ -28,7 +28,10 @@ export const metadata = { title: "Dashboard · Inteligência Criativa" };
 function updatedLabel(publishedAt: string | null): string | null {
   if (!publishedAt) return null;
   const d = new Date(publishedAt);
-  const time = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const time = d.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   const sameDay = d.toDateString() === new Date().toDateString();
   return sameDay
     ? `Atualizado hoje às ${time}`
@@ -38,10 +41,18 @@ function updatedLabel(publishedAt: string | null): string | null {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ platform?: string; nicho?: string; formato?: string }>;
+  searchParams: Promise<{
+    platform?: string;
+    nicho?: string;
+    formato?: string;
+  }>;
 }) {
   const [{ platform: platformParam, nicho, formato }, profile, active] =
-    await Promise.all([searchParams, getCurrentProfile(), hasActiveSubscription()]);
+    await Promise.all([
+      searchParams,
+      getCurrentProfile(),
+      hasActiveSubscription(),
+    ]);
 
   const [platforms, niches, enabledCardKeys] = active
     ? await Promise.all([listPlatforms(), listNiches(), getEnabledCardKeys()])
@@ -78,21 +89,22 @@ export default async function DashboardPage({
         hasEdition={!!data}
         cta={
           data
-            ? { label: "Ver edição de hoje", href: `/daily-briefing/${data.edition.id}#sugestoes` }
+            ? {
+                label: "Ver edição de hoje",
+                href: `/daily-briefing/${data.edition.id}#sugestoes`,
+              }
             : undefined
         }
       />
 
-      {active && (
-        <PlatformSwitcher platforms={platforms} current={slug} />
-      )}
+      {active && <PlatformSwitcher platforms={platforms} current={slug} />}
 
       {!active && (
         <Card className="border-rose-200 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/15">
           <CardContent className="flex flex-col items-start gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-rose-900 dark:text-blush-200">
-              Sua assinatura não está ativa — o conteúdo editorial fica disponível
-              com a assinatura ativa.
+              Sua assinatura não está ativa — o conteúdo editorial fica
+              disponível com a assinatura ativa.
             </p>
             <Button asChild size="sm" variant="blush">
               <Link href="/settings">Ver assinatura</Link>
@@ -129,10 +141,22 @@ export default async function DashboardPage({
         <>
           <StatStrip
             items={[
-              { icon: Flame, value: data.trend_items.length, label: "pautas quentes" },
+              {
+                icon: Flame,
+                value: data.trend_items.length,
+                label: "pautas quentes",
+              },
               { icon: Type, value: data.headlines.length, label: "headlines" },
-              { icon: ImageIcon, value: data.visual_patterns.length, label: "padrões visuais" },
-              { icon: Lightbulb, value: data.content_suggestions.length, label: "sugestões de post" },
+              {
+                icon: ImageIcon,
+                value: data.visual_patterns.length,
+                label: "padrões visuais",
+              },
+              {
+                icon: Lightbulb,
+                value: data.content_suggestions.length,
+                label: "sugestões de post",
+              },
             ]}
           />
 

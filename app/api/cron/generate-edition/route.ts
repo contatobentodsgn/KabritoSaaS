@@ -28,9 +28,14 @@ async function handle(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[cron/generate-edition] erro:", message);
-    Sentry.captureException(err, { tags: { area: "cron", job: "generate-edition" } });
+    Sentry.captureException(err, {
+      tags: { area: "cron", job: "generate-edition" },
+    });
     // Não vaza o detalhe interno no corpo HTTP — fica em log/Sentry.
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "internal_error" },
+      { status: 500 },
+    );
   }
 }
 

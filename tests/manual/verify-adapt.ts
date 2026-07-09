@@ -24,7 +24,10 @@ if (r.ok) {
   check("legenda preenchida", r.data.caption.length >= 10);
   check("estrutura preenchida", r.data.post_structure.length >= 10);
   check("tips entre 1 e 5", r.data.tips.length >= 1 && r.data.tips.length <= 5);
-  check("menciona o nicho", JSON.stringify(r.data).includes("nutrição materna"));
+  check(
+    "menciona o nicho",
+    JSON.stringify(r.data).includes("nutrição materna"),
+  );
 }
 console.log(fail === 0 ? "\n✅ ADAPT OK" : `\n❌ ${fail} falha(s)`);
 process.exit(fail === 0 ? 0 : 1);

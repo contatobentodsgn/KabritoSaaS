@@ -17,7 +17,11 @@ import { eq } from "drizzle-orm";
 const userId = randomUUID();
 const email = `verify-${userId.slice(0, 8)}@example.com`;
 
-const res = await provisionNewUser({ userId, email, name: "Teste Provisionamento" });
+const res = await provisionNewUser({
+  userId,
+  email,
+  name: "Teste Provisionamento",
+});
 console.log("provisionNewUser:", res);
 
 const db = getServiceDbClient();
@@ -36,15 +40,33 @@ const [s] = await db
   .where(eq(subscriptions.organizationId, res.organizationId));
 
 console.log("profile:", p ? { name: p.name, email: p.email } : null);
-console.log("org:", o ? { name: o.name, slug: o.slug, ownerId: o.ownerId } : null);
+console.log(
+  "org:",
+  o ? { name: o.name, slug: o.slug, ownerId: o.ownerId } : null,
+);
 console.log("member role:", m?.role);
-console.log("subscription:", s ? { status: s.subscriptionStatus, planId: s.planId } : null);
+console.log(
+  "subscription:",
+  s ? { status: s.subscriptionStatus, planId: s.planId } : null,
+);
 
-const ok = !!(p && o && m?.role === "owner" && s?.subscriptionStatus === "trialing");
+const ok = !!(
+  p &&
+  o &&
+  m?.role === "owner" &&
+  s?.subscriptionStatus === "trialing"
+);
 console.log(ok ? "\n✅ PROVISIONAMENTO OK (atômico)" : "\n❌ FALHOU");
 
 // idempotência: rodar de novo não duplica
-const res2 = await provisionNewUser({ userId, email, name: "Teste Provisionamento" });
-console.log("idempotente (created=false esperado):", res2.created === false ? "OK" : "FALHOU");
+const res2 = await provisionNewUser({
+  userId,
+  email,
+  name: "Teste Provisionamento",
+});
+console.log(
+  "idempotente (created=false esperado):",
+  res2.created === false ? "OK" : "FALHOU",
+);
 
 process.exit(ok && res2.created === false ? 0 : 1);

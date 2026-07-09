@@ -11,7 +11,10 @@ import { createHash } from "node:crypto";
  */
 export async function isPasswordPwned(password: string): Promise<boolean> {
   try {
-    const hash = createHash("sha1").update(password).digest("hex").toUpperCase();
+    const hash = createHash("sha1")
+      .update(password)
+      .digest("hex")
+      .toUpperCase();
     const prefix = hash.slice(0, 5);
     const suffix = hash.slice(5);
 

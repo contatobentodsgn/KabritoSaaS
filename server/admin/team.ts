@@ -2,7 +2,12 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { getServiceDbClient } from "@/server/db/service-client";
-import { organizationMembers, profiles, orgInvites, organizations } from "@/db/schema";
+import {
+  organizationMembers,
+  profiles,
+  orgInvites,
+  organizations,
+} from "@/db/schema";
 
 /**
  * ============================================================================
@@ -311,7 +316,9 @@ export async function listPendingInvites(
       createdAt: orgInvites.createdAt,
     })
     .from(orgInvites)
-    .where(and(eq(orgInvites.organizationId, orgId), isNull(orgInvites.acceptedAt)));
+    .where(
+      and(eq(orgInvites.organizationId, orgId), isNull(orgInvites.acceptedAt)),
+    );
   return rows;
 }
 
@@ -361,7 +368,9 @@ export async function cancelInvite(
   }
   await db
     .delete(orgInvites)
-    .where(and(eq(orgInvites.id, inviteId), eq(orgInvites.organizationId, orgId)));
+    .where(
+      and(eq(orgInvites.id, inviteId), eq(orgInvites.organizationId, orgId)),
+    );
   return { ok: true };
 }
 
@@ -375,7 +384,9 @@ export interface TokenInvite {
 }
 
 /** Busca um convite pelo token (capability link), com o nome da org. */
-export async function getInviteByToken(token: string): Promise<TokenInvite | null> {
+export async function getInviteByToken(
+  token: string,
+): Promise<TokenInvite | null> {
   const db = getServiceDbClient();
   const [row] = await db
     .select({
@@ -416,18 +427,26 @@ export async function acceptInviteByToken(
   if (!profile || profile.email.toLowerCase() !== invite.email.toLowerCase()) {
     return {
       ok: false,
-      error: "Este convite foi enviado para outro e-mail. Entre com esse e-mail para aceitar.",
+      error:
+        "Este convite foi enviado para outro e-mail. Entre com esse e-mail para aceitar.",
     };
   }
 
   await db
     .insert(organizationMembers)
-    .values({ organizationId: invite.organizationId, userId, role: invite.role })
+    .values({
+      organizationId: invite.organizationId,
+      userId,
+      role: invite.role,
+    })
     .onConflictDoNothing({
       target: [organizationMembers.organizationId, organizationMembers.userId],
     });
   if (!invite.acceptedAt) {
-    await db.update(orgInvites).set({ acceptedAt: new Date() }).where(eq(orgInvites.id, invite.id));
+    await db
+      .update(orgInvites)
+      .set({ acceptedAt: new Date() })
+      .where(eq(orgInvites.id, invite.id));
   }
   return { ok: true, orgName: invite.orgName };
 }
@@ -455,7 +474,12 @@ export async function acceptPendingInvites(
   const invites = await db
     .select()
     .from(orgInvites)
-    .where(and(eq(orgInvites.email, mail.toLowerCase()), isNull(orgInvites.acceptedAt)));
+    .where(
+      and(
+        eq(orgInvites.email, mail.toLowerCase()),
+        isNull(orgInvites.acceptedAt),
+      ),
+    );
 
   let accepted = 0;
   for (const inv of invites) {
@@ -463,9 +487,15 @@ export async function acceptPendingInvites(
       .insert(organizationMembers)
       .values({ organizationId: inv.organizationId, userId, role: inv.role })
       .onConflictDoNothing({
-        target: [organizationMembers.organizationId, organizationMembers.userId],
+        target: [
+          organizationMembers.organizationId,
+          organizationMembers.userId,
+        ],
       });
-    await db.update(orgInvites).set({ acceptedAt: new Date() }).where(eq(orgInvites.id, inv.id));
+    await db
+      .update(orgInvites)
+      .set({ acceptedAt: new Date() })
+      .where(eq(orgInvites.id, inv.id));
     accepted++;
   }
   return accepted;

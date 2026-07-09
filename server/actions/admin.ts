@@ -26,7 +26,11 @@ import type { FormState } from "@/server/actions/types";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 const forbidden = (): ActionResult => ({ ok: false, error: "Não autorizado." });
-const csv = (s: string) => s.split(",").map((x) => x.trim()).filter(Boolean);
+const csv = (s: string) =>
+  s
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
 
 /* ===========================================================================
  * FILA DE REVISÃO (editor/superadmin) — nada publica sem aprovação humana.
@@ -160,7 +164,8 @@ export async function updateItemField(input: unknown): Promise<ActionResult> {
   const { table, id, field, value } = parsed.data;
   // whitelist de campo por tabela (defesa contra update arbitrário)
   const allowed = EDITABLE_ITEM_TABLES[table] as readonly string[];
-  if (!allowed.includes(field)) return { ok: false, error: "Campo não editável." };
+  if (!allowed.includes(field))
+    return { ok: false, error: "Campo não editável." };
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -168,7 +173,11 @@ export async function updateItemField(input: unknown): Promise<ActionResult> {
     .update({ [field]: value })
     .eq("id", id);
   if (error) return { ok: false, error: "Falha ao editar item." };
-  await recordAudit({ action: AUDIT_ACTIONS.CONTENT_EDITED, entityType: table, entityId: id });
+  await recordAudit({
+    action: AUDIT_ACTIONS.CONTENT_EDITED,
+    entityType: table,
+    entityId: id,
+  });
   revalidatePath("/admin/review");
   return { ok: true };
 }
@@ -178,7 +187,10 @@ export async function deleteItem(input: unknown): Promise<ActionResult> {
   const parsed = itemDeleteSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Entrada inválida." };
   const supabase = await createClient();
-  const { error } = await supabase.from(parsed.data.table).delete().eq("id", parsed.data.id);
+  const { error } = await supabase
+    .from(parsed.data.table)
+    .delete()
+    .eq("id", parsed.data.id);
   if (error) return { ok: false, error: "Falha ao remover item." };
   await recordAudit({
     action: AUDIT_ACTIONS.CONTENT_DELETED,
@@ -193,7 +205,10 @@ export async function deleteItem(input: unknown): Promise<ActionResult> {
  * CRUD — fontes de ingestão (superadmin: canManagePipeline)
  * =========================================================================== */
 
-export async function createSource(_p: FormState, fd: FormData): Promise<FormState> {
+export async function createSource(
+  _p: FormState,
+  fd: FormData,
+): Promise<FormState> {
   if (!(await canManagePipeline())) return { error: "Não autorizado." };
   const parsed = sourceSchema.safeParse({
     name: fd.get("name"),
@@ -201,7 +216,8 @@ export async function createSource(_p: FormState, fd: FormData): Promise<FormSta
     configJson: fd.get("configJson") ?? "{}",
     isActive: fd.get("isActive") === "on",
   });
-  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
+  if (!parsed.success)
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
 
   let config: Record<string, unknown>;
   try {
@@ -223,9 +239,13 @@ export async function createSource(_p: FormState, fd: FormData): Promise<FormSta
   return { ok: true, message: "Fonte criada." };
 }
 
-export async function toggleSourceActive(id: string, isActive: boolean): Promise<ActionResult> {
+export async function toggleSourceActive(
+  id: string,
+  isActive: boolean,
+): Promise<ActionResult> {
   if (!(await canManagePipeline())) return forbidden();
-  if (!z.string().uuid().safeParse(id).success) return { ok: false, error: "ID inválido." };
+  if (!z.string().uuid().safeParse(id).success)
+    return { ok: false, error: "ID inválido." };
   const supabase = await createClient();
   const { error } = await supabase
     .from("ingestion_sources")
@@ -296,31 +316,41 @@ export async function moveDashboardCard(
  * CRUD — taxonomia / prompts (editor)
  * =========================================================================== */
 
-export async function createPlatform(_p: FormState, fd: FormData): Promise<FormState> {
+export async function createPlatform(
+  _p: FormState,
+  fd: FormData,
+): Promise<FormState> {
   if (!(await canReviewContent())) return { error: "Não autorizado." };
   const parsed = platformSchema.safeParse({
     name: fd.get("name"),
     slug: fd.get("slug"),
     isActive: fd.get("isActive") !== "off",
   });
-  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
+  if (!parsed.success)
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("platforms")
-    .insert({ name: parsed.data.name, slug: parsed.data.slug, is_active: parsed.data.isActive });
+  const { error } = await supabase.from("platforms").insert({
+    name: parsed.data.name,
+    slug: parsed.data.slug,
+    is_active: parsed.data.isActive,
+  });
   if (error) return { error: "Falha ao criar plataforma (slug duplicado?)." };
   revalidatePath("/admin/sources");
   return { ok: true, message: "Plataforma criada." };
 }
 
-export async function createNiche(_p: FormState, fd: FormData): Promise<FormState> {
+export async function createNiche(
+  _p: FormState,
+  fd: FormData,
+): Promise<FormState> {
   if (!(await canReviewContent())) return { error: "Não autorizado." };
   const parsed = nicheSchema.safeParse({
     name: fd.get("name"),
     slug: fd.get("slug"),
     description: fd.get("description") ?? "",
   });
-  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
+  if (!parsed.success)
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
   const supabase = await createClient();
   const { error } = await supabase.from("niches").insert({
     name: parsed.data.name,
@@ -332,10 +362,17 @@ export async function createNiche(_p: FormState, fd: FormData): Promise<FormStat
   return { ok: true, message: "Nicho criado." };
 }
 
-export async function createTag(_p: FormState, fd: FormData): Promise<FormState> {
+export async function createTag(
+  _p: FormState,
+  fd: FormData,
+): Promise<FormState> {
   if (!(await canReviewContent())) return { error: "Não autorizado." };
-  const parsed = tagSchema.safeParse({ name: fd.get("name"), slug: fd.get("slug") });
-  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
+  const parsed = tagSchema.safeParse({
+    name: fd.get("name"),
+    slug: fd.get("slug"),
+  });
+  if (!parsed.success)
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
   const supabase = await createClient();
   const { error } = await supabase
     .from("content_tags")
@@ -345,14 +382,18 @@ export async function createTag(_p: FormState, fd: FormData): Promise<FormState>
   return { ok: true, message: "Tag criada." };
 }
 
-export async function createCategory(_p: FormState, fd: FormData): Promise<FormState> {
+export async function createCategory(
+  _p: FormState,
+  fd: FormData,
+): Promise<FormState> {
   if (!(await canReviewContent())) return { error: "Não autorizado." };
   const parsed = categorySchema.safeParse({
     name: fd.get("name"),
     slug: fd.get("slug"),
     description: fd.get("description") ?? "",
   });
-  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
+  if (!parsed.success)
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
   const supabase = await createClient();
   const { error } = await supabase.from("prompt_categories").insert({
     name: parsed.data.name,
@@ -364,7 +405,10 @@ export async function createCategory(_p: FormState, fd: FormData): Promise<FormS
   return { ok: true, message: "Categoria criada." };
 }
 
-export async function createTemplate(_p: FormState, fd: FormData): Promise<FormState> {
+export async function createTemplate(
+  _p: FormState,
+  fd: FormData,
+): Promise<FormState> {
   if (!(await canReviewContent())) return { error: "Não autorizado." };
   const parsed = templateSchema.safeParse({
     categoryId: fd.get("categoryId"),
@@ -376,7 +420,8 @@ export async function createTemplate(_p: FormState, fd: FormData): Promise<FormS
     exampleOutput: fd.get("exampleOutput"),
     tags: fd.get("tags") ?? "",
   });
-  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
+  if (!parsed.success)
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
   const supabase = await createClient();
   const { error } = await supabase.from("prompt_templates").insert({
     category_id: parsed.data.categoryId,

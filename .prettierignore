@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+build
+dist
+coverage
+public
+Kabrito Design System
+db/migrations
+package-lock.json
+.pgdata
+.pglogs

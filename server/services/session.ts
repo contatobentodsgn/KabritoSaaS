@@ -59,7 +59,10 @@ async function enforceDeviceLimit(
 
   // Decide quais revogar com a lógica pura (testável) e aplica.
   const toRevoke = pickSessionsToRevoke(
-    active.map((s) => ({ id: s.id as string, lastSeenAt: s.last_seen_at as string | null })),
+    active.map((s) => ({
+      id: s.id as string,
+      lastSeenAt: s.last_seen_at as string | null,
+    })),
     limit,
   );
   for (const id of toRevoke) {

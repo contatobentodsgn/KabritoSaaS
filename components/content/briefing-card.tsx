@@ -6,9 +6,13 @@ export function BriefingCard({ briefing }: { briefing: BriefingBlock }) {
   return (
     <Card className="border-mint-200 dark:border-forest-800 bg-mint-50 dark:bg-forest-950/40">
       <CardHeader>
-        <p className="k-eyebrow text-forest-700 dark:text-forest-200">Resumo do dia</p>
+        <p className="k-eyebrow text-forest-700 dark:text-forest-200">
+          Resumo do dia
+        </p>
         <CardTitle>Briefing do dia</CardTitle>
-        <p className="text-sm leading-relaxed text-muted-foreground">{briefing.summary}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {briefing.summary}
+        </p>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2">
         {briefing.whats_growing?.length > 0 && (

@@ -43,7 +43,10 @@ export function Field({
 
 // Tons de marca: verde detém a autoridade (oportunidade/calmaria),
 // blush/rose entram só na emoção/alerta — nunca o vermelho destrutivo.
-const SATURATION_VARIANT: Record<string, "forest" | "secondary" | "blush" | "rose"> = {
+const SATURATION_VARIANT: Record<
+  string,
+  "forest" | "secondary" | "blush" | "rose"
+> = {
   emergente: "forest",
   baixo: "forest",
   medio: "secondary",
@@ -52,7 +55,11 @@ const SATURATION_VARIANT: Record<string, "forest" | "secondary" | "blush" | "ros
 };
 
 export function SaturationBadge({ level }: { level: string }) {
-  return <Badge variant={SATURATION_VARIANT[level] ?? "secondary"}>saturação: {level}</Badge>;
+  return (
+    <Badge variant={SATURATION_VARIANT[level] ?? "secondary"}>
+      saturação: {level}
+    </Badge>
+  );
 }
 
 const RISK_VARIANT: Record<string, "forest" | "blush" | "rose"> = {
@@ -62,7 +69,9 @@ const RISK_VARIANT: Record<string, "forest" | "blush" | "rose"> = {
 };
 
 export function RiskBadge({ level }: { level: string }) {
-  return <Badge variant={RISK_VARIANT[level] ?? "secondary"}>risco: {level}</Badge>;
+  return (
+    <Badge variant={RISK_VARIANT[level] ?? "secondary"}>risco: {level}</Badge>
+  );
 }
 
 // Dificuldade: verde = fácil/acessível, blush = mais trabalhoso (sem alarme).
@@ -74,7 +83,9 @@ const DIFFICULTY_VARIANT: Record<string, "forest" | "secondary" | "blush"> = {
 
 export function DifficultyBadge({ level }: { level: string }) {
   return (
-    <Badge variant={DIFFICULTY_VARIANT[level] ?? "secondary"}>dificuldade: {level}</Badge>
+    <Badge variant={DIFFICULTY_VARIANT[level] ?? "secondary"}>
+      dificuldade: {level}
+    </Badge>
   );
 }
 

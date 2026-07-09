@@ -71,7 +71,11 @@ export function MobileNav({ children }: { children: React.ReactNode }) {
             className="absolute inset-y-0 left-0 flex w-[280px] max-w-[85vw] flex-col bg-mint-50 shadow-xl outline-none animate-in slide-in-from-left duration-200 dark:bg-forest-950"
           >
             <div className="flex items-center justify-between px-5 pb-2 pt-5">
-              <img src="/brand/logo-kabrito.svg" alt="Kabrito" className="h-7 w-auto dark:hidden" />
+              <img
+                src="/brand/logo-kabrito.svg"
+                alt="Kabrito"
+                className="h-7 w-auto dark:hidden"
+              />
               <img
                 src="/brand/logo-kabrito-inverse.svg"
                 alt="Kabrito"

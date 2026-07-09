@@ -40,7 +40,10 @@ const [after] = await db
   .from(subscriptions)
   .where(eq(subscriptions.organizationId, m!.organizationId));
 check("assinatura agora ACTIVE", after?.subscriptionStatus === "active");
-check("período futuro", !!after?.currentPeriodEnd && new Date(after.currentPeriodEnd) > new Date());
+check(
+  "período futuro",
+  !!after?.currentPeriodEnd && new Date(after.currentPeriodEnd) > new Date(),
+);
 
 void prov;
 console.log(failures === 0 ? "\n✅ BILLING OK" : `\n❌ ${failures} falha(s)`);

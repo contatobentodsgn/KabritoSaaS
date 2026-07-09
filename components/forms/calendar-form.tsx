@@ -33,7 +33,13 @@ const DAYS_OPTIONS = [3, 4, 5, 6, 7] as const;
 const selectCls =
   "flex h-10 w-full rounded-sm border border-input bg-card px-3 py-2 text-sm transition-[border-color,box-shadow] focus-visible:border-rose-400 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-rose-100";
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -79,40 +85,71 @@ export function CalendarForm() {
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="niche">Seu nicho</Label>
-                <Input id="niche" name="niche" placeholder="Ex.: nutrição materna" required />
+                <Input
+                  id="niche"
+                  name="niche"
+                  placeholder="Ex.: nutrição materna"
+                  required
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="platform">Plataforma</Label>
-                  <select id="platform" name="platform" className={selectCls} defaultValue="instagram">
+                  <select
+                    id="platform"
+                    name="platform"
+                    className={selectCls}
+                    defaultValue="instagram"
+                  >
                     {CALENDAR_PLATFORM_OPTIONS.map((p) => (
-                      <option key={p} value={p}>{PLATFORM_LABEL[p]}</option>
+                      <option key={p} value={p}>
+                        {PLATFORM_LABEL[p]}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="days">Dias</Label>
-                  <select id="days" name="days" className={selectCls} defaultValue="5">
+                  <select
+                    id="days"
+                    name="days"
+                    className={selectCls}
+                    defaultValue="5"
+                  >
                     {DAYS_OPTIONS.map((d) => (
-                      <option key={d} value={d}>{d} dias</option>
+                      <option key={d} value={d}>
+                        {d} dias
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="goal">Objetivo</Label>
-                <select id="goal" name="goal" className={selectCls} defaultValue="engajar">
+                <select
+                  id="goal"
+                  name="goal"
+                  className={selectCls}
+                  defaultValue="engajar"
+                >
                   {CALENDAR_GOAL_OPTIONS.map((g) => (
-                    <option key={g} value={g}>{GOAL_LABEL[g]}</option>
+                    <option key={g} value={g}>
+                      {GOAL_LABEL[g]}
+                    </option>
                   ))}
                 </select>
               </div>
               <Button type="submit" disabled={pending} className="w-full">
-                {pending ? <Loader2 className="animate-spin" /> : <CalendarDays className="size-4" />}
+                {pending ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <CalendarDays className="size-4" />
+                )}
                 {pending ? "Gerando..." : "Gerar calendário"}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Geração sob demanda com limite por usuário. A saída é validada antes de exibir.
+                Geração sob demanda com limite por usuário. A saída é validada
+                antes de exibir.
               </p>
             </form>
           </CardContent>
@@ -145,7 +182,9 @@ export function CalendarForm() {
                     </Field>
                     <Field label="CTA">{d.cta}</Field>
                     <div className="flex justify-end">
-                      <CopyButton text={`${d.headline}\n\n${d.hook}\n\n${d.cta}`} />
+                      <CopyButton
+                        text={`${d.headline}\n\n${d.hook}\n\n${d.cta}`}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -160,7 +199,8 @@ export function CalendarForm() {
               </span>
               <p className="font-medium">Seu calendário aparece aqui</p>
               <p className="max-w-xs text-sm text-muted-foreground">
-                Informe seu nicho, a plataforma e o objetivo, e a IA monta a semana de conteúdo.
+                Informe seu nicho, a plataforma e o objetivo, e a IA monta a
+                semana de conteúdo.
               </p>
             </CardContent>
           </Card>

@@ -40,8 +40,13 @@ export default async function AdminLayout({
                 alt="Kabrito"
                 className="h-6 w-auto"
               />
-              <span className="hidden h-5 w-px bg-border sm:block" aria-hidden="true" />
-              <span className="k-eyebrow hidden sm:block">Inteligência criativa</span>
+              <span
+                className="hidden h-5 w-px bg-border sm:block"
+                aria-hidden="true"
+              />
+              <span className="k-eyebrow hidden sm:block">
+                Inteligência criativa
+              </span>
             </Link>
             <Badge variant="forest">{role}</Badge>
           </div>

@@ -51,15 +51,17 @@ async function requireManager(): Promise<
 
   const role = await getCurrentOrgRole();
   if (role !== "owner" && role !== "admin") {
-    return { ok: false, error: "Você não tem permissão para gerenciar a equipe." };
+    return {
+      ok: false,
+      error: "Você não tem permissão para gerenciar a equipe.",
+    };
   }
 
   return { ok: true, orgId: org.id, userId: user.id };
 }
 
 export type InviteResult =
-  | { ok: true; status: "added" | "invited" }
-  | { ok: false; error: string };
+  { ok: true; status: "added" | "invited" } | { ok: false; error: string };
 
 /**
  * Convida um membro por e-mail. Se o e-mail já tem conta Kabrito → adiciona
@@ -75,7 +77,10 @@ export async function addMemberAction(input: unknown): Promise<InviteResult> {
 
   // Dispara e-mail externo → rate-limit por usuário (anti-abuso/flood).
   if (!(await consume("invite", ctx.userId)).success) {
-    return { ok: false, error: "Muitos convites em pouco tempo. Aguarde um instante." };
+    return {
+      ok: false,
+      error: "Muitos convites em pouco tempo. Aguarde um instante.",
+    };
   }
 
   const { email, role } = parsed.data;
@@ -137,7 +142,9 @@ export async function acceptInviteAction(
 }
 
 /** Cancela um convite pendente (owner|admin). */
-export async function cancelInviteAction(input: unknown): Promise<ActionResult> {
+export async function cancelInviteAction(
+  input: unknown,
+): Promise<ActionResult> {
   const parsed = z.object({ inviteId: z.string().uuid() }).safeParse(input);
   if (!parsed.success) return { ok: false, error: "Entrada inválida." };
 
@@ -157,7 +164,9 @@ export async function cancelInviteAction(input: unknown): Promise<ActionResult> 
 }
 
 /** Troca o papel de um membro (owner|admin|member), com proteção do último owner. */
-export async function setMemberRoleAction(input: unknown): Promise<ActionResult> {
+export async function setMemberRoleAction(
+  input: unknown,
+): Promise<ActionResult> {
   const parsed = setRoleSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Entrada inválida." };
 
@@ -170,7 +179,12 @@ export async function setMemberRoleAction(input: unknown): Promise<ActionResult>
     return { ok: false, error: "Você não pode alterar o próprio papel." };
   }
 
-  const res = await setMemberRole(ctx.orgId, parsed.data.userId, parsed.data.role, ctx.userId);
+  const res = await setMemberRole(
+    ctx.orgId,
+    parsed.data.userId,
+    parsed.data.role,
+    ctx.userId,
+  );
   if (res.ok) {
     await recordAudit({
       action: AUDIT_ACTIONS.MEMBER_ROLE_CHANGED,
@@ -184,7 +198,9 @@ export async function setMemberRoleAction(input: unknown): Promise<ActionResult>
 }
 
 /** Remove um membro, com proteção do último owner. */
-export async function removeMemberAction(input: unknown): Promise<ActionResult> {
+export async function removeMemberAction(
+  input: unknown,
+): Promise<ActionResult> {
   const parsed = removeSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Entrada inválida." };
 

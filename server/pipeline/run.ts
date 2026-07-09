@@ -15,7 +15,11 @@ import {
 } from "@/db/schema";
 import { contentFormat } from "@/server/pipeline/schemas";
 import { runIngestion } from "@/server/pipeline/ingest";
-import { generateEdition, PipelineError, type Caps } from "@/server/pipeline/generate";
+import {
+  generateEdition,
+  PipelineError,
+  type Caps,
+} from "@/server/pipeline/generate";
 import type { PromptVars } from "@/server/pipeline/prompts";
 import { serverEnv } from "@/server/env";
 import { slugify } from "@/lib/utils/slug";
@@ -85,14 +89,20 @@ export async function runDailyGeneration(opts: {
   if (existing[0]) {
     await db
       .update(generationRuns)
-      .set({ status: "completed", finishedAt: new Date(), errorMessage: "skipped: já existe edição" })
+      .set({
+        status: "completed",
+        finishedAt: new Date(),
+        errorMessage: "skipped: já existe edição",
+      })
       .where(eq(generationRuns.id, runId));
     return { ok: true, runId, editionId: existing[0].id, skipped: true };
   }
 
   try {
     // Vars de prompt
-    const nicheRows = await db.select({ slug: nichesTable.slug }).from(nichesTable);
+    const nicheRows = await db
+      .select({ slug: nichesTable.slug })
+      .from(nichesTable);
     const vars: PromptVars = {
       platform: opts.platformSlug,
       editionDate: opts.editionDate,
@@ -102,7 +112,10 @@ export async function runDailyGeneration(opts: {
     };
 
     // 1) Ingestão
-    await db.update(generationRuns).set({ status: "ingesting" }).where(eq(generationRuns.id, runId));
+    await db
+      .update(generationRuns)
+      .set({ status: "ingesting" })
+      .where(eq(generationRuns.id, runId));
     const ingest = await runIngestion(runId, opts.platformId);
     vars.signals = ingest.signalsSummary;
 
@@ -248,7 +261,11 @@ export async function runDailyGeneration(opts: {
     const kind = err instanceof PipelineError ? err.kind : "other";
     await db
       .update(generationRuns)
-      .set({ status: "failed", errorMessage: `[${kind}] ${message}`, finishedAt: new Date() })
+      .set({
+        status: "failed",
+        errorMessage: `[${kind}] ${message}`,
+        finishedAt: new Date(),
+      })
       .where(eq(generationRuns.id, runId));
     // FALHA NÃO PUBLICA: nenhuma edição foi persistida (ou a tx fez rollback).
     console.error("[pipeline] run falhou:", message);
@@ -258,7 +275,11 @@ export async function runDailyGeneration(opts: {
     if (typeof Sentry.captureException === "function") {
       Sentry.captureException(err, {
         tags: { area: "pipeline", kind },
-        extra: { runId, editionDate: opts.editionDate, platform: opts.platformSlug },
+        extra: {
+          runId,
+          editionDate: opts.editionDate,
+          platform: opts.platformSlug,
+        },
       });
     }
     return { ok: false, runId, error: message };

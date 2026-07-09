@@ -20,4 +20,6 @@ export const DASHBOARD_CARDS = [
 
 export type DashboardCardKey = (typeof DASHBOARD_CARDS)[number]["key"];
 
-export const DASHBOARD_CARD_KEYS = DASHBOARD_CARDS.map((c) => c.key) as DashboardCardKey[];
+export const DASHBOARD_CARD_KEYS = DASHBOARD_CARDS.map(
+  (c) => c.key,
+) as DashboardCardKey[];

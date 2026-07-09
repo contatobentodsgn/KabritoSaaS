@@ -31,7 +31,8 @@ export default async function ConvitePage({
         <CardContent className="space-y-4">
           {!invite ? (
             <p className="text-sm text-muted-foreground">
-              Convite inválido ou expirado. Peça um novo link a quem te convidou.
+              Convite inválido ou expirado. Peça um novo link a quem te
+              convidou.
             </p>
           ) : invite.acceptedAt ? (
             <>

@@ -16,7 +16,8 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    if (typeof Sentry.captureException === "function") Sentry.captureException(error);
+    if (typeof Sentry.captureException === "function")
+      Sentry.captureException(error);
   }, [error]);
 
   return (

@@ -3,13 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getCurrentOrgId } from "@/server/auth/session";
-import { favoriteSchema, favoriteCollectionSchema } from "@/lib/validations/content";
+import {
+  favoriteSchema,
+  favoriteCollectionSchema,
+} from "@/lib/validations/content";
 import { recordAudit } from "@/server/audit/log";
 import { AUDIT_ACTIONS } from "@/lib/constants";
 
 export type ToggleResult =
-  | { ok: true; favorited: boolean }
-  | { ok: false; error: string };
+  { ok: true; favorited: boolean } | { ok: false; error: string };
 
 export type SetCollectionResult = { ok: true } | { ok: false; error: string };
 

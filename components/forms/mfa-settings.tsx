@@ -20,14 +20,23 @@ export function MfaSettings({
   factorId: string | null;
 }) {
   const [pending, start] = useTransition();
-  const [enroll, setEnroll] = useState<{ factorId: string; qrCode: string; secret: string } | null>(null);
+  const [enroll, setEnroll] = useState<{
+    factorId: string;
+    qrCode: string;
+    secret: string;
+  } | null>(null);
   const [code, setCode] = useState("");
   const [disableOpen, setDisableOpen] = useState(false);
 
   function begin() {
     start(async () => {
       const res = await startEnrollAction();
-      if (res.ok) setEnroll({ factorId: res.factorId, qrCode: res.qrCode, secret: res.secret });
+      if (res.ok)
+        setEnroll({
+          factorId: res.factorId,
+          qrCode: res.qrCode,
+          secret: res.secret,
+        });
       else toast.error(res.error);
     });
   }
@@ -60,7 +69,12 @@ export function MfaSettings({
         <p className="text-sm text-forest-700 dark:text-forest-200">
           ✓ Verificação em duas etapas ativa.
         </p>
-        <Button variant="outline" size="sm" onClick={() => setDisableOpen(true)} disabled={pending}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setDisableOpen(true)}
+          disabled={pending}
+        >
           Desativar 2FA
         </Button>
         <ConfirmDialog
@@ -81,8 +95,8 @@ export function MfaSettings({
     return (
       <div className="space-y-3">
         <p className="text-sm text-foreground">
-          Escaneie o QR no seu app autenticador (Google Authenticator, 1Password…)
-          e digite o código de 6 dígitos.
+          Escaneie o QR no seu app autenticador (Google Authenticator,
+          1Password…) e digite o código de 6 dígitos.
         </p>
         <div
           className="inline-flex rounded-lg border border-border bg-white p-3"
@@ -103,7 +117,11 @@ export function MfaSettings({
             maxLength={6}
             className="w-32 font-mono tracking-widest"
           />
-          <Button size="sm" onClick={confirm} disabled={pending || code.trim().length < 6}>
+          <Button
+            size="sm"
+            onClick={confirm}
+            disabled={pending || code.trim().length < 6}
+          >
             Confirmar
           </Button>
           <Button

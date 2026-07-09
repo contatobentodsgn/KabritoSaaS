@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { uploadAvatar } from "@/server/admin/storage";
 
-export type AvatarResult = { ok: true; url: string } | { ok: false; error: string };
+export type AvatarResult =
+  { ok: true; url: string } | { ok: false; error: string };
 
 /**
  * Atualiza o avatar do usuário. O upload (Storage) usa service-role isolado; a
@@ -13,7 +14,9 @@ export type AvatarResult = { ok: true; url: string } | { ok: false; error: strin
  * profiles_self_update concede só colunas não-privilegiadas, incluindo avatar_url).
  * O user_id vem do contexto (anti-IDOR).
  */
-export async function updateAvatarAction(formData: FormData): Promise<AvatarResult> {
+export async function updateAvatarAction(
+  formData: FormData,
+): Promise<AvatarResult> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
 

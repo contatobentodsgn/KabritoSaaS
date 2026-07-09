@@ -76,7 +76,10 @@ export function DashboardHero({
         <p className="text-muted-foreground">{subtitle}</p>
         <div className="flex flex-wrap gap-2 pt-1">
           {updatedLabel && <StatusPill icon={Clock}>{updatedLabel}</StatusPill>}
-          <StatusPill icon={active ? CheckCircle2 : CircleSlash} tone={active ? "ok" : "muted"}>
+          <StatusPill
+            icon={active ? CheckCircle2 : CircleSlash}
+            tone={active ? "ok" : "muted"}
+          >
             {active ? "Assinatura ativa" : "Assinatura inativa"}
           </StatusPill>
         </div>

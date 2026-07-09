@@ -22,7 +22,9 @@ export default async function HeadlinesPage({
   ]);
 
   // Headlines não têm formato no schema → só filtra por nicho.
-  const headlines = all.filter((h) => !nicho || h.recommended_niches?.includes(nicho));
+  const headlines = all.filter(
+    (h) => !nicho || h.recommended_niches?.includes(nicho),
+  );
   const filtering = Boolean(nicho);
 
   return (
@@ -37,13 +39,23 @@ export default async function HeadlinesPage({
       </div>
       {headlines.length === 0 ? (
         <EmptyState
-          title={filtering ? "Nenhuma headline nesse nicho" : "Sem headlines no momento"}
-          description={filtering ? "Ajuste o nicho ou limpe o filtro." : undefined}
+          title={
+            filtering
+              ? "Nenhuma headline nesse nicho"
+              : "Sem headlines no momento"
+          }
+          description={
+            filtering ? "Ajuste o nicho ou limpe o filtro." : undefined
+          }
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {headlines.map((h) => (
-            <HeadlineCard key={h.id} headline={h} favorited={favs.has(`headline:${h.id}`)} />
+            <HeadlineCard
+              key={h.id}
+              headline={h}
+              favorited={favs.has(`headline:${h.id}`)}
+            />
           ))}
         </div>
       )}

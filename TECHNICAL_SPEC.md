@@ -103,12 +103,14 @@ Layout do dashboard: sidebar + header + área principal + menu do usuário. **Se
 > A RLS só vale para queries via cliente de usuário (JWT). Ver `SECURITY_GUIDE.md` §3.
 
 **Conteúdo editorial (global):**
+
 - SELECT permitido se `status='published'` **e** não expirado **e** o usuário tem assinatura ativa.
 - INSERT/UPDATE/DELETE: negado para usuário final (feito por `service_role`/staff).
 
 **Ingestão (`ingestion_sources`, `raw_signals`, `generation_runs`):** sem acesso de usuário final.
 
 **Dados de usuário:**
+
 - `user_favorites`, `user_sessions`, `access_logs`: `user_id = auth.uid()`.
 - `organizations`/`organization_members`: só a org onde é membro.
 - `profiles`: só o próprio.
@@ -128,6 +130,7 @@ ingest → generate (Zod) → draft → REVIEW (humano) → publish + e-mail →
 ```
 
 **Orquestrador (`server/pipeline/run.ts`):**
+
 1. Cria `generation_runs` (status=started).
 2. Ingestão: cada conector salva em `raw_signals`.
 3. Geração **módulo a módulo**: chama o modelo com o prompt versionado (ver `pipeline/generator-prompts.md`), valida com o schema Zod correspondente (`pipeline/generation-schemas.ts`). Saída inválida → log em `generation_runs.error_message`, reprocessa o módulo; nunca grava cru.
@@ -135,11 +138,13 @@ ingest → generate (Zod) → draft → REVIEW (humano) → publish + e-mail →
 5. Atualiza `generation_runs` (tokens, custo, status=completed).
 
 **Regras:**
+
 - Idempotência por `(platform_id, edition_date)`.
 - Teto de custo/tokens por run → estoura, para e alerta (Sentry).
 - Falha em qualquer ponto **não publica**.
 
 **Cron (`app/api/cron/generate-edition/route.ts`):**
+
 - Valida header com `CRON_SECRET` (401 sem ele).
 - Chama o orquestrador para a(s) plataforma(s) do dia.
 - `lifecycle/route.ts`: aplica retenção (arquiva/expira) e limpa `raw_signals` processados.
@@ -151,6 +156,7 @@ ingest → generate (Zod) → draft → REVIEW (humano) → publish + e-mail →
 ## 6. Ingestão — fontes legais
 
 Configuráveis em `ingestion_sources` (`type`: `api` | `rss` | `trends` | `manual_seed`):
+
 - APIs/feeds autorizados, Google Trends, APIs de notícias, newsletters via RSS.
 - **Seed mínimo opcional**: campo no admin para colar 2–3 links/temas que a IA expande.
 - Banco evergreen (prompts/padrões atemporais) reduz a dependência de sinal diário.

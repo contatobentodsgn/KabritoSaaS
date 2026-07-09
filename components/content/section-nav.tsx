@@ -3,7 +3,11 @@
  * são só links de âncora (#pautas, #sugestoes, …), zero JS. Fica grudada logo
  * abaixo do header do app (sticky) e rola horizontalmente no mobile.
  */
-export function SectionNav({ items }: { items: { id: string; label: string }[] }) {
+export function SectionNav({
+  items,
+}: {
+  items: { id: string; label: string }[];
+}) {
   if (items.length < 2) return null;
   return (
     <nav

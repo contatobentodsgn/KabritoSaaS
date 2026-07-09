@@ -39,14 +39,46 @@ const STEPS = [
 
 /** O que entrega — espelha os módulos do app. */
 const FEATURES = [
-  { icon: Flame, title: "Pautas quentes", desc: "Temas em alta com leitura de saturação e risco." },
-  { icon: PenLine, title: "Análise de copy", desc: "Padrões de texto que convertem, explicados." },
-  { icon: ImageIcon, title: "Padrões visuais", desc: "Referências de imagem e direção de arte." },
-  { icon: Type, title: "Headlines", desc: "Títulos prontos para testar, em variações." },
-  { icon: Sparkles, title: "Prompts prontos", desc: "Prompts de IA para gerar texto e imagem na hora." },
-  { icon: Wand2, title: "Adaptado ao seu nicho", desc: "Tudo filtrado para o seu público e tom." },
-  { icon: CalendarRange, title: "Calendário editorial", desc: "Datas e ganchos para planejar a semana." },
-  { icon: Radar, title: "Radar de descoberta", desc: "Sinais novos antes de virarem óbvios." },
+  {
+    icon: Flame,
+    title: "Pautas quentes",
+    desc: "Temas em alta com leitura de saturação e risco.",
+  },
+  {
+    icon: PenLine,
+    title: "Análise de copy",
+    desc: "Padrões de texto que convertem, explicados.",
+  },
+  {
+    icon: ImageIcon,
+    title: "Padrões visuais",
+    desc: "Referências de imagem e direção de arte.",
+  },
+  {
+    icon: Type,
+    title: "Headlines",
+    desc: "Títulos prontos para testar, em variações.",
+  },
+  {
+    icon: Sparkles,
+    title: "Prompts prontos",
+    desc: "Prompts de IA para gerar texto e imagem na hora.",
+  },
+  {
+    icon: Wand2,
+    title: "Adaptado ao seu nicho",
+    desc: "Tudo filtrado para o seu público e tom.",
+  },
+  {
+    icon: CalendarRange,
+    title: "Calendário editorial",
+    desc: "Datas e ganchos para planejar a semana.",
+  },
+  {
+    icon: Radar,
+    title: "Radar de descoberta",
+    desc: "Sinais novos antes de virarem óbvios.",
+  },
 ] as const;
 
 /** Por que confiar — garantias reais do produto (no lugar de depoimentos forjados). */
@@ -124,7 +156,11 @@ export default async function HomePage() {
             aria-label="Kabrito · página inicial"
             className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <img src="/brand/logo-kabrito.svg" alt="Kabrito" className="h-7 w-auto dark:hidden" />
+            <img
+              src="/brand/logo-kabrito.svg"
+              alt="Kabrito"
+              className="h-7 w-auto dark:hidden"
+            />
             <img
               src="/brand/logo-kabrito-inverse.svg"
               alt="Kabrito"
@@ -157,7 +193,10 @@ export default async function HomePage() {
             className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-mint-100/70 via-background to-background dark:from-forest-900/30"
           />
 
-          <div data-hero className="mx-auto w-full max-w-3xl py-20 text-center sm:py-28">
+          <div
+            data-hero
+            className="mx-auto w-full max-w-3xl py-20 text-center sm:py-28"
+          >
             <span className="k-eyebrow">Inteligência criativa diária</span>
 
             <h1 className="mt-5 font-serif font-medium leading-[1.04] tracking-[-0.02em] text-foreground [font-size:clamp(2.75rem,8vw,6rem)]">
@@ -170,7 +209,8 @@ export default async function HomePage() {
 
             <p className="mx-auto mt-6 max-w-xl text-lg leading-[1.6] text-muted-foreground">
               Pautas quentes, análises de copy e visual, headlines e prompts
-              prontos — gerados por IA e revisados por humanos antes de publicar.
+              prontos — gerados por IA e revisados por humanos antes de
+              publicar.
             </p>
 
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -254,7 +294,9 @@ export default async function HomePage() {
                   <span className="inline-flex size-10 items-center justify-center rounded-full bg-forest-50 text-forest-700 dark:bg-forest-900 dark:text-forest-200">
                     <f.icon className="size-5" aria-hidden />
                   </span>
-                  <h3 className="mt-4 font-medium text-foreground">{f.title}</h3>
+                  <h3 className="mt-4 font-medium text-foreground">
+                    {f.title}
+                  </h3>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                     {f.desc}
                   </p>
@@ -337,7 +379,8 @@ export default async function HomePage() {
               Comece hoje, com calma.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-mint-100">
-              Crie sua conta grátis e veja a primeira edição pronta para revisar.
+              Crie sua conta grátis e veja a primeira edição pronta para
+              revisar.
             </p>
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button

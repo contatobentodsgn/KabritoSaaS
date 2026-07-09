@@ -8,8 +8,7 @@ import { purgeAccountAccess } from "@/server/admin/supabase-admin";
 import { AUDIT_ACTIONS } from "@/lib/constants";
 
 export type DataExport =
-  | { ok: true; data: Record<string, unknown> }
-  | { ok: false; error: string };
+  { ok: true; data: Record<string, unknown> } | { ok: false; error: string };
 
 /**
  * PORTABILIDADE DE DADOS (LGPD Art. 18, V/II): devolve os dados pessoais do
@@ -21,13 +20,18 @@ export async function exportMyDataAction(): Promise<DataExport> {
   if (!user) return { ok: false, error: "Não autenticado." };
 
   const supabase = await createClient();
-  const [profile, favorites, comments, sessions, memberships] = await Promise.all([
-    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-    supabase.from("user_favorites").select("*").eq("user_id", user.id),
-    supabase.from("edition_comments").select("*").eq("user_id", user.id),
-    supabase.from("user_sessions").select("*").eq("user_id", user.id),
-    supabase.from("organization_members").select("*").eq("user_id", user.id),
-  ]);
+  const [profile, favorites, comments, sessions, memberships] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase.from("user_favorites").select("*").eq("user_id", user.id),
+      supabase.from("edition_comments").select("*").eq("user_id", user.id),
+      supabase.from("user_sessions").select("*").eq("user_id", user.id),
+      supabase.from("organization_members").select("*").eq("user_id", user.id),
+    ]);
 
   await recordAudit({ action: "account.data_exported", entityType: "profile" });
 
@@ -69,7 +73,10 @@ export async function deleteAccountAction(): Promise<void> {
     .update({ is_active: false, revoked_at: new Date().toISOString() })
     .eq("user_id", user.id);
 
-  await recordAudit({ action: AUDIT_ACTIONS.ACCOUNT_DELETED, entityType: "profile" });
+  await recordAudit({
+    action: AUDIT_ACTIONS.ACCOUNT_DELETED,
+    entityType: "profile",
+  });
 
   // 2) Service role isolado: soft-delete/anonimiza o perfil, revoga o acesso pago
   //    (membership) e deleta auth.users. Mesmo se a deleção em auth.users falhar,

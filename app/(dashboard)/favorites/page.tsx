@@ -58,8 +58,10 @@ export default async function FavoritesPage({
     );
   }
 
-  const collectionOf = (entityType: FavoriteEntityType, entityId: string): string =>
-    meta.get(`${entityType}:${entityId}`)?.trim() || GENERAL;
+  const collectionOf = (
+    entityType: FavoriteEntityType,
+    entityId: string,
+  ): string => meta.get(`${entityType}:${entityId}`)?.trim() || GENERAL;
 
   // Achata todos os tipos numa lista única, preservando a ordem por tipo e os
   // cards/grids existentes. Cada item carrega o picker para mover de coleção.
@@ -100,7 +102,11 @@ export default async function FavoritesPage({
   for (const h of c.headline)
     wrap("headline", h.id, <HeadlineCard headline={h} favorited />);
   for (const s of c.content_suggestion)
-    wrap("content_suggestion", s.id, <SuggestionCard suggestion={s} favorited />);
+    wrap(
+      "content_suggestion",
+      s.id,
+      <SuggestionCard suggestion={s} favorited />,
+    );
   for (const p of c.prompt_template)
     wrap("prompt_template", p.id, <PromptCard prompt={p} favorited />);
 
@@ -119,8 +125,7 @@ export default async function FavoritesPage({
 
   // Filtro por coleção via ?collection=. Valor inválido cai em "todas".
   const { collection: rawFilter } = await searchParams;
-  const activeFilter =
-    rawFilter && grouped.has(rawFilter) ? rawFilter : null;
+  const activeFilter = rawFilter && grouped.has(rawFilter) ? rawFilter : null;
   const visibleNames = activeFilter ? [activeFilter] : groupNames;
 
   return (
@@ -132,17 +137,23 @@ export default async function FavoritesPage({
       />
 
       {groupNames.length > 1 && (
-        <nav className="mb-2 flex flex-wrap gap-2" aria-label="Filtrar por coleção">
+        <nav
+          className="mb-2 flex flex-wrap gap-2"
+          aria-label="Filtrar por coleção"
+        >
           <Link href="/favorites">
-            <Badge variant={activeFilter ? "outline" : "forest"}>
-              Todas
-            </Badge>
+            <Badge variant={activeFilter ? "outline" : "forest"}>Todas</Badge>
           </Link>
           {groupNames.map((name) => (
-            <Link key={name} href={`/favorites?collection=${encodeURIComponent(name)}`}>
+            <Link
+              key={name}
+              href={`/favorites?collection=${encodeURIComponent(name)}`}
+            >
               <Badge variant={activeFilter === name ? "forest" : "outline"}>
                 {name}
-                <span className="ml-1.5 opacity-70">{grouped.get(name)!.length}</span>
+                <span className="ml-1.5 opacity-70">
+                  {grouped.get(name)!.length}
+                </span>
               </Badge>
             </Link>
           ))}

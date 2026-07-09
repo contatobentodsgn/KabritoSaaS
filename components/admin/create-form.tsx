@@ -46,7 +46,12 @@ export function CreateForm({
         <div key={f.name} className="space-y-1">
           {f.type !== "checkbox" && <Label htmlFor={f.name}>{f.label}</Label>}
           {f.type === "textarea" ? (
-            <Textarea id={f.name} name={f.name} placeholder={f.placeholder} required={f.required} />
+            <Textarea
+              id={f.name}
+              name={f.name}
+              placeholder={f.placeholder}
+              required={f.required}
+            />
           ) : f.type === "select" ? (
             <select
               id={f.name}
@@ -71,10 +76,17 @@ export function CreateForm({
               {f.label}
             </label>
           ) : (
-            <Input id={f.name} name={f.name} placeholder={f.placeholder} required={f.required} />
+            <Input
+              id={f.name}
+              name={f.name}
+              placeholder={f.placeholder}
+              required={f.required}
+            />
           )}
           {state.fieldErrors?.[f.name]?.[0] && (
-            <p className="text-xs text-destructive">{state.fieldErrors[f.name]![0]}</p>
+            <p className="text-xs text-destructive">
+              {state.fieldErrors[f.name]![0]}
+            </p>
           )}
         </div>
       ))}

@@ -37,7 +37,9 @@ describe("scrubSentryEvent", () => {
 
   it("trunca strings longas em contexts", () => {
     const long = "a".repeat(1000);
-    const event: Record<string, unknown> = { contexts: { extraCtx: { big: long } } };
+    const event: Record<string, unknown> = {
+      contexts: { extraCtx: { big: long } },
+    };
     scrubSentryEvent(event);
     const ctx = event.contexts as { extraCtx: Record<string, unknown> };
     const big = ctx.extraCtx.big as string;

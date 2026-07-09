@@ -33,38 +33,74 @@ const [org] = await db
   .insert(organizations)
   .values({ name: "E2E Org", slug: `e2e-${suffix}`, ownerId })
   .returning();
-await db.insert(profiles).values({ userId: ownerId, name: "Owner", email: `owner-${suffix}@e2e.test` });
-await db.insert(organizationMembers).values({ organizationId: org!.id, userId: ownerId, role: "owner" });
+await db.insert(profiles).values({
+  userId: ownerId,
+  name: "Owner",
+  email: `owner-${suffix}@e2e.test`,
+});
+await db
+  .insert(organizationMembers)
+  .values({ organizationId: org!.id, userId: ownerId, role: "owner" });
 
 try {
   // ── Fluxo 1: convite por TOKEN ──
-  const { token } = await createInvite(org!.id, `token-${suffix}@e2e.test`, "member", ownerId);
+  const { token } = await createInvite(
+    org!.id,
+    `token-${suffix}@e2e.test`,
+    "member",
+    ownerId,
+  );
   const inv = await getInviteByToken(token);
-  check("convite encontrado pelo token (com nome da org)", inv?.orgName === "E2E Org");
+  check(
+    "convite encontrado pelo token (com nome da org)",
+    inv?.orgName === "E2E Org",
+  );
 
   // O convidado cria conta depois (perfil existe) e aceita por token.
-  await db.insert(profiles).values({ userId: tokenInviteeId, name: "Token", email: `token-${suffix}@e2e.test` });
+  await db.insert(profiles).values({
+    userId: tokenInviteeId,
+    name: "Token",
+    email: `token-${suffix}@e2e.test`,
+  });
   const acc = await acceptInviteByToken(token, tokenInviteeId);
   check("aceite por token ok", acc.ok === true);
   let members = await listMembers(org!.id, ownerId);
-  check("convidado entrou como member", members.some((m) => m.userId === tokenInviteeId && m.role === "member"));
+  check(
+    "convidado entrou como member",
+    members.some((m) => m.userId === tokenInviteeId && m.role === "member"),
+  );
 
   // Idempotência: aceitar de novo não duplica.
   await acceptInviteByToken(token, tokenInviteeId);
   members = await listMembers(org!.id, ownerId);
-  check("idempotente (sem duplicar membership)", members.filter((m) => m.userId === tokenInviteeId).length === 1);
+  check(
+    "idempotente (sem duplicar membership)",
+    members.filter((m) => m.userId === tokenInviteeId).length === 1,
+  );
 
   // ── Fluxo 2: auto-aceite por e-mail (cadastro/login) ──
   await createInvite(org!.id, `auto-${suffix}@e2e.test`, "admin", ownerId);
-  await db.insert(profiles).values({ userId: autoInviteeId, name: "Auto", email: `auto-${suffix}@e2e.test` });
-  const n = await acceptPendingInvites(autoInviteeId, `auto-${suffix}@e2e.test`);
+  await db.insert(profiles).values({
+    userId: autoInviteeId,
+    name: "Auto",
+    email: `auto-${suffix}@e2e.test`,
+  });
+  const n = await acceptPendingInvites(
+    autoInviteeId,
+    `auto-${suffix}@e2e.test`,
+  );
   check("auto-aceite processou 1 convite", n === 1);
   members = await listMembers(org!.id, ownerId);
-  check("entrou como admin via auto-aceite", members.some((m) => m.userId === autoInviteeId && m.role === "admin"));
+  check(
+    "entrou como admin via auto-aceite",
+    members.some((m) => m.userId === autoInviteeId && m.role === "admin"),
+  );
 } finally {
   // Limpeza (cascade remove members/invites da org).
   await db.delete(organizations).where(eq(organizations.id, org!.id));
-  await db.delete(profiles).where(inArray(profiles.userId, [ownerId, tokenInviteeId, autoInviteeId]));
+  await db
+    .delete(profiles)
+    .where(inArray(profiles.userId, [ownerId, tokenInviteeId, autoInviteeId]));
 }
 
 console.log(fail === 0 ? "\n✅ INVITE E2E OK" : `\n❌ ${fail} falha(s)`);

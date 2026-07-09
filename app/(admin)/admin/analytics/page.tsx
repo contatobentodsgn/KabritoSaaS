@@ -19,7 +19,10 @@ const REVIEW_LABEL: Record<ReviewOutcome["status"], string> = {
   pending: "Pendentes",
 };
 
-const REVIEW_VARIANT: Record<ReviewOutcome["status"], "success" | "destructive" | "warning" | "secondary"> = {
+const REVIEW_VARIANT: Record<
+  ReviewOutcome["status"],
+  "success" | "destructive" | "warning" | "secondary"
+> = {
   approved: "success",
   rejected: "destructive",
   in_review: "warning",
@@ -63,7 +66,10 @@ export default async function AnalyticsPage() {
           {/* Faixa de custo / tokens (StatStrip) */}
           <Card>
             <CardContent className="grid grid-cols-2 gap-px overflow-hidden rounded-lg bg-border p-0 sm:grid-cols-4">
-              <Stat label="Custo total (runs completos)" value={usd(cost.totalCostUsd)} />
+              <Stat
+                label="Custo total (runs completos)"
+                value={usd(cost.totalCostUsd)}
+              />
               <Stat label="Tokens totais" value={int(cost.totalTokens)} />
               <Stat
                 label="Tokens entrada / saída"
@@ -86,45 +92,55 @@ export default async function AnalyticsPage() {
               <Card className="overflow-hidden">
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
-                  <table className="w-full min-w-[680px] text-sm">
-                    <thead className="border-b bg-mint-50 dark:bg-forest-950/40 text-left">
-                      <tr className="[&>th]:k-eyebrow [&>th]:p-3 [&>th]:font-semibold">
-                        <th>Versão</th>
-                        <th>Total</th>
-                        <th>Completos</th>
-                        <th>Falhas</th>
-                        <th>Taxa de falha</th>
-                        <th>Custo médio</th>
-                        <th>Tokens</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {byVersion.map((r) => (
-                        <tr
-                          key={r.version}
-                          className="border-b transition-colors last:border-0 hover:bg-mint-50/60 dark:hover:bg-forest-900/40"
-                        >
-                          <td className="p-3 font-medium">{r.version}</td>
-                          <td className="p-3 text-muted-foreground">{int(r.total)}</td>
-                          <td className="p-3 text-muted-foreground">{int(r.completed)}</td>
-                          <td className="p-3">
-                            {r.failed > 0 ? (
-                              <Badge variant="destructive">{int(r.failed)}</Badge>
-                            ) : (
-                              <span className="text-muted-foreground">0</span>
-                            )}
-                          </td>
-                          <td className="p-3">
-                            <Badge variant={r.failed > 0 ? "warning" : "success"}>
-                              {pct(r.failed, r.total)}
-                            </Badge>
-                          </td>
-                          <td className="p-3">{usd(r.avgCostUsd)}</td>
-                          <td className="p-3 text-muted-foreground">{int(r.totalTokens)}</td>
+                    <table className="w-full min-w-[680px] text-sm">
+                      <thead className="border-b bg-mint-50 dark:bg-forest-950/40 text-left">
+                        <tr className="[&>th]:k-eyebrow [&>th]:p-3 [&>th]:font-semibold">
+                          <th>Versão</th>
+                          <th>Total</th>
+                          <th>Completos</th>
+                          <th>Falhas</th>
+                          <th>Taxa de falha</th>
+                          <th>Custo médio</th>
+                          <th>Tokens</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {byVersion.map((r) => (
+                          <tr
+                            key={r.version}
+                            className="border-b transition-colors last:border-0 hover:bg-mint-50/60 dark:hover:bg-forest-900/40"
+                          >
+                            <td className="p-3 font-medium">{r.version}</td>
+                            <td className="p-3 text-muted-foreground">
+                              {int(r.total)}
+                            </td>
+                            <td className="p-3 text-muted-foreground">
+                              {int(r.completed)}
+                            </td>
+                            <td className="p-3">
+                              {r.failed > 0 ? (
+                                <Badge variant="destructive">
+                                  {int(r.failed)}
+                                </Badge>
+                              ) : (
+                                <span className="text-muted-foreground">0</span>
+                              )}
+                            </td>
+                            <td className="p-3">
+                              <Badge
+                                variant={r.failed > 0 ? "warning" : "success"}
+                              >
+                                {pct(r.failed, r.total)}
+                              </Badge>
+                            </td>
+                            <td className="p-3">{usd(r.avgCostUsd)}</td>
+                            <td className="p-3 text-muted-foreground">
+                              {int(r.totalTokens)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </CardContent>
               </Card>
@@ -158,7 +174,8 @@ export default async function AnalyticsPage() {
           <section>
             <SectionTitle>Favoritos por tipo</SectionTitle>
             <p className="mb-3 max-w-prose text-sm text-muted-foreground">
-              O que os assinantes mais salvam — leitura agregada de todo o público.
+              O que os assinantes mais salvam — leitura agregada de todo o
+              público.
             </p>
             {favorites.length === 0 ? (
               <EmptyState title="Nenhum favorito ainda" />
@@ -187,7 +204,9 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-card p-5">
       <p className="k-eyebrow">{label}</p>
-      <p className="mt-1 font-serif text-2xl font-medium tracking-tight">{value}</p>
+      <p className="mt-1 font-serif text-2xl font-medium tracking-tight">
+        {value}
+      </p>
     </div>
   );
 }

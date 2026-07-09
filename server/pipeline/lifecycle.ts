@@ -28,7 +28,9 @@ export interface LifecycleResult {
   purgedInvites: number;
 }
 
-export async function runLifecycle(now: Date = new Date()): Promise<LifecycleResult> {
+export async function runLifecycle(
+  now: Date = new Date(),
+): Promise<LifecycleResult> {
   const db = getServiceDbClient();
 
   // 1) Arquiva/expira edições publicadas cujo content_expires_at já passou.
@@ -45,7 +47,9 @@ export async function runLifecycle(now: Date = new Date()): Promise<LifecycleRes
     .returning({ id: contentEditions.id });
 
   // 2) Limpa raw_signals antigos (retenção curta — minimização LGPD §10).
-  const cutoff = new Date(now.getTime() - RAW_SIGNAL_RETENTION_DAYS * 86_400_000);
+  const cutoff = new Date(
+    now.getTime() - RAW_SIGNAL_RETENTION_DAYS * 86_400_000,
+  );
   const cleaned = await db
     .delete(rawSignals)
     .where(lt(rawSignals.collectedAt, cutoff))
@@ -66,17 +70,27 @@ export async function runLifecycle(now: Date = new Date()): Promise<LifecycleRes
   // Sessões ativas são preservadas (necessárias); a exclusão de conta deleta todas.
   const purgedSessions = await db
     .delete(userSessions)
-    .where(and(eq(userSessions.isActive, false), lt(userSessions.createdAt, logCutoff)))
+    .where(
+      and(
+        eq(userSessions.isActive, false),
+        lt(userSessions.createdAt, logCutoff),
+      ),
+    )
     .returning({ id: userSessions.id });
 
   // 5) LGPD: expurga convites que cumpriram a finalidade — aceitos há mais de 30d
   // (o e-mail do convidado é dado pessoal) + pendentes obsoletos além da janela.
-  const inviteCutoff = new Date(now.getTime() - ACCEPTED_INVITE_RETENTION_DAYS * 86_400_000);
+  const inviteCutoff = new Date(
+    now.getTime() - ACCEPTED_INVITE_RETENTION_DAYS * 86_400_000,
+  );
   const purgedInvites = await db
     .delete(orgInvites)
     .where(
       or(
-        and(isNotNull(orgInvites.acceptedAt), lt(orgInvites.acceptedAt, inviteCutoff)),
+        and(
+          isNotNull(orgInvites.acceptedAt),
+          lt(orgInvites.acceptedAt, inviteCutoff),
+        ),
         lt(orgInvites.createdAt, logCutoff),
       ),
     )

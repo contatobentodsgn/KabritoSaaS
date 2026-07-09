@@ -3,8 +3,12 @@ import { safeFetchUrl } from "@/server/pipeline/ingest/safe-fetch";
 
 describe("safeFetchUrl (anti-SSRF nos conectores de ingestão)", () => {
   it("aceita URLs públicas http/https", () => {
-    expect(safeFetchUrl("https://news.google.com/rss")?.hostname).toBe("news.google.com");
-    expect(safeFetchUrl("http://example.com/feed")?.hostname).toBe("example.com");
+    expect(safeFetchUrl("https://news.google.com/rss")?.hostname).toBe(
+      "news.google.com",
+    );
+    expect(safeFetchUrl("http://example.com/feed")?.hostname).toBe(
+      "example.com",
+    );
   });
 
   it("bloqueia loopback, localhost e metadata de cloud", () => {

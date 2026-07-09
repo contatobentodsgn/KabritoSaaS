@@ -32,9 +32,12 @@ export default async function VerificarPage() {
           <CardHeader className="space-y-3">
             <span className="k-eyebrow">Segurança</span>
             <div className="space-y-1.5">
-              <CardTitle className="text-2xl">Verificação em duas etapas</CardTitle>
+              <CardTitle className="text-2xl">
+                Verificação em duas etapas
+              </CardTitle>
               <CardDescription>
-                Digite o código de 6 dígitos do seu app autenticador para continuar.
+                Digite o código de 6 dígitos do seu app autenticador para
+                continuar.
               </CardDescription>
             </div>
           </CardHeader>

@@ -28,7 +28,11 @@ export default async function RedefinirSenhaPage() {
         aria-label="Kabrito — página inicial"
         className="mb-10 inline-flex rounded-sm transition-opacity duration-150 hover:opacity-80"
       >
-        <img src="/brand/logo-kabrito.svg" alt="Kabrito" className="h-8 w-auto dark:hidden" />
+        <img
+          src="/brand/logo-kabrito.svg"
+          alt="Kabrito"
+          className="h-8 w-auto dark:hidden"
+        />
         <img
           src="/brand/logo-kabrito-inverse.svg"
           alt="Kabrito"
@@ -41,7 +45,9 @@ export default async function RedefinirSenhaPage() {
             <span className="k-eyebrow">Quase lá</span>
             <div className="space-y-1.5">
               <CardTitle className="text-2xl">Definir nova senha</CardTitle>
-              <CardDescription>Escolha uma nova senha para a sua conta.</CardDescription>
+              <CardDescription>
+                Escolha uma nova senha para a sua conta.
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent>

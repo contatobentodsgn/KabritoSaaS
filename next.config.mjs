@@ -27,7 +27,8 @@ const nextConfig = {
             key: "Permissions-Policy",
             // Desliga APIs sensíveis não usadas + opt-out do Topics API do Chrome
             // (browsing-topics) — privacidade, sem custo.
-            value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+            value:
+              "camera=(), microphone=(), geolocation=(), browsing-topics=()",
           },
         ],
       },

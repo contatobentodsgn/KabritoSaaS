@@ -31,7 +31,13 @@ const FORMAT_LABEL: Record<string, string> = {
 const selectCls =
   "flex h-10 w-full rounded-sm border border-input bg-card px-3 py-2 text-sm transition-[border-color,box-shadow] focus-visible:border-rose-400 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-rose-100";
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -76,7 +82,12 @@ export function AdaptForm() {
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="niche">Seu nicho</Label>
-              <Input id="niche" name="niche" placeholder="Ex.: nutrição materna" required />
+              <Input
+                id="niche"
+                name="niche"
+                placeholder="Ex.: nutrição materna"
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="source">Pauta, headline ou ideia a adaptar</Label>
@@ -91,27 +102,46 @@ export function AdaptForm() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="platform">Plataforma</Label>
-                <select id="platform" name="platform" className={selectCls} defaultValue="instagram">
+                <select
+                  id="platform"
+                  name="platform"
+                  className={selectCls}
+                  defaultValue="instagram"
+                >
                   {PLATFORM_OPTIONS.map((p) => (
-                    <option key={p} value={p}>{PLATFORM_LABEL[p]}</option>
+                    <option key={p} value={p}>
+                      {PLATFORM_LABEL[p]}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="format">Formato</Label>
-                <select id="format" name="format" className={selectCls} defaultValue="carrossel">
+                <select
+                  id="format"
+                  name="format"
+                  className={selectCls}
+                  defaultValue="carrossel"
+                >
                   {FORMAT_OPTIONS.map((f) => (
-                    <option key={f} value={f}>{FORMAT_LABEL[f]}</option>
+                    <option key={f} value={f}>
+                      {FORMAT_LABEL[f]}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
             <Button type="submit" disabled={pending} className="w-full">
-              {pending ? <Loader2 className="animate-spin" /> : <Wand2 className="size-4" />}
+              {pending ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <Wand2 className="size-4" />
+              )}
               {pending ? "Adaptando..." : "Adaptar ao meu nicho"}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Geração sob demanda com limite por usuário. A saída é validada antes de exibir.
+              Geração sob demanda com limite por usuário. A saída é validada
+              antes de exibir.
             </p>
           </form>
         </CardContent>
@@ -154,7 +184,8 @@ export function AdaptForm() {
               </span>
               <p className="font-medium">Sua adaptação aparece aqui</p>
               <p className="max-w-xs text-sm text-muted-foreground">
-                Informe seu nicho e o conteúdo base, e a IA reescreve para o seu público.
+                Informe seu nicho e o conteúdo base, e a IA reescreve para o seu
+                público.
               </p>
             </CardContent>
           </Card>

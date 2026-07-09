@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/badge";
 
 export const metadata = { title: "Runs & custo · Admin" };
 
-const RUN_VARIANT: Record<string, "success" | "warning" | "destructive" | "secondary"> = {
+const RUN_VARIANT: Record<
+  string,
+  "success" | "warning" | "destructive" | "secondary"
+> = {
   completed: "success",
   failed: "destructive",
   generating: "warning",
@@ -16,7 +19,10 @@ const RUN_VARIANT: Record<string, "success" | "warning" | "destructive" | "secon
 
 export default async function RunsPage() {
   const runs = await listRuns();
-  const totalCost = runs.reduce((acc, r) => acc + Number(r.cost_estimate ?? 0), 0);
+  const totalCost = runs.reduce(
+    (acc, r) => acc + Number(r.cost_estimate ?? 0),
+    0,
+  );
 
   return (
     <>
@@ -34,34 +40,42 @@ export default async function RunsPage() {
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-sm">
-              <thead className="border-b bg-mint-50 dark:bg-forest-950/40 text-left">
-                <tr className="[&>th]:k-eyebrow [&>th]:p-3 [&>th]:font-semibold">
-                  <th>Data</th>
-                  <th>Status</th>
-                  <th>Modelo / prompt</th>
-                  <th>Tokens (in/out)</th>
-                  <th>Custo (US$)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {runs.map((r) => (
-                  <tr key={r.id} className="border-b transition-colors last:border-0 hover:bg-mint-50/60 dark:hover:bg-forest-900/40">
-                    <td className="p-3">{r.edition_date}</td>
-                    <td className="p-3">
-                      <Badge variant={RUN_VARIANT[r.status] ?? "secondary"}>{r.status}</Badge>
-                    </td>
-                    <td className="p-3 text-muted-foreground">
-                      {r.model_used ?? "—"} {r.prompt_version ? `· ${r.prompt_version}` : ""}
-                    </td>
-                    <td className="p-3 text-muted-foreground">
-                      {r.input_tokens ?? 0} / {r.output_tokens ?? 0}
-                    </td>
-                    <td className="p-3">{Number(r.cost_estimate ?? 0).toFixed(4)}</td>
+              <table className="w-full min-w-[560px] text-sm">
+                <thead className="border-b bg-mint-50 dark:bg-forest-950/40 text-left">
+                  <tr className="[&>th]:k-eyebrow [&>th]:p-3 [&>th]:font-semibold">
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Modelo / prompt</th>
+                    <th>Tokens (in/out)</th>
+                    <th>Custo (US$)</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {runs.map((r) => (
+                    <tr
+                      key={r.id}
+                      className="border-b transition-colors last:border-0 hover:bg-mint-50/60 dark:hover:bg-forest-900/40"
+                    >
+                      <td className="p-3">{r.edition_date}</td>
+                      <td className="p-3">
+                        <Badge variant={RUN_VARIANT[r.status] ?? "secondary"}>
+                          {r.status}
+                        </Badge>
+                      </td>
+                      <td className="p-3 text-muted-foreground">
+                        {r.model_used ?? "—"}{" "}
+                        {r.prompt_version ? `· ${r.prompt_version}` : ""}
+                      </td>
+                      <td className="p-3 text-muted-foreground">
+                        {r.input_tokens ?? 0} / {r.output_tokens ?? 0}
+                      </td>
+                      <td className="p-3">
+                        {Number(r.cost_estimate ?? 0).toFixed(4)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>

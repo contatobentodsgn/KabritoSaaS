@@ -1,4 +1,9 @@
-import { TrendingUp, Sparkles, AlertTriangle, CheckCircle2 } from "lucide-react";
+import {
+  TrendingUp,
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { BriefingBlock } from "@/types/content";
@@ -11,9 +16,24 @@ const COLUMNS: {
   tone: ColTone;
 }[] = [
   { key: "whats_growing", title: "Em alta", icon: TrendingUp, tone: "forest" },
-  { key: "opportunities", title: "Oportunidades", icon: Sparkles, tone: "forest" },
-  { key: "whats_saturated", title: "Saturado", icon: AlertTriangle, tone: "warn" },
-  { key: "practical_recommendations", title: "Recomendações práticas", icon: CheckCircle2, tone: "forest" },
+  {
+    key: "opportunities",
+    title: "Oportunidades",
+    icon: Sparkles,
+    tone: "forest",
+  },
+  {
+    key: "whats_saturated",
+    title: "Saturado",
+    icon: AlertTriangle,
+    tone: "warn",
+  },
+  {
+    key: "practical_recommendations",
+    title: "Recomendações práticas",
+    icon: CheckCircle2,
+    tone: "forest",
+  },
 ];
 
 /** "Resumo do dia" — o briefing destrinchado em 4 colunas acionáveis. */
@@ -43,11 +63,16 @@ export function BriefingSummary({
                   className={`size-[18px] ${tone === "warn" ? "text-rose-500" : "text-forest-600 dark:text-forest-300"}`}
                   strokeWidth={1.75}
                 />
-                <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+                <h3 className="text-sm font-semibold text-foreground">
+                  {title}
+                </h3>
               </div>
               <ul className="space-y-1.5">
                 {items.map((it, i) => (
-                  <li key={i} className="flex gap-2 text-sm text-muted-foreground">
+                  <li
+                    key={i}
+                    className="flex gap-2 text-sm text-muted-foreground"
+                  >
                     <span className="mt-2 size-1 shrink-0 rounded-full bg-mint-400 dark:bg-forest-400" />
                     <span>{it}</span>
                   </li>

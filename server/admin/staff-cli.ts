@@ -9,7 +9,9 @@ async function main() {
   const email = process.argv[2];
   const role = (process.argv[3] ?? "superadmin") as StaffRoleValue;
   if (!email) {
-    console.error("Uso: npm run staff -- usuario@email.com [superadmin|editor]");
+    console.error(
+      "Uso: npm run staff -- usuario@email.com [superadmin|editor]",
+    );
     process.exit(1);
   }
   if (role !== "superadmin" && role !== "editor" && role !== null) {

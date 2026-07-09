@@ -32,7 +32,8 @@ export const serverEnv = {
   AI_RUN_COST_CAP_USD: numEnv(process.env.AI_RUN_COST_CAP_USD, 2.0),
   AI_RUN_TOKEN_CAP: numEnv(process.env.AI_RUN_TOKEN_CAP, 200000),
   RESEND_API_KEY: process.env.RESEND_API_KEY,
-  EMAIL_FROM: process.env.EMAIL_FROM ?? "Inteligência Criativa <digest@example.com>",
+  EMAIL_FROM:
+    process.env.EMAIL_FROM ?? "Inteligência Criativa <digest@example.com>",
   SENTRY_DSN: process.env.SENTRY_DSN,
   DEVICE_LIMIT: numEnv(process.env.DEVICE_LIMIT, 2),
   APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",

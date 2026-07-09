@@ -8,5 +8,8 @@ import { publicEnv } from "@/lib/env";
  * A RLS é aplicada porque as requisições carregam o JWT do usuário.
  */
 export function createClient() {
-  return createBrowserClient(publicEnv.SUPABASE_URL, publicEnv.SUPABASE_ANON_KEY);
+  return createBrowserClient(
+    publicEnv.SUPABASE_URL,
+    publicEnv.SUPABASE_ANON_KEY,
+  );
 }

@@ -5,7 +5,9 @@ import { safeFetch } from "./safe-fetch";
  * Conector RSS (fonte legal). Faz fetch do feed e extrai títulos dos itens.
  * Parser mínimo por regex (sem dependência extra). Best-effort.
  */
-export async function collectRss(config: Record<string, unknown>): Promise<string[]> {
+export async function collectRss(
+  config: Record<string, unknown>,
+): Promise<string[]> {
   const res =
     typeof config.url === "string"
       ? await safeFetch(config.url, {

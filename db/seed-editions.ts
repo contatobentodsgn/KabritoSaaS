@@ -14,7 +14,10 @@ import { platforms, contentEditions, plans } from "@/db/schema";
 const db = getServiceDbClient();
 const date = new Date().toISOString().slice(0, 10);
 
-const actives = await db.select().from(platforms).where(eq(platforms.isActive, true));
+const actives = await db
+  .select()
+  .from(platforms)
+  .where(eq(platforms.isActive, true));
 const [plan] = await db
   .select({ retentionDays: plans.retentionDays })
   .from(plans)
@@ -42,7 +45,9 @@ for (const p of actives) {
       contentExpiresAt: new Date(now.getTime() + retention * 86_400_000),
     })
     .where(eq(contentEditions.id, r.editionId));
-  console.log(`✓ ${p.slug}: publicada ${r.editionId} ${r.skipped ? "(existente)" : "(nova)"}`);
+  console.log(
+    `✓ ${p.slug}: publicada ${r.editionId} ${r.skipped ? "(existente)" : "(nova)"}`,
+  );
 }
 
 console.log("\nEdições de exemplo prontas.");

@@ -7,7 +7,9 @@ export const runtime = "nodejs";
 
 function clientIp(req: Request): string {
   const xff = req.headers.get("x-forwarded-for");
-  return xff?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+  return (
+    xff?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown"
+  );
 }
 
 export async function POST(request: Request) {
@@ -18,7 +20,10 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     // O payload vem como { "csp-report": {...} } (report-uri) ou array (report-to).
-    const report = (body && (body["csp-report"] ?? body)) as Record<string, unknown>;
+    const report = (body && (body["csp-report"] ?? body)) as Record<
+      string,
+      unknown
+    >;
     // Trunca o payload logado (evita inflar logs com corpos enormes).
     console.warn("[csp-report]", JSON.stringify(report).slice(0, 2000));
   } catch {

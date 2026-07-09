@@ -20,7 +20,10 @@ check("calendário retornou ok (mock)", r.ok);
 if (r.ok) {
   check("tema da semana preenchido", r.data.week_theme.length >= 3);
   check("gerou exatamente 5 dias", r.data.days.length === 5);
-  check("cada dia tem headline+hook+cta", r.data.days.every((d) => d.headline && d.hook && d.cta));
+  check(
+    "cada dia tem headline+hook+cta",
+    r.data.days.every((d) => d.headline && d.hook && d.cta),
+  );
 }
 console.log(fail === 0 ? "\n✅ CALENDAR OK" : `\n❌ ${fail} falha(s)`);
 process.exit(fail === 0 ? 0 : 1);

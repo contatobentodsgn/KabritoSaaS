@@ -35,7 +35,11 @@ export function MfaVerifyForm({ factorId }: { factorId: string }) {
         className="text-center font-mono text-lg tracking-[0.4em]"
         aria-label="Código de verificação"
       />
-      <Button type="submit" className="w-full" disabled={pending || code.trim().length < 6}>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={pending || code.trim().length < 6}
+      >
         {pending ? "Verificando..." : "Verificar"}
       </Button>
     </form>

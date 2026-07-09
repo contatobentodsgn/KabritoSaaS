@@ -2,7 +2,9 @@ import { requireActiveSubscription } from "@/server/permissions";
 import { PageHeader } from "@/components/layout/page-header";
 import { AdaptForm } from "@/components/forms/adapt-form";
 
-export const metadata = { title: "Adaptar ao meu nicho · Inteligência Criativa" };
+export const metadata = {
+  title: "Adaptar ao meu nicho · Inteligência Criativa",
+};
 
 export default async function AdaptarPage() {
   await requireActiveSubscription();

@@ -1,10 +1,7 @@
 "use server";
 
 import { getCurrentUser, getCurrentOrganization } from "@/server/auth/session";
-import {
-  STRIPE_ENABLED,
-  createCheckoutSession,
-} from "@/server/admin/stripe";
+import { STRIPE_ENABLED, createCheckoutSession } from "@/server/admin/stripe";
 
 /**
  * Server Action de billing: inicia o Checkout do Stripe para a organização do
@@ -13,8 +10,7 @@ import {
  */
 
 export type CheckoutResult =
-  | { ok: true; url: string }
-  | { ok: false; error: string };
+  { ok: true; url: string } | { ok: false; error: string };
 
 export async function createCheckoutAction(
   billingCycle: "monthly" | "annual",
@@ -42,7 +38,9 @@ export async function createCheckoutAction(
     return { ok: true, url };
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : "Não foi possível iniciar o checkout.";
+      err instanceof Error
+        ? err.message
+        : "Não foi possível iniciar o checkout.";
     return { ok: false, error: message };
   }
 }

@@ -45,7 +45,9 @@ export default async function EditionDetailPage({
 
   // Lente de nicho: só as seções com recommended_niches são filtradas
   // (Pautas, Headlines, Sugestões). Copy/visual/radar são gerais → ficam intactos.
-  const byNiche = <T extends { recommended_niches: string[] }>(arr: T[]): T[] =>
+  const byNiche = <T extends { recommended_niches: string[] }>(
+    arr: T[],
+  ): T[] =>
     nicho ? arr.filter((x) => x.recommended_niches?.includes(nicho)) : arr;
   const trends = byNiche(data.trend_items);
   const heads = byNiche(data.headlines);
@@ -95,7 +97,11 @@ export default async function EditionDetailPage({
           <SectionTitle>Pautas quentes</SectionTitle>
           <div className="grid gap-4">
             {trends.map((t) => (
-              <TrendCard key={t.id} trend={t} favorited={fav("trend_item", t.id)} />
+              <TrendCard
+                key={t.id}
+                trend={t}
+                favorited={fav("trend_item", t.id)}
+              />
             ))}
           </div>
         </section>
@@ -106,7 +112,11 @@ export default async function EditionDetailPage({
           <SectionTitle>Radar de Descoberta</SectionTitle>
           <div className="grid gap-4">
             {data.explore_reports.map((r) => (
-              <ExploreReportCard key={r.id} report={r} favorited={fav("explore_report", r.id)} />
+              <ExploreReportCard
+                key={r.id}
+                report={r}
+                favorited={fav("explore_report", r.id)}
+              />
             ))}
           </div>
         </section>
@@ -117,7 +127,11 @@ export default async function EditionDetailPage({
           <SectionTitle>Análise de copy</SectionTitle>
           <div className="grid gap-4">
             {data.copy_patterns.map((c) => (
-              <CopyPatternCard key={c.id} pattern={c} favorited={fav("copy_pattern", c.id)} />
+              <CopyPatternCard
+                key={c.id}
+                pattern={c}
+                favorited={fav("copy_pattern", c.id)}
+              />
             ))}
           </div>
         </section>
@@ -128,7 +142,11 @@ export default async function EditionDetailPage({
           <SectionTitle>Análise visual</SectionTitle>
           <div className="grid gap-4">
             {data.visual_patterns.map((v) => (
-              <VisualPatternCard key={v.id} pattern={v} favorited={fav("visual_pattern", v.id)} />
+              <VisualPatternCard
+                key={v.id}
+                pattern={v}
+                favorited={fav("visual_pattern", v.id)}
+              />
             ))}
           </div>
         </section>
@@ -139,7 +157,11 @@ export default async function EditionDetailPage({
           <SectionTitle>Headlines</SectionTitle>
           <div className="grid gap-4 sm:grid-cols-2">
             {heads.map((h) => (
-              <HeadlineCard key={h.id} headline={h} favorited={fav("headline", h.id)} />
+              <HeadlineCard
+                key={h.id}
+                headline={h}
+                favorited={fav("headline", h.id)}
+              />
             ))}
           </div>
         </section>
@@ -150,7 +172,11 @@ export default async function EditionDetailPage({
           <SectionTitle>Sugestões de post</SectionTitle>
           <div className="grid gap-4">
             {suggestions.map((s) => (
-              <SuggestionCard key={s.id} suggestion={s} favorited={fav("content_suggestion", s.id)} />
+              <SuggestionCard
+                key={s.id}
+                suggestion={s}
+                favorited={fav("content_suggestion", s.id)}
+              />
             ))}
           </div>
         </section>

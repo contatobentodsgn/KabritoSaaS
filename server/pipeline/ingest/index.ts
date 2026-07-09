@@ -35,8 +35,10 @@ export async function runIngestion(
       let signals: string[] = [];
       if (source.type === "rss") signals = await collectRss(source.config);
       else if (source.type === "api") signals = await collectApi(source.config);
-      else if (source.type === "trends") signals = await collectTrends(source.config);
-      else if (source.type === "manual_seed") signals = collectSeed(source.config);
+      else if (source.type === "trends")
+        signals = await collectTrends(source.config);
+      else if (source.type === "manual_seed")
+        signals = collectSeed(source.config);
 
       for (const s of signals.slice(0, 20)) {
         await db.insert(rawSignals).values({

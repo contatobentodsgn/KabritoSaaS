@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getCurrentProfile } from "@/server/auth/session";
-import { commentInputSchema, deleteCommentSchema } from "@/lib/validations/comments";
+import {
+  commentInputSchema,
+  deleteCommentSchema,
+} from "@/lib/validations/comments";
 import { notifyCommentParticipants } from "@/server/admin/notify";
 import { consume } from "@/server/rate-limit";
 
@@ -22,7 +25,10 @@ export async function addComment(input: unknown): Promise<CommentResult> {
   if (!user) return { ok: false, error: "Não autenticado." };
 
   if (!(await consume("comment", user.id)).success) {
-    return { ok: false, error: "Muitos comentários em pouco tempo. Aguarde um instante." };
+    return {
+      ok: false,
+      error: "Muitos comentários em pouco tempo. Aguarde um instante.",
+    };
   }
 
   const { editionId, body } = parsed.data;
@@ -58,7 +64,10 @@ export async function deleteComment(input: unknown): Promise<CommentResult> {
 
   const { id } = parsed.data;
   const supabase = await createClient();
-  const { error } = await supabase.from("edition_comments").delete().eq("id", id);
+  const { error } = await supabase
+    .from("edition_comments")
+    .delete()
+    .eq("id", id);
   if (error) return { ok: false, error: "Falha ao excluir comentário." };
 
   revalidatePath("/daily-briefing", "layout");
