@@ -11,7 +11,10 @@ import {
   newPasswordSchema,
 } from "@/lib/validations/auth";
 import { provisionNewUser } from "@/server/admin/provisioning";
-import { recordFailedLogin } from "@/server/admin/audit-system";
+import {
+  recordFailedLogin,
+  isLoginLockedOut,
+} from "@/server/admin/audit-system";
 import { isPasswordPwned } from "@/lib/security/pwned";
 import {
   recordLogin,
@@ -62,6 +65,15 @@ export async function signInAction(
   });
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  // Bloqueio progressivo por conta (SEC-4) — além do rate-limit por IP acima,
+  // cobre credential-stuffing distribuído (mesma conta, IPs variados).
+  if (await isLoginLockedOut(parsed.data.email)) {
+    return {
+      error:
+        "Muitas tentativas para esta conta. Aguarde alguns minutos e tente de novo.",
+    };
   }
 
   const supabase = await createClient();
