@@ -4,6 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/server/auth/session";
+import {
+  generateRecoveryCodes,
+  deleteRecoveryCodes,
+  verifyRecoveryCode,
+} from "@/server/auth/mfa";
+import { resetUserMfaById } from "@/server/admin/supabase-admin";
 import { consume } from "@/server/rate-limit";
 import { DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
 
@@ -12,6 +18,9 @@ export type EnrollResult =
   | { ok: false; error: string };
 
 export type MfaResult = { ok: true } | { ok: false; error: string };
+
+export type ConfirmEnrollResult =
+  { ok: true; recoveryCodes: string[] } | { ok: false; error: string };
 
 /**
  * Inicia a ativação do 2FA: cria um fator TOTP e devolve o QR + o segredo para
@@ -44,11 +53,15 @@ export async function startEnrollAction(): Promise<EnrollResult> {
   };
 }
 
-/** Confirma a ativação verificando o código do app autenticador. */
+/**
+ * Confirma a ativação verificando o código do app autenticador. Em sucesso,
+ * gera os recovery codes (SEC-3) — mostrados 1x ao usuário pelo componente
+ * chamador; só o hash persiste a partir daqui.
+ */
 export async function confirmEnrollAction(
   factorId: string,
   code: string,
-): Promise<MfaResult> {
+): Promise<ConfirmEnrollResult> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
   // Anti brute-force do código de 6 dígitos (não depende só do throttle do provedor).
@@ -70,16 +83,24 @@ export async function confirmEnrollAction(
     };
   }
   revalidatePath("/settings");
-  return { ok: true };
+  try {
+    const recoveryCodes = await generateRecoveryCodes(user.id);
+    return { ok: true, recoveryCodes };
+  } catch {
+    // 2FA já está ativo neste ponto (challengeAndVerify passou) — não desfaz
+    // a ativação por causa disto; só fica sem recovery codes desta vez.
+    return { ok: true, recoveryCodes: [] };
+  }
 }
 
-/** Desativa o 2FA (remove o fator). */
+/** Desativa o 2FA (remove o fator) — os recovery codes ficam sem sentido, remove também. */
 export async function disableMfaAction(factorId: string): Promise<MfaResult> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.unenroll({ factorId });
   if (error) return { ok: false, error: "Não foi possível desativar o 2FA." };
+  await deleteRecoveryCodes(user.id);
   revalidatePath("/settings");
   return { ok: true };
 }
@@ -113,4 +134,33 @@ export async function verifyLoginMfaAction(
     };
   }
   redirect(DEFAULT_REDIRECT);
+}
+
+/**
+ * Verifica um RECOVERY CODE no lugar do TOTP (perdeu o autenticador — SEC-3).
+ * Ao acertar: remove TODOS os fatores MFA da conta via admin API (só ela
+ * consegue sem aal2 — ver server/admin/supabase-admin.ts:resetUserMfaById) e
+ * redireciona a /settings?mfa=recovered — NÃO ao DEFAULT_REDIRECT — para que
+ * a pessoa veja de cara o aviso de reativar o 2FA.
+ */
+export async function verifyRecoveryCodeAction(
+  code: string,
+): Promise<MfaResult> {
+  const user = await getCurrentUser();
+  if (!user) redirect(LOGIN_ROUTE);
+  if (!(await consume("mfa_verify", user.id)).success) {
+    return {
+      ok: false,
+      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
+    };
+  }
+  const valid = await verifyRecoveryCode(user.id, code);
+  if (!valid) {
+    return { ok: false, error: "Código de recuperação inválido ou já usado." };
+  }
+  await resetUserMfaById(user.id);
+  // O fator MFA foi removido: os demais recovery codes (não usados) ficam
+  // órfãos/sem propósito — limpa junto (o próximo enroll gera um lote novo).
+  await deleteRecoveryCodes(user.id);
+  redirect("/settings?mfa=recovered");
 }

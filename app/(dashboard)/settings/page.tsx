@@ -31,9 +31,13 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ inactive?: string; billing?: string }>;
+  searchParams: Promise<{
+    inactive?: string;
+    billing?: string;
+    mfa?: string;
+  }>;
 }) {
-  const { inactive, billing } = await searchParams;
+  const { inactive, billing, mfa: mfaParam } = await searchParams;
   const [profile, org, sub, active, mfa] = await Promise.all([
     getCurrentProfile(),
     getCurrentOrganization(),
@@ -65,6 +69,25 @@ export default async function SettingsPage({
             Pagamento recebido. A assinatura é ativada assim que o Stripe
             confirma — atualize a página em instantes se ainda aparecer
             pendente.
+          </CardContent>
+        </Card>
+      )}
+
+      {mfaParam === "required" && (
+        <Card className="mb-8 border-rose-200 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/15">
+          <CardContent className="py-4 text-sm text-rose-900 dark:text-blush-200">
+            Sua conta precisa da verificação em duas etapas ativa para acessar o
+            painel administrativo. Ative abaixo em "Sessões e segurança".
+          </CardContent>
+        </Card>
+      )}
+
+      {mfaParam === "recovered" && (
+        <Card className="mb-8 border-rose-200 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/15">
+          <CardContent className="py-4 text-sm text-rose-900 dark:text-blush-200">
+            Você entrou com um código de recuperação — a verificação em duas
+            etapas foi <strong>desativada</strong> nesta conta. Reative assim
+            que possível em "Sessões e segurança".
           </CardContent>
         </Card>
       )}
