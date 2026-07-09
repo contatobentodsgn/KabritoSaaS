@@ -29,6 +29,8 @@ export function MfaVerifyForm({ factorId }: { factorId: string }) {
         autoComplete="one-time-code"
         placeholder="000000"
         maxLength={6}
+        // Única interação da tela dedicada de verificação TOTP (padrão de UX de campo OTP); tem aria-label.
+        // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         className="text-center font-mono text-lg tracking-[0.4em]"
         aria-label="Código de verificação"

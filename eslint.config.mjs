@@ -1,7 +1,9 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import globals from "globals";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 import noSecretsInClient from "./eslint-rules/no-secrets-in-client.js";
+import noRawDanger from "./eslint-rules/no-raw-danger.js";
 
 /**
  * Flat config (ESLint 9). A peça de SEGURANÇA é o bloco de isolamento abaixo:
@@ -12,6 +14,10 @@ import noSecretsInClient from "./eslint-rules/no-secrets-in-client.js";
  *  2. ...exceto nas pastas ISOLADAS (server/pipeline, server/admin, app/api/cron)
  *     e no próprio service-client + scripts de db, onde o uso é proposital.
  *  3. `local/no-secrets-in-client` proíbe segredos em arquivos "use client".
+ *  4. `local/no-raw-danger` bane dangerouslySetInnerHTML fora do allowlist
+ *     revisado (IMPROVEMENTS-PLAN.md SEC-5).
+ *
+ * `jsx-a11y` (recommended) roda em .jsx/.tsx — acessibilidade (IMPROVEMENTS-PLAN.md A11Y-10).
  *
  * Ver ROADMAP Fase 0 item 5 e SECURITY_GUIDE §3/§5.
  */
@@ -48,6 +54,7 @@ export default tseslint.config(
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  { ...jsxA11y.flatConfigs.recommended, files: ["**/*.{jsx,tsx}"] },
   {
     files: ["**/*.{ts,tsx,js,mjs}"],
     languageOptions: {
@@ -56,11 +63,17 @@ export default tseslint.config(
       globals: { ...globals.node, ...globals.browser },
     },
     plugins: {
-      local: { rules: { "no-secrets-in-client": noSecretsInClient } },
+      local: {
+        rules: {
+          "no-secrets-in-client": noSecretsInClient,
+          "no-raw-danger": noRawDanger,
+        },
+      },
     },
     rules: {
       "no-restricted-imports": ["error", SERVICE_CLIENT_RESTRICTION],
       "local/no-secrets-in-client": "error",
+      "local/no-raw-danger": "error",
       // Ruído desligado para manter o foco nas regras de segurança.
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": [
