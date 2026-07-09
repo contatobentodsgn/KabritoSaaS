@@ -27,6 +27,10 @@ export function MfaSettings({
   } | null>(null);
   const [code, setCode] = useState("");
   const [disableOpen, setDisableOpen] = useState(false);
+  // Recovery codes (SEC-3): mostrados 1x logo após confirmar a ativação.
+  // Prioridade de render acima de `enrolled`/`enroll` — força o usuário a
+  // reconhecer/guardar antes de voltar à tela normal de "2FA ativo".
+  const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
 
   function begin() {
     start(async () => {
@@ -49,6 +53,7 @@ export function MfaSettings({
         toast.success("Verificação em duas etapas ativada.");
         setEnroll(null);
         setCode("");
+        if (res.recoveryCodes.length > 0) setRecoveryCodes(res.recoveryCodes);
       } else toast.error(res.error);
     });
   }
@@ -61,6 +66,43 @@ export function MfaSettings({
       if (res.ok) toast.success("2FA desativado.");
       else toast.error(res.error);
     });
+  }
+
+  function copyRecoveryCodes() {
+    if (!recoveryCodes) return;
+    navigator.clipboard
+      .writeText(recoveryCodes.join("\n"))
+      .then(() => toast.success("Códigos copiados."))
+      .catch(() => toast.error("Não foi possível copiar. Anote manualmente."));
+  }
+
+  if (recoveryCodes) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-foreground">
+          Guarde estes códigos de recuperação
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Cada código funciona <strong>uma única vez</strong> no lugar do app
+          autenticador, caso você perca o acesso a ele. Eles só aparecem{" "}
+          <strong>agora</strong> — depois de sair desta tela, não é possível
+          vê-los de novo (só gerar novos, desativando e reativando o 2FA).
+        </p>
+        <div className="grid grid-cols-2 gap-1.5 rounded-lg border border-border bg-muted/40 p-4 font-mono text-sm sm:grid-cols-3">
+          {recoveryCodes.map((c) => (
+            <span key={c}>{c}</span>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="outline" onClick={copyRecoveryCodes}>
+            Copiar códigos
+          </Button>
+          <Button size="sm" onClick={() => setRecoveryCodes(null)}>
+            Já guardei, continuar
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (enrolled) {

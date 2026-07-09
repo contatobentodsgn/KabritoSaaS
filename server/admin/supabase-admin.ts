@@ -92,11 +92,42 @@ export async function purgeAccountAccess(
 }
 
 /**
+ * Remove TODOS os fatores MFA de um userId via admin API (service-role) —
+ * núcleo compartilhado por resetUserMfa (CLI) e resetUserMfaById (recovery
+ * code self-service). Só a admin API consegue: o unenroll self-service do
+ * Supabase (supabase.auth.mfa.unenroll) exige aal2 — exatamente o que falta
+ * quem perdeu o autenticador. Retorna quantos fatores foram removidos.
+ */
+async function unenrollAllFactors(
+  admin: ReturnType<typeof createAdminSupabase>,
+  userId: string,
+): Promise<number> {
+  const { data, error } = await admin.auth.admin.mfa.listFactors({ userId });
+  if (error) throw new Error(`Falha ao listar fatores: ${error.message}`);
+  const factors = data?.factors ?? [];
+  let removed = 0;
+  for (const f of factors) {
+    const { error: delErr } = await admin.auth.admin.mfa.deleteFactor({
+      id: f.id,
+      userId,
+    });
+    if (delErr) {
+      console.error(
+        `[mfa-reset] falha ao remover fator ${f.id}:`,
+        delErr.message,
+      );
+    } else {
+      removed++;
+    }
+  }
+  return removed;
+}
+
+/**
  * ANTI-LOCKOUT do 2FA (U1): remove os fatores MFA de uma conta que perdeu o
- * autenticador. Como o Supabase TOTP não emite recovery codes nativos, este é o
- * caminho de recuperação — operado por admin via CLI (`npm run mfa:reset`).
- * Service-role (admin API). A pessoa volta a entrar só com a senha e pode
- * reativar o 2FA nas Configurações. Auditado (mfa.admin_reset).
+ * autenticador. Operado por ADMIN via CLI (`npm run mfa:reset`). Service-role
+ * (admin API). A pessoa volta a entrar só com a senha e pode reativar o 2FA
+ * nas Configurações. Auditado (mfa.admin_reset).
  */
 export async function resetUserMfa(
   email: string,
@@ -116,30 +147,20 @@ export async function resetUserMfa(
     return { ok: false, message: `Conta não encontrada: ${email}.` };
   }
 
-  const { data, error } = await admin.auth.admin.mfa.listFactors({ userId });
-  if (error) {
-    return { ok: false, message: `Falha ao listar fatores: ${error.message}` };
+  let removed: number;
+  try {
+    removed = await unenrollAllFactors(admin, userId);
+  } catch (err) {
+    return {
+      ok: false,
+      message: err instanceof Error ? err.message : "Falha ao remover 2FA.",
+    };
   }
-  const factors = data?.factors ?? [];
-  if (factors.length === 0) {
+  if (removed === 0) {
     return {
       ok: true,
       message: `${email} não tem 2FA ativo (nada a remover).`,
     };
-  }
-
-  let removed = 0;
-  for (const f of factors) {
-    const { error: delErr } = await admin.auth.admin.mfa.deleteFactor({
-      id: f.id,
-      userId,
-    });
-    if (delErr)
-      console.error(
-        `[mfa-reset] falha ao remover fator ${f.id}:`,
-        delErr.message,
-      );
-    else removed++;
   }
 
   await recordSystemAudit({
@@ -154,4 +175,33 @@ export async function resetUserMfa(
     ok: true,
     message: `2FA de ${email} removido (${removed} fator(es)). A pessoa entra só com a senha e pode reativar nas Configurações.`,
   };
+}
+
+/**
+ * ANTI-LOCKOUT self-service (SEC-3): mesma remoção de fatores que resetUserMfa,
+ * mas SELF-TRIGGERED por quem acabou de provar posse de um recovery code
+ * válido (verificado em server/auth/mfa.ts:verifyRecoveryCode ANTES de chamar
+ * isto — esta função em si não valida nada, só executa a remoção). Keyed por
+ * userId (já disponível via getCurrentUser() no chamador — sem lookup por
+ * e-mail). Auditado com ação DISTINTA (mfa.recovery_code_used) da do CLI.
+ */
+export async function resetUserMfaById(
+  userId: string,
+): Promise<{ ok: boolean; removed: number }> {
+  if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) return { ok: false, removed: 0 };
+  const admin = createAdminSupabase();
+  try {
+    const removed = await unenrollAllFactors(admin, userId);
+    await recordSystemAudit({
+      action: "mfa.recovery_code_used",
+      userId,
+      entityType: "profile",
+      entityId: userId,
+      metadata: { removed },
+    });
+    return { ok: true, removed };
+  } catch (err) {
+    console.error("[mfa-recovery] resetUserMfaById:", err);
+    return { ok: false, removed: 0 };
+  }
 }
