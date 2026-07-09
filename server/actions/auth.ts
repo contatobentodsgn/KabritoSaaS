@@ -13,10 +13,15 @@ import {
 import { provisionNewUser } from "@/server/admin/provisioning";
 import { recordFailedLogin } from "@/server/admin/audit-system";
 import { isPasswordPwned } from "@/lib/security/pwned";
-import { recordLogin, recordLogout } from "@/server/services/session";
+import {
+  recordLogin,
+  recordLogout,
+  getOrCreateDeviceId,
+} from "@/server/services/session";
+import { recordAudit } from "@/server/audit/log";
 import { consume, type RateLimitAction } from "@/server/rate-limit";
 import { serverEnv } from "@/server/env";
-import { DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
+import { AUDIT_ACTIONS, DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
 import type { FormState } from "@/server/actions/types";
 
 async function clientMeta(): Promise<{ ip: string; userAgent: string | null }> {
@@ -258,6 +263,22 @@ export async function updatePasswordAction(
     password: parsed.data.password,
   });
   if (error) return { error: "Não foi possível atualizar a senha." };
+
+  // Uma sessão vazada/roubada não deve sobreviver à troca de senha. Revoga
+  // todas as OUTRAS sessões (scope "others" — mantém a atual, o próprio
+  // dispositivo onde a troca acabou de acontecer, sem deslogar quem trocou).
+  const deviceId = await getOrCreateDeviceId();
+  await supabase
+    .from("user_sessions")
+    .update({ is_active: false, revoked_at: new Date().toISOString() })
+    .eq("user_id", user.id)
+    .neq("device_id", deviceId);
+  await supabase.auth.signOut({ scope: "others" });
+  await recordAudit({
+    action: AUDIT_ACTIONS.PASSWORD_CHANGED,
+    entityType: "profile",
+  });
+
   redirect(DEFAULT_REDIRECT);
 }
 
