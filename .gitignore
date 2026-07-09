@@ -47,3 +47,6 @@ npm-debug.log*
 /backups/
 *.sql.gz
 kabrito-*.sql
+
+# husky — pasta de runtime interna, recriada a cada `npm install` (prepare).
+.husky/_/
