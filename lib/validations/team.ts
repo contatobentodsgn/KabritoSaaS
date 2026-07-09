@@ -8,7 +8,12 @@ import { z } from "zod";
 
 /** Convite por e-mail. Papel limitado a admin|member (owner não é atribuível por convite). */
 export const addMemberSchema = z.object({
-  email: z.string().trim().toLowerCase().email("E-mail inválido"),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .max(254, "E-mail inválido")
+    .email("E-mail inválido"),
   role: z.enum(["admin", "member"]),
 });
 export type AddMemberInput = z.infer<typeof addMemberSchema>;

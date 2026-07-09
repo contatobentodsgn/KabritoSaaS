@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { recordAudit } from "@/server/audit/log";
 import { purgeAccountAccess } from "@/server/admin/supabase-admin";
+import { consume } from "@/server/rate-limit";
 import { AUDIT_ACTIONS } from "@/lib/constants";
 
 export type DataExport =
@@ -18,6 +19,12 @@ export type DataExport =
 export async function exportMyDataAction(): Promise<DataExport> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
+  if (!(await consume("data_export", user.id)).success) {
+    return {
+      ok: false,
+      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
+    };
+  }
 
   const supabase = await createClient();
   const [profile, favorites, comments, sessions, memberships] =

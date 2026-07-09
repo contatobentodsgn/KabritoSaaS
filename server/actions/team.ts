@@ -127,6 +127,12 @@ export async function acceptInviteAction(
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Entre para aceitar o convite." };
+  if (!(await consume("invite_accept", user.id)).success) {
+    return {
+      ok: false,
+      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
+    };
+  }
 
   const res = await acceptInviteByToken(parsed.data, user.id);
   if (res.ok) {
