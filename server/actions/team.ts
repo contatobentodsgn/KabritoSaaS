@@ -8,6 +8,7 @@ import {
   getCurrentOrganization,
   getCurrentOrgRole,
 } from "@/server/auth/session";
+import { requireAal2 } from "@/server/auth/mfa";
 import {
   addMemberSchema,
   setRoleSchema,
@@ -39,12 +40,15 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
 
 const TEAM_PATH = "/settings/equipe";
 
-/** Garante owner|admin e devolve o orgId derivado do contexto. */
+/** Garante owner|admin (+ AAL2 se aplicável) e devolve o orgId do contexto. */
 async function requireManager(): Promise<
   { ok: true; orgId: string; userId: string } | { ok: false; error: string }
 > {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
+
+  const aal2 = await requireAal2();
+  if (!aal2.ok) return aal2;
 
   const org = await getCurrentOrganization();
   if (!org) return { ok: false, error: "Nenhum workspace ativo." };

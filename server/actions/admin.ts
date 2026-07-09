@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/server/auth/session";
+import { requireAal2 } from "@/server/auth/mfa";
 import { canReviewContent, canManagePipeline } from "@/server/permissions";
 import { recordAudit } from "@/server/audit/log";
 import { sendEditionDigest } from "@/server/admin/notify";
@@ -38,6 +39,8 @@ const csv = (s: string) =>
 
 export async function approveEdition(editionId: string): Promise<ActionResult> {
   if (!(await canReviewContent())) return forbidden();
+  const aal2 = await requireAal2();
+  if (!aal2.ok) return aal2;
   if (!z.string().uuid().safeParse(editionId).success)
     return { ok: false, error: "ID inválido." };
 
