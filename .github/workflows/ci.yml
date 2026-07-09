@@ -78,3 +78,24 @@ jobs:
           # 2) Histórico completo (todas as refs): o repo é PÚBLICO — um segredo
           # commitado e depois revertido continua exposto no log. Varre tudo.
           ./gitleaks detect --config .gitleaks.toml --redact --verbose --exit-code 1 --log-opts="--all"
+
+  # Job SEPARADO do `gate` de propósito: sinal, não bloqueio (IMPROVEMENTS-PLAN.md
+  # DX-7/DX-5). Achados de dependência vulnerável e de código morto têm falso-positivo
+  # e nuance demais para travar merge automaticamente — aparecem no resumo do run
+  # para revisão humana, sem fazer parte dos required status checks do branch.
+  signals:
+    name: sinais (deps vulneráveis · código morto)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: npm audit (deps de produção, high+)
+        run: npm run audit:deps
+        continue-on-error: true
+      - name: knip (arquivos/exports/deps não usados)
+        run: npm run deadcode
+        continue-on-error: true
