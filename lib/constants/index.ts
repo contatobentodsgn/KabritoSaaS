@@ -57,6 +57,7 @@ export const AUDIT_ACTIONS = {
   LOGIN_FAILED: "auth.login_failed",
   LOGOUT: "auth.logout",
   REGISTER: "auth.register",
+  PASSWORD_CHANGED: "auth.password_changed",
   SESSION_NEW_DEVICE: "session.new_device",
   SESSION_REVOKED: "session.revoked",
   CONTENT_CREATED: "content.created",
