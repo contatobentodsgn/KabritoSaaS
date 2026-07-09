@@ -62,3 +62,24 @@ export function buildCsp(nonce: string): string {
     `report-uri /api/csp-report`,
   ].join("; ");
 }
+
+/**
+ * Trusted Types — REPORT-ONLY, deliberadamente (SEC-6/IMPROVEMENTS-PLAN.md).
+ * NÃO promover a enforcing sem antes trocar os 3 dangerouslySetInnerHTML
+ * conhecidos (eslint-rules/no-raw-danger.js) por uma policy de verdade: o
+ * React atribui .innerHTML com string crua, e sob enforcement um browser que
+ * suporte Trusted Types (Chrome/Edge) BLOQUEIA a atribuição — quebraria o
+ * script anti-flash de tema, o reveal da landing e o QR do MFA. Um header
+ * SEPARADO do CSP principal (que seguem enforcing) — browsers avaliam os
+ * dois de forma independente; este aqui só reporta, nunca bloqueia.
+ */
+export const TRUSTED_TYPES_REPORT_ONLY_HEADER =
+  "Content-Security-Policy-Report-Only";
+
+export function buildTrustedTypesReportOnlyPolicy(): string {
+  return [
+    `require-trusted-types-for 'script'`,
+    `trusted-types default`,
+    `report-uri /api/csp-report`,
+  ].join("; ");
+}

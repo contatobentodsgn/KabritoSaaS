@@ -4,6 +4,8 @@ import {
   buildCsp,
   CSP_REQUEST_HEADER,
   CSP_RESPONSE_HEADER,
+  TRUSTED_TYPES_REPORT_ONLY_HEADER,
+  buildTrustedTypesReportOnlyPolicy,
 } from "@/lib/security/csp";
 import {
   PROTECTED_ROUTES,
@@ -38,6 +40,15 @@ export async function middleware(request: NextRequest) {
   );
   // CSP na resposta. Enforcing ou Report-Only conforme CSP_ENFORCE (lib/security/csp.ts).
   response.headers.set(CSP_RESPONSE_HEADER, csp);
+  // Trusted Types em Report-Only, SEPARADO da CSP principal (vide comentário
+  // em lib/security/csp.ts) — não bloqueia nada, só sinaliza. append() (não
+  // set()): se CSP_ENFORCE algum dia voltar a false, CSP_RESPONSE_HEADER vira
+  // o MESMO nome deste header — append() soma como uma 2ª policy independente
+  // (suportado pela CSP), em vez de sobrescrever a policy principal.
+  response.headers.append(
+    TRUSTED_TYPES_REPORT_ONLY_HEADER,
+    buildTrustedTypesReportOnlyPolicy(),
+  );
   const path = request.nextUrl.pathname;
 
   // Deslogado tentando rota privada → /login (com retorno).
