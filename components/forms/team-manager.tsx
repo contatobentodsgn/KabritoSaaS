@@ -4,11 +4,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import type {
-  TeamMember,
-  MemberRole,
-  PendingInvite,
-} from "@/server/admin/team";
+import type { TeamMember } from "@/server/admin/team/members";
+import type { PendingInvite } from "@/server/admin/team/invites";
+import type { MemberRole } from "@/server/admin/team/shared";
 import {
   addMemberAction,
   setMemberRoleAction,

@@ -12,8 +12,8 @@ import {
   getInviteByToken,
   acceptInviteByToken,
   acceptPendingInvites,
-  listMembers,
-} from "@/server/admin/team";
+} from "@/server/admin/team/invites";
+import { listMembers } from "@/server/admin/team/members";
 import { organizations, profiles, organizationMembers } from "@/db/schema";
 
 const db = getServiceDbClient();

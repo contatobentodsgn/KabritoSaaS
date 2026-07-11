@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getCurrentOrgId } from "@/server/auth/session";
+import type { Json } from "@/types/supabase";
 
 /**
  * Auditoria de ações do USUÁRIO/STAFF (audit_logs) via cliente de usuário (RLS:
@@ -24,7 +25,9 @@ export async function recordAudit(params: {
       action: params.action,
       entity_type: params.entityType ?? null,
       entity_id: params.entityId ?? null,
-      metadata: params.metadata ?? null,
+      // `Record<string, unknown>` é a assinatura pública (ergonômica pros
+      // chamadores); o cast pra Json fica só neste ponto de escrita.
+      metadata: (params.metadata ?? null) as Json,
     });
   } catch (err) {
     // Best-effort (nunca quebra a ação principal), mas OBSERVÁVEL: um furo na

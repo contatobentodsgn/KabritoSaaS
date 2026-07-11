@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { toggleSourceActive } from "@/server/actions/admin";
+import { toggleSourceActive } from "@/server/actions/admin/sources";
 import { Button } from "@/components/ui/button";
 
 export function SourceToggle({ id, active }: { id: string; active: boolean }) {

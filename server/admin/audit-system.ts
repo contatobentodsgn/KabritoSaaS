@@ -2,6 +2,7 @@ import "server-only";
 import { and, eq, gte, sql } from "drizzle-orm";
 import { getServiceDbClient } from "@/server/db/service-client";
 import { auditLogs, accessLogs } from "@/db/schema";
+import { LOCKOUT_WINDOW_MIN, LOCKOUT_THRESHOLD } from "@/lib/config";
 
 /**
  * Auditoria de SISTEMA via service-role (bypass RLS). Para ações que rodam SEM
@@ -64,9 +65,6 @@ export async function recordFailedLogin(p: {
     console.error("[audit-system] failed-login", err);
   }
 }
-
-const LOCKOUT_WINDOW_MIN = 15;
-const LOCKOUT_THRESHOLD = 8;
 
 /**
  * Bloqueio PROGRESSIVO por conta (SEC-4) — camada ADICIONAL ao rate-limit por

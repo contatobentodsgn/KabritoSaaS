@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { approveEdition, rejectEdition } from "@/server/actions/admin";
+import { approveEdition, rejectEdition } from "@/server/actions/admin/review";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 

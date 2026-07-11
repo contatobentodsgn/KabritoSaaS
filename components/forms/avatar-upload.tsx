@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { updateAvatarAction } from "@/server/actions/profile";
@@ -42,9 +43,12 @@ export function AvatarUpload({
   return (
     <div className="flex items-center gap-4">
       {preview ? (
-        <img
+        <Image
           src={preview}
           alt="Avatar"
+          width={64}
+          height={64}
+          unoptimized={preview.startsWith("blob:")}
           className="size-16 rounded-full border border-border object-cover"
         />
       ) : (

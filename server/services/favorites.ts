@@ -9,6 +9,7 @@ import type {
   ContentSuggestionRow,
   PromptTemplateRow,
 } from "@/types/content";
+import type { Database } from "@/types/supabase";
 
 export interface FavoriteRow {
   id: string;
@@ -94,7 +95,10 @@ export async function getFavoritedContent(): Promise<FavoritedContent> {
   for (const f of favs) (byType[f.entity_type] ??= []).push(f.entity_id);
 
   const supabase = await createClient();
-  async function fetchIn<T>(table: string, ids?: string[]): Promise<T[]> {
+  async function fetchIn<T>(
+    table: keyof Database["public"]["Tables"],
+    ids?: string[],
+  ): Promise<T[]> {
     if (!ids?.length) return [];
     const { data } = await supabase.from(table).select("*").in("id", ids);
     return (data as T[]) ?? [];

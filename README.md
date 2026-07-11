@@ -4,13 +4,15 @@ Central diária de inteligência criativa para criadores de conteúdo e social m
 A IA **gera**; a equipe humana só **revisa/aprova**. Falha no pipeline **nunca publica**.
 
 > Documentação espelhada ao **código real** (ROADMAP Fase 9). Fonte da visão:
-> `PROJECT_MASTER_DOCUMENT.md`. Segurança: `SECURITY_GUIDE.md` + `SECURITY_CHECKLIST.md`.
+> `PROJECT_MASTER_DOCUMENT.md`. Arquitetura atual: `ARCHITECTURE.md`. Segurança:
+> `SECURITY_GUIDE.md` + `SECURITY_CHECKLIST.md`. Contribuindo: `CONTRIBUTING.md`.
 
 ## Stack
 
 Next.js 15 (App Router, Server Actions) · React 19 · TypeScript · Tailwind + shadcn/ui ·
-Supabase Auth · PostgreSQL + RLS · Drizzle ORM · Zod · Vercel (deploy + cron) ·
-Resend (e-mail) · Sentry (preparado) · Stripe (preparado, **não implementado** — MVP3).
+Supabase Auth (2FA/TOTP + recovery codes) · PostgreSQL + RLS · Drizzle ORM · Zod ·
+Vercel (deploy + cron) · Resend (e-mail) · Sentry · Stripe (billing, feature-flagged
+por `STRIPE_ENABLED`) · Upstash Redis (rate-limit distribuído, opcional).
 
 ## As 8 restrições inegociáveis e onde são impostas
 
@@ -65,19 +67,50 @@ Sem `AI_API_KEY`, um provider mock gera saída válida; com a chave, chama a Ant
 npm run grant -- usuario@email.com 365
 ```
 
-## Testes / verificação
+## Scripts
 
 ```bash
-npm run typecheck       # tsc --noEmit
-npm run lint            # ESLint (inclui as regras de isolamento de segredo)
-npm run test            # vitest: unit (device-limit, rate-limit)
-npm run test:rls        # vitest: RLS 6.1–6.4 contra Postgres local
-node --conditions=react-server --env-file=.env.local --import tsx tests/manual/verify-pipeline.ts
+# Dev / build
+npm run dev              # servidor local
+npm run build             # build de produção
+npm run start              # serve o build
+
+# Qualidade (mesmos comandos do CI — ver ".github/workflows/ci.yml")
+npm run typecheck         # tsc --noEmit
+npm run lint               # ESLint (inclui jsx-a11y + regras locais de segredo/dangerouslySetInnerHTML)
+npm run format:check      # Prettier --check (o pre-commit já roda --write via lint-staged)
+npm run format              # Prettier --write no repo inteiro
+npm run audit:deps        # npm audit, deps de produção, high+ (sinal não-bloqueante no CI)
+npm run deadcode           # knip — exports/arquivos/deps sem uso (sinal não-bloqueante no CI)
+
+# Banco de dados
+npm run db:generate       # gera migration a partir de db/schema.ts (Drizzle Kit)
+npm run db:migrate         # aplica migrations pendentes
+npm run db:seed              # plano único + plataforma + nichos + 1 prompt + fonte seed
+npm run seed:editions      # edições de exemplo (dev/demo)
+npm run seed:test-user    # usuário de teste (dev)
+npm run setup:storage      # cria os buckets do Supabase Storage (avatares)
+npm run db:backup           # dump do banco
+
+# Verificação de integrações externas (lê .env.local, não altera nada)
+npm run check:supabase    # conectividade + schema
+npm run check:upstash     # rate-limit distribuído (Redis)
+npm run check:resend       # envio de e-mail
+
+# Testes
+npm run test                 # vitest: unit (device-limit, rate-limit, MFA lockout...)
+npm run test:rls             # vitest: RLS contra Postgres local (precisa de scripts/setup-local-db.sh rodando)
+
+# Operação / CLI admin (produção — usam SUPABASE_SERVICE_ROLE_KEY)
+npm run pipeline:run -- <plataforma>     # roda o pipeline de geração manualmente
+npm run grant -- <email> <dias>          # concede acesso manualmente (sem Stripe)
+npm run staff -- <email> <role>          # promove/rebaixa staff (editor/superadmin)
+npm run mfa:reset -- <email>             # remove 2FA de uma conta (perda de autenticador, sem recovery code)
 ```
 
-- `tests/rls/rls.test.ts` — **teste-âncora**: cliente respeita RLS, `service_role` ignora; assinatura controla leitura; isolamento; escrita restrita.
-- `tests/unit/*` — limite de dispositivos e rate limiting (lógica pura).
-- `tests/manual/verify-*.ts` — provisionamento, pipeline (idempotência, saída inválida não grava, teto de custo), lifecycle, billing.
+`tests/rls/rls.test.ts` é o teste-âncora: cliente respeita RLS, `service_role` ignora; assinatura controla leitura; isolamento; escrita restrita. `tests/manual/verify-*.ts` cobre fluxos que não valem a pena automatizar (provisionamento, pipeline, lifecycle, billing) — rode com `node --conditions=react-server --env-file=.env.local --import tsx tests/manual/verify-pipeline.ts`.
+
+**CI** (`.github/workflows/ci.yml`, obrigatório pra mergear em `main` — branch protection): job `gate` roda typecheck/lint/format:check/test (com Postgres efêmero, RLS incluída) e `secrets-scan` (gitleaks, arquivos + histórico). Job `signals` (deps vulneráveis, código morto) é informativo, não bloqueia.
 
 ## Ciclo diário (PROJECT §2)
 

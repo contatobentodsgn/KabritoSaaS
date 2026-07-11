@@ -8,9 +8,10 @@ import { recordAudit } from "@/server/audit/log";
 import { purgeAccountAccess } from "@/server/admin/supabase-admin";
 import { consume } from "@/server/rate-limit";
 import { AUDIT_ACTIONS } from "@/lib/constants";
+import { RATE_LIMIT_GENERIC } from "@/lib/messages";
+import type { ActionResult } from "@/server/actions/types";
 
-export type DataExport =
-  { ok: true; data: Record<string, unknown> } | { ok: false; error: string };
+export type DataExport = ActionResult<{ data: Record<string, unknown> }>;
 
 /**
  * PORTABILIDADE DE DADOS (LGPD Art. 18, V/II): devolve os dados pessoais do
@@ -21,10 +22,7 @@ export async function exportMyDataAction(): Promise<DataExport> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
   if (!(await consume("data_export", user.id)).success) {
-    return {
-      ok: false,
-      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
-    };
+    return { ok: false, error: RATE_LIMIT_GENERIC };
   }
 
   const supabase = await createClient();
