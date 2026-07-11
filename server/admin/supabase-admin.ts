@@ -2,6 +2,7 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { requireEnv, serverEnv } from "@/server/env";
 import { recordSystemAudit } from "@/server/admin/audit-system";
+import type { Database } from "@/types/supabase";
 
 /**
  * Cliente Supabase com SERVICE_ROLE (bypass RLS) — ISOLADO em server/admin.
@@ -9,7 +10,7 @@ import { recordSystemAudit } from "@/server/admin/audit-system";
  * deletar o usuário em auth.users (LGPD). NUNCA importar fora de pasta isolada.
  */
 export function createAdminSupabase() {
-  return createClient(
+  return createClient<Database>(
     requireEnv("SUPABASE_URL"),
     requireEnv("SUPABASE_SERVICE_ROLE_KEY"),
     { auth: { persistSession: false, autoRefreshToken: false } },
