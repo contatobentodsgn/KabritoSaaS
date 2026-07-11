@@ -1,5 +1,18 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
+// Host do Supabase Storage (avatares) para o otimizador de imagem — mesmo
+// padrão de parsing do lib/security/csp.ts (NEXT_PUBLIC_* já é público no bundle).
+function supabaseStorageHostname() {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!raw) return null;
+  try {
+    return new URL(raw).hostname;
+  } catch {
+    return null;
+  }
+}
+const supabaseHostname = supabaseStorageHostname();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -7,6 +20,17 @@ const nextConfig = {
   // Não declaramos `env` aqui para evitar vazamento acidental de segredos no bundle.
   experimental: {
     // Server Actions habilitadas por padrão no Next 15.
+  },
+  images: {
+    remotePatterns: supabaseHostname
+      ? [
+          {
+            protocol: "https",
+            hostname: supabaseHostname,
+            pathname: "/storage/v1/object/public/**",
+          },
+        ]
+      : [],
   },
   // Headers de hardening estáticos (HTTPS já é forçado pela Vercel). A CSP NÃO
   // vive aqui: por usar nonce por requisição, é montada e aplicada no middleware
