@@ -19,6 +19,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LandingReveal } from "@/components/landing/landing-reveal";
 import { Logo } from "@/components/layout/logo";
 
+// Mesmo fallback de produção do metadataBase em app/layout.tsx.
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://kabrito.vercel.app";
+
 /** Como funciona — 3 passos do fluxo real (automação-first, revisão humana). */
 const STEPS = [
   {
@@ -133,6 +136,40 @@ const FAQS = [
   },
 ] as const;
 
+// JSON-LD (SEO-4) — Organization + SoftwareApplication da landing, e o FAQPage
+// espelhando o accordion de FAQS abaixo (mesmas perguntas/respostas exibidas,
+// sem inventar dado que não está na página — ex.: sem `offers`/preço).
+const ORG_SOFTWARE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: "Kabrito",
+      url: APP_URL,
+      logo: `${APP_URL}/brand/logo-kabrito.svg`,
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "Kabrito",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: APP_URL,
+      description:
+        "Central diária de inteligência criativa para criadores de conteúdo e social media: pautas, copy, headlines e prompts — gerados por IA e revisados por humanos antes de publicar.",
+    },
+  ],
+};
+
+const FAQ_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
+};
+
 /** Landing page pública — hero editorial + seções de conversão (GSAP no scroll). */
 export default async function HomePage() {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
@@ -147,6 +184,20 @@ export default async function HomePage() {
           __html:
             "(function(){var h=document.documentElement;h.classList.add('js-reveal');window.setTimeout(function(){if(!window.__kReveal)h.classList.remove('js-reveal');},4000);})();",
         }}
+      />
+
+      {/* JSON-LD (SEO-4) — dado estático, sem entrada de usuário. */}
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(ORG_SOFTWARE_JSON_LD),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}
       />
 
       {/* Topo fixo — CTA sempre ao alcance */}
