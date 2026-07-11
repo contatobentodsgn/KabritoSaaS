@@ -6,9 +6,8 @@ import {
   getCurrentUser,
   getCurrentProfile,
   getCurrentOrganization,
-  getCurrentOrgRole,
 } from "@/server/auth/session";
-import { requireAal2 } from "@/server/auth/mfa";
+import { requireManager } from "@/server/permissions";
 import {
   addMemberSchema,
   setRoleSchema,
@@ -17,16 +16,21 @@ import {
 import {
   findUserIdByEmail,
   addMemberById,
+  setMemberRole,
+  removeMember,
+} from "@/server/admin/team/members";
+import {
   createInvite,
   cancelInvite,
   acceptInviteByToken,
-  setMemberRole,
-  removeMember,
-} from "@/server/admin/team";
+  type AcceptInviteResult,
+} from "@/server/admin/team/invites";
 import { sendInviteEmail } from "@/server/admin/notify";
 import { recordAudit } from "@/server/audit/log";
 import { consume } from "@/server/rate-limit";
 import { AUDIT_ACTIONS } from "@/lib/constants";
+import { RATE_LIMIT_GENERIC } from "@/lib/messages";
+import type { ActionResult } from "@/server/actions/types";
 
 /**
  * Server Actions do workspace de agência. Cada ação:
@@ -36,36 +40,11 @@ import { AUDIT_ACTIONS } from "@/lib/constants";
  *  4. delega a escrita ao server/admin/team (service-client, isolado).
  */
 
-export type ActionResult = { ok: true } | { ok: false; error: string };
+export type { ActionResult };
 
 const TEAM_PATH = "/settings/equipe";
 
-/** Garante owner|admin (+ AAL2 se aplicável) e devolve o orgId do contexto. */
-async function requireManager(): Promise<
-  { ok: true; orgId: string; userId: string } | { ok: false; error: string }
-> {
-  const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Não autenticado." };
-
-  const aal2 = await requireAal2();
-  if (!aal2.ok) return aal2;
-
-  const org = await getCurrentOrganization();
-  if (!org) return { ok: false, error: "Nenhum workspace ativo." };
-
-  const role = await getCurrentOrgRole();
-  if (role !== "owner" && role !== "admin") {
-    return {
-      ok: false,
-      error: "Você não tem permissão para gerenciar a equipe.",
-    };
-  }
-
-  return { ok: true, orgId: org.id, userId: user.id };
-}
-
-export type InviteResult =
-  { ok: true; status: "added" | "invited" } | { ok: false; error: string };
+export type InviteResult = ActionResult<{ status: "added" | "invited" }>;
 
 /**
  * Convida um membro por e-mail. Se o e-mail já tem conta Kabrito → adiciona
@@ -125,17 +104,14 @@ export async function addMemberAction(input: unknown): Promise<InviteResult> {
 /** Aceita um convite por token (a pessoa logada com o link entra na org). */
 export async function acceptInviteAction(
   token: unknown,
-): Promise<{ ok: true; orgName: string } | { ok: false; error: string }> {
+): Promise<AcceptInviteResult> {
   const parsed = z.string().min(10).safeParse(token);
   if (!parsed.success) return { ok: false, error: "Token inválido." };
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Entre para aceitar o convite." };
   if (!(await consume("invite_accept", user.id)).success) {
-    return {
-      ok: false,
-      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
-    };
+    return { ok: false, error: RATE_LIMIT_GENERIC };
   }
 
   const res = await acceptInviteByToken(parsed.data, user.id);

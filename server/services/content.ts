@@ -146,9 +146,12 @@ export async function getEditionWithModules(
     edition: ed,
     platform: (platform.data as PlatformRow) ?? null,
     briefing: ed.briefing ?? null,
-    trend_items: (trends.data as TrendItemRow[]) ?? [],
+    // TrendItemRow/CopyPatternRow tipam `adaptation_examples` como
+    // AdaptationExample[] (contrato de app); a coluna é jsonb genérico no
+    // banco (Json) — daí o `as unknown` antes de estreitar pro tipo real.
+    trend_items: (trends.data as unknown as TrendItemRow[]) ?? [],
     explore_reports: (explore.data as ExploreReportRow[]) ?? [],
-    copy_patterns: (copy.data as CopyPatternRow[]) ?? [],
+    copy_patterns: (copy.data as unknown as CopyPatternRow[]) ?? [],
     visual_patterns: (visual.data as VisualPatternRow[]) ?? [],
     headlines: (heads.data as HeadlineRow[]) ?? [],
     content_suggestions: (suggestions.data as ContentSuggestionRow[]) ?? [],
@@ -172,7 +175,7 @@ export async function listTrends(limit = 60): Promise<TrendItemRow[]> {
     .select("*")
     .order("opportunity_score", { ascending: false })
     .limit(limit);
-  return (data as TrendItemRow[]) ?? [];
+  return (data as unknown as TrendItemRow[]) ?? [];
 }
 
 export async function listPrompts(): Promise<{

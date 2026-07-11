@@ -2,6 +2,7 @@ import { cache } from "react";
 import { randomBytes, createHash } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { MFA_ENFORCE } from "@/lib/security/mfa";
+import type { ActionResult } from "@/server/actions/types";
 
 export interface MfaStatus {
   /** Nível atual da SESSÃO ('aal1' = só senha, 'aal2' = senha + 2FA). */
@@ -48,9 +49,7 @@ export const getMfaStatus = cache(async (): Promise<MfaStatus> => {
  * mas outra aba/sessão mantém o cookie antigo) poderia chamar a action
  * direto, pulando o /verificar. Mesmo flag staged que os layouts (MFA_ENFORCE).
  */
-export async function requireAal2(): Promise<
-  { ok: true } | { ok: false; error: string }
-> {
+export async function requireAal2(): Promise<ActionResult> {
   if (!MFA_ENFORCE) return { ok: true };
   const mfa = await getMfaStatus();
   if (mfa.pendingAal2) {

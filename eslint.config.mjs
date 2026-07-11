@@ -4,6 +4,7 @@ import globals from "globals";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import noSecretsInClient from "./eslint-rules/no-secrets-in-client.js";
 import noRawDanger from "./eslint-rules/no-raw-danger.js";
+import noAppImportInServer from "./eslint-rules/no-app-import-in-server.js";
 
 /**
  * Flat config (ESLint 9). A peça de SEGURANÇA é o bloco de isolamento abaixo:
@@ -16,6 +17,9 @@ import noRawDanger from "./eslint-rules/no-raw-danger.js";
  *  3. `local/no-secrets-in-client` proíbe segredos em arquivos "use client".
  *  4. `local/no-raw-danger` bane dangerouslySetInnerHTML fora do allowlist
  *     revisado (IMPROVEMENTS-PLAN.md SEC-5).
+ *  5. `local/no-app-import-in-server` proíbe server/** de importar de app/**
+ *     (camada de infra não pode depender da camada de apresentação; a
+ *     dependência só vai de app → server).
  *
  * `jsx-a11y` (recommended) roda em .jsx/.tsx — acessibilidade (IMPROVEMENTS-PLAN.md A11Y-10).
  *
@@ -27,7 +31,7 @@ const SERVICE_CLIENT_RESTRICTION = {
     {
       name: "@/server/db/service-client",
       message:
-        "service-client ignora a RLS. Só pode ser importado em server/pipeline, server/admin ou app/api/cron. Queries de usuário usam @/server/db/user-client.",
+        "service-client ignora a RLS. Só pode ser importado em server/pipeline, server/admin ou app/api/cron. Queries de usuário usam @/lib/supabase/server.",
     },
   ],
   patterns: [
@@ -67,6 +71,7 @@ export default tseslint.config(
         rules: {
           "no-secrets-in-client": noSecretsInClient,
           "no-raw-danger": noRawDanger,
+          "no-app-import-in-server": noAppImportInServer,
         },
       },
     },
@@ -97,6 +102,15 @@ export default tseslint.config(
     ],
     rules: {
       "no-restricted-imports": "off",
+    },
+  },
+  // Camadas: server/** é infraestrutura e não pode importar de app/**
+  // (apresentação). Vale para todo server/**, inclusive as pastas isoladas
+  // acima — isolamento de service-client é ortogonal a essa regra.
+  {
+    files: ["server/**"],
+    rules: {
+      "local/no-app-import-in-server": "error",
     },
   },
 );

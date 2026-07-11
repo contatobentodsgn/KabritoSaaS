@@ -3,6 +3,7 @@ import { z } from "zod";
 import { serverEnv } from "@/server/env";
 import { safeParseGenerated } from "@/server/pipeline/schemas";
 import type { AdaptInput } from "@/lib/validations/translate";
+import type { ActionResult } from "@/server/actions/types";
 
 /**
  * "Adaptar ao meu nicho" (Trend Translator) — geração SOB DEMANDA (MVP 2).
@@ -82,8 +83,7 @@ function mockAdaptation(i: AdaptInput): string {
   });
 }
 
-export type AdaptResult =
-  { ok: true; data: Adaptation } | { ok: false; error: string };
+export type AdaptResult = ActionResult<{ data: Adaptation }>;
 
 export async function adaptToNiche(input: AdaptInput): Promise<AdaptResult> {
   let raw: string;

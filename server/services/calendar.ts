@@ -3,6 +3,7 @@ import { z } from "zod";
 import { serverEnv } from "@/server/env";
 import { safeParseGenerated } from "@/server/pipeline/schemas";
 import type { CalendarInput } from "@/lib/validations/calendar";
+import type { ActionResult } from "@/server/actions/types";
 
 /**
  * "Calendário editorial" — geração SOB DEMANDA (MVP 2).
@@ -117,8 +118,7 @@ function mockCalendar(i: CalendarInput): string {
   });
 }
 
-export type CalendarResult =
-  { ok: true; data: Calendar } | { ok: false; error: string };
+export type CalendarResult = ActionResult<{ data: Calendar }>;
 
 export async function gerarCalendario(
   input: CalendarInput,

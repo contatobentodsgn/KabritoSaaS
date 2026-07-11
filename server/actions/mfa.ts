@@ -12,15 +12,18 @@ import {
 import { resetUserMfaById } from "@/server/admin/supabase-admin";
 import { consume } from "@/server/rate-limit";
 import { DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
+import { RATE_LIMIT_GENERIC } from "@/lib/messages";
+import type { ActionResult } from "@/server/actions/types";
 
-export type EnrollResult =
-  | { ok: true; factorId: string; qrCode: string; secret: string }
-  | { ok: false; error: string };
+export type EnrollResult = ActionResult<{
+  factorId: string;
+  qrCode: string;
+  secret: string;
+}>;
 
-export type MfaResult = { ok: true } | { ok: false; error: string };
+export type MfaResult = ActionResult;
 
-export type ConfirmEnrollResult =
-  { ok: true; recoveryCodes: string[] } | { ok: false; error: string };
+export type ConfirmEnrollResult = ActionResult<{ recoveryCodes: string[] }>;
 
 /**
  * Inicia a ativação do 2FA: cria um fator TOTP e devolve o QR + o segredo para
@@ -66,10 +69,7 @@ export async function confirmEnrollAction(
   if (!user) return { ok: false, error: "Não autenticado." };
   // Anti brute-force do código de 6 dígitos (não depende só do throttle do provedor).
   if (!(await consume("mfa_verify", user.id)).success) {
-    return {
-      ok: false,
-      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
-    };
+    return { ok: false, error: RATE_LIMIT_GENERIC };
   }
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({
@@ -116,10 +116,7 @@ export async function verifyLoginMfaAction(
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_ROUTE);
   if (!(await consume("mfa_verify", user.id)).success) {
-    return {
-      ok: false,
-      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
-    };
+    return { ok: false, error: RATE_LIMIT_GENERIC };
   }
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({
@@ -149,10 +146,7 @@ export async function verifyRecoveryCodeAction(
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_ROUTE);
   if (!(await consume("mfa_verify", user.id)).success) {
-    return {
-      ok: false,
-      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
-    };
+    return { ok: false, error: RATE_LIMIT_GENERIC };
   }
   const valid = await verifyRecoveryCode(user.id, code);
   if (!valid) {

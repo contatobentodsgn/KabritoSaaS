@@ -7,8 +7,46 @@ import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Features } from "@/components/landing/features";
 import { Trust } from "@/components/landing/trust";
-import { Faq } from "@/components/landing/faq";
+import { Faq, FAQS } from "@/components/landing/faq";
 import { Cta } from "@/components/landing/cta";
+import { Logo } from "@/components/layout/logo";
+
+// Mesmo fallback de produção do metadataBase em app/layout.tsx.
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://kabrito.vercel.app";
+
+// JSON-LD (SEO-4) — Organization + SoftwareApplication da landing, e o FAQPage
+// espelhando o accordion de FAQS abaixo (mesmas perguntas/respostas exibidas,
+// sem inventar dado que não está na página — ex.: sem `offers`/preço).
+const ORG_SOFTWARE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: "Kabrito",
+      url: APP_URL,
+      logo: `${APP_URL}/brand/logo-kabrito.svg`,
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "Kabrito",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: APP_URL,
+      description:
+        "Central diária de inteligência criativa para criadores de conteúdo e social media: pautas, copy, headlines e prompts — gerados por IA e revisados por humanos antes de publicar.",
+    },
+  ],
+};
+
+const FAQ_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
+};
 
 /** Landing page pública — hero editorial + seções de conversão (GSAP no scroll). */
 export default async function HomePage() {
@@ -26,6 +64,20 @@ export default async function HomePage() {
         }}
       />
 
+      {/* JSON-LD (SEO-4) — dado estático, sem entrada de usuário. */}
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(ORG_SOFTWARE_JSON_LD),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}
+      />
+
       {/* Topo fixo — CTA sempre ao alcance */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-6 py-4 sm:px-8">
@@ -34,16 +86,7 @@ export default async function HomePage() {
             aria-label="Kabrito · página inicial"
             className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <img
-              src="/brand/logo-kabrito.svg"
-              alt="Kabrito"
-              className="h-7 w-auto dark:hidden"
-            />
-            <img
-              src="/brand/logo-kabrito-inverse.svg"
-              alt="Kabrito"
-              className="hidden h-7 w-auto dark:block"
-            />
+            <Logo />
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />

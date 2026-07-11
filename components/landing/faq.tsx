@@ -1,6 +1,8 @@
 import { ChevronDown } from "lucide-react";
 
-const FAQS = [
+// Exportado pro JSON-LD (FAQPage) em app/page.tsx derivar das MESMAS
+// perguntas/respostas exibidas aqui — sem duplicar o conteúdo.
+export const FAQS = [
   {
     q: "Preciso de cartão para começar?",
     a: "Não. Você cria a conta e tem 14 dias grátis, sem cartão de crédito — depois, é só assinar o plano único.",

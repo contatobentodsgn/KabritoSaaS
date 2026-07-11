@@ -18,8 +18,8 @@ import { requireEnv } from "@/server/env";
  *     - app/api/cron/**      (cron jobs)
  *
  * O ESLint custom config BLOQUEIA o import deste módulo fora dessas pastas.
- * Queries de usuário final SEMPRE passam pelo cliente Supabase (JWT) para que
- * a RLS seja a rede de segurança real — ver server/db/user-client.ts.
+ * Queries de usuário final SEMPRE passam pelo cliente Supabase (JWT) via
+ * @/lib/supabase/server para que a RLS seja a rede de segurança real.
  *
  * `import "server-only"` impede qualquer bundling no client.
  */

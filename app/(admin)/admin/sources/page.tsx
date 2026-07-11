@@ -1,6 +1,7 @@
 import { listSources, listAllPlatforms } from "@/server/services/admin";
 import { canManagePipeline } from "@/server/permissions";
-import { createSource, createPlatform } from "@/server/actions/admin";
+import { createSource } from "@/server/actions/admin/sources";
+import { createPlatform } from "@/server/actions/admin/taxonomy";
 import { PageHeader } from "@/components/layout/page-header";
 import { CreateForm } from "@/components/admin/create-form";
 import { SourceToggle } from "@/components/admin/source-toggle";
