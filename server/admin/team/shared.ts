@@ -2,6 +2,7 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import { getServiceDbClient } from "@/server/db/service-client";
 import { organizationMembers } from "@/db/schema";
+import type { ActionResult } from "@/server/actions/types";
 
 /**
  * ============================================================================
@@ -24,7 +25,7 @@ import { organizationMembers } from "@/db/schema";
 
 export type MemberRole = "owner" | "admin" | "member";
 
-export type AdminResult = { ok: true } | { ok: false; error: string };
+export type AdminResult = ActionResult;
 
 export const NO_PERMISSION =
   "Sem permissão para gerenciar esta organização." as const;

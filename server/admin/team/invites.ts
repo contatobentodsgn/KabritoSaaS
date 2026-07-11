@@ -15,6 +15,9 @@ import {
   actorRole,
   isManager,
 } from "./shared";
+import type { ActionResult } from "@/server/actions/types";
+
+export type AcceptInviteResult = ActionResult<{ orgName: string }>;
 
 /* ===========================================================================
  * CONVITES por e-mail (pendências) — para quem ainda não tem conta Kabrito.
@@ -139,7 +142,7 @@ export async function getInviteByToken(
 export async function acceptInviteByToken(
   token: string,
   userId: string,
-): Promise<{ ok: true; orgName: string } | { ok: false; error: string }> {
+): Promise<AcceptInviteResult> {
   const db = getServiceDbClient();
   const invite = await getInviteByToken(token);
   if (!invite) return { ok: false, error: "Convite inválido ou expirado." };

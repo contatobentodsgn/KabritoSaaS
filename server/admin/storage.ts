@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminSupabase } from "@/server/admin/supabase-admin";
 import { serverEnv } from "@/server/env";
+import type { ActionResult } from "@/server/actions/types";
 
 /**
  * Upload de AVATAR (MVP 3+). Validação de MIME e tamanho (TECHNICAL_SPEC §11).
@@ -17,8 +18,7 @@ const ALLOWED_EXT: Record<string, string> = {
   "image/webp": "webp",
 };
 
-export type UploadResult =
-  { ok: true; url: string } | { ok: false; error: string };
+export type UploadResult = ActionResult<{ url: string }>;
 
 /**
  * Detecta o tipo real pela assinatura (magic bytes) — não confia no Content-Type

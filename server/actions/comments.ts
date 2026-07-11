@@ -9,8 +9,9 @@ import {
 } from "@/lib/validations/comments";
 import { notifyCommentParticipants } from "@/server/admin/notify";
 import { consume } from "@/server/rate-limit";
+import type { ActionResult } from "@/server/actions/types";
 
-export type CommentResult = { ok: true } | { ok: false; error: string };
+export type CommentResult = ActionResult;
 
 /**
  * Adiciona um comentário a uma edição. O user_id vem SEMPRE do contexto
