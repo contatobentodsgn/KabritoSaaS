@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/server/permissions";
 import { getMfaStatus } from "@/server/auth/mfa";
@@ -35,9 +36,12 @@ export default async function AdminLayout({
               href="/admin/review"
               className="flex items-center gap-3 transition-opacity hover:opacity-80"
             >
-              <img
+              <Image
                 src="/brand/logo-kabrito.svg"
                 alt="Kabrito"
+                width={220}
+                height={48}
+                priority
                 className="h-6 w-auto"
               />
               <span

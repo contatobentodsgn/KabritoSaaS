@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LandingReveal } from "@/components/landing/landing-reveal";
+import { Logo } from "@/components/layout/logo";
 
 /** Como funciona — 3 passos do fluxo real (automação-first, revisão humana). */
 const STEPS = [
@@ -156,16 +157,7 @@ export default async function HomePage() {
             aria-label="Kabrito · página inicial"
             className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <img
-              src="/brand/logo-kabrito.svg"
-              alt="Kabrito"
-              className="h-7 w-auto dark:hidden"
-            />
-            <img
-              src="/brand/logo-kabrito-inverse.svg"
-              alt="Kabrito"
-              className="hidden h-7 w-auto dark:block"
-            />
+            <Logo />
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />

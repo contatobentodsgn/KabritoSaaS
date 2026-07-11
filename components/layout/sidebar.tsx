@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -90,9 +91,11 @@ export function Sidebar({
       </nav>
       <div className="flex items-center gap-3 border-t border-border p-3">
         {avatarUrl ? (
-          <img
+          <Image
             src={avatarUrl}
             alt={name ?? email ?? "Avatar"}
+            width={36}
+            height={36}
             className="size-9 shrink-0 rounded-full object-cover"
           />
         ) : (
