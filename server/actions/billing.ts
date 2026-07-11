@@ -2,6 +2,7 @@
 
 import { getCurrentUser, getCurrentOrganization } from "@/server/auth/session";
 import { STRIPE_ENABLED, createCheckoutSession } from "@/server/admin/stripe";
+import type { ActionResult } from "@/server/actions/types";
 
 /**
  * Server Action de billing: inicia o Checkout do Stripe para a organização do
@@ -9,8 +10,7 @@ import { STRIPE_ENABLED, createCheckoutSession } from "@/server/admin/stripe";
  * §4) — nunca do frontend. Sem chaves, devolve erro gracioso (no-op).
  */
 
-export type CheckoutResult =
-  { ok: true; url: string } | { ok: false; error: string };
+export type CheckoutResult = ActionResult<{ url: string }>;
 
 export async function createCheckoutAction(
   billingCycle: "monthly" | "annual",
