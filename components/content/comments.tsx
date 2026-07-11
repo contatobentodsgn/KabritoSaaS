@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { addComment, deleteComment } from "@/server/actions/comments";
@@ -30,9 +31,11 @@ const dateFmt = new Intl.DateTimeFormat("pt-BR", {
 function CommentAvatar({ name, src }: { name: string; src: string | null }) {
   if (src) {
     return (
-      <img
+      <Image
         src={src}
         alt=""
+        width={32}
+        height={32}
         className="size-8 shrink-0 rounded-full object-cover"
       />
     );

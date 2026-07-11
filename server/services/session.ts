@@ -8,7 +8,7 @@ import { getClientMeta } from "@/lib/request";
 import { DEFAULT_DEVICE_LIMIT } from "@/lib/config";
 import { serverEnv } from "@/server/env";
 import { pickSessionsToRevoke } from "@/server/services/device-limit";
-import { acceptPendingInvites } from "@/server/admin/team";
+import { acceptPendingInvites } from "@/server/admin/team/invites";
 
 /**
  * Controle de SESSÃO por LIMITE DE DISPOSITIVOS (PROJECT §11, SECURITY_GUIDE §8).

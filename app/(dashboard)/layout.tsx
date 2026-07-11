@@ -7,6 +7,7 @@ import { isStaff } from "@/server/permissions";
 import { signOutAction } from "@/server/actions/auth";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -32,16 +33,7 @@ export default async function DashboardLayout({
       <aside className="hidden w-[248px] shrink-0 flex-col border-r border-border bg-mint-50 dark:bg-forest-950/40 md:flex">
         <div className="px-5 pb-3 pt-5">
           <Link href="/dashboard" aria-label="Kabrito">
-            <img
-              src="/brand/logo-kabrito.svg"
-              alt="Kabrito"
-              className="h-7 w-auto dark:hidden"
-            />
-            <img
-              src="/brand/logo-kabrito-inverse.svg"
-              alt="Kabrito"
-              className="hidden h-7 w-auto dark:block"
-            />
+            <Logo />
           </Link>
         </div>
         <Sidebar

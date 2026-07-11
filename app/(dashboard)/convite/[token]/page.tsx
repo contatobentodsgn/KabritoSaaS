@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getInviteByToken, type MemberRole } from "@/server/admin/team";
+import { getInviteByToken } from "@/server/admin/team/invites";
+import type { MemberRole } from "@/server/admin/team/shared";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

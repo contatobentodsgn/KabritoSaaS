@@ -9,11 +9,11 @@ import {
 } from "@/lib/validations/content";
 import { recordAudit } from "@/server/audit/log";
 import { AUDIT_ACTIONS } from "@/lib/constants";
+import type { ActionResult } from "@/server/actions/types";
 
-export type ToggleResult =
-  { ok: true; favorited: boolean } | { ok: false; error: string };
+export type ToggleResult = ActionResult<{ favorited: boolean }>;
 
-export type SetCollectionResult = { ok: true } | { ok: false; error: string };
+export type SetCollectionResult = ActionResult;
 
 /**
  * Liga/desliga um favorito. O user_id vem SEMPRE do contexto autenticado

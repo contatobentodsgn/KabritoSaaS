@@ -4,7 +4,8 @@ import {
   getCurrentOrganization,
   getCurrentOrgRole,
 } from "@/server/auth/session";
-import { listMembers, listPendingInvites } from "@/server/admin/team";
+import { listMembers } from "@/server/admin/team/members";
+import { listPendingInvites } from "@/server/admin/team/invites";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/content/empty-state";

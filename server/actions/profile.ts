@@ -6,9 +6,9 @@ import { getCurrentUser } from "@/server/auth/session";
 import { uploadAvatar } from "@/server/admin/storage";
 import { consume } from "@/server/rate-limit";
 import { RATE_LIMIT_GENERIC } from "@/lib/messages";
+import type { ActionResult } from "@/server/actions/types";
 
-export type AvatarResult =
-  { ok: true; url: string } | { ok: false; error: string };
+export type AvatarResult = ActionResult<{ url: string }>;
 
 /**
  * Atualiza o avatar do usuário. O upload (Storage) usa service-role isolado; a
