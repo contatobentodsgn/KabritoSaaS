@@ -9,7 +9,7 @@ import {
 } from "@/db/schema";
 import { slugify, shortSuffix } from "@/lib/utils/slug";
 import { ensureSinglePlan } from "@/server/admin/billing";
-import { acceptPendingInvites } from "@/server/admin/team";
+import { acceptPendingInvites } from "@/server/admin/team/invites";
 
 /**
  * Provisionamento pós-cadastro (ROADMAP Fase 1 item 2): cria, EM TRANSAÇÃO,

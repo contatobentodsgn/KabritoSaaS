@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import { moveDashboardCard } from "@/server/actions/admin";
+import { moveDashboardCard } from "@/server/actions/admin/dashboard-cards";
 import { cn } from "@/lib/utils/cn";
 
 const btn =

@@ -9,7 +9,7 @@ import {
   createTemplate,
   createNiche,
   createTag,
-} from "@/server/actions/admin";
+} from "@/server/actions/admin/taxonomy";
 import { PageHeader } from "@/components/layout/page-header";
 import { CreateForm } from "@/components/admin/create-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
