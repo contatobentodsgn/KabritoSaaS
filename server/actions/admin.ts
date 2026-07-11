@@ -24,6 +24,7 @@ import {
   EDITABLE_ITEM_TABLES,
 } from "@/lib/validations/admin";
 import type { FormState } from "@/server/actions/types";
+import type { Json } from "@/types/supabase";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 const forbidden = (): ActionResult => ({ ok: false, error: "Não autorizado." });
@@ -171,9 +172,13 @@ export async function updateItemField(input: unknown): Promise<ActionResult> {
     return { ok: false, error: "Campo não editável." };
 
   const supabase = await createClient();
+  // `field` é dinâmico (checado contra `allowed` acima, não uma coluna
+  // literal) — o Update tipado de nenhuma tabela cobre uma chave computada,
+  // então o `as never` é o escape hatch aqui; a whitelist é a rede de
+  // segurança real, não o tipo.
   const { error } = await supabase
     .from(table)
-    .update({ [field]: value })
+    .update({ [field]: value } as never)
     .eq("id", id);
   if (error) return { ok: false, error: "Falha ao editar item." };
   await recordAudit({
@@ -222,7 +227,7 @@ export async function createSource(
   if (!parsed.success)
     return { fieldErrors: parsed.error.flatten().fieldErrors };
 
-  let config: Record<string, unknown>;
+  let config: Json;
   try {
     config = JSON.parse(parsed.data.configJson || "{}");
     if (typeof config !== "object" || Array.isArray(config)) throw new Error();

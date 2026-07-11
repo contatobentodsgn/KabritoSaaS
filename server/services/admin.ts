@@ -6,6 +6,7 @@ import type {
   PromptCategoryRow,
   PromptTemplateRow,
 } from "@/types/content";
+import type { Database } from "@/types/supabase";
 
 /**
  * Leituras do ADMIN. Via cliente Supabase em contexto de STAFF: as policies
@@ -45,7 +46,9 @@ export async function listReviewQueue(): Promise<QueueEdition[]> {
 
   // Conta os 3 módulos principais em 3 queries (não N×M) e agrega em memória.
   const ids = editions.map((e) => e.id);
-  const tally = async (table: string): Promise<Map<string, number>> => {
+  const tally = async (
+    table: keyof Database["public"]["Tables"],
+  ): Promise<Map<string, number>> => {
     const { data } = await supabase
       .from(table)
       .select("edition_id")
