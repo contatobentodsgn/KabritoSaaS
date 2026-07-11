@@ -9,6 +9,11 @@ import {
   userSessions,
   orgInvites,
 } from "@/db/schema";
+import {
+  RAW_SIGNAL_RETENTION_DAYS,
+  LOG_RETENTION_DAYS,
+  ACCEPTED_INVITE_RETENTION_DAYS,
+} from "@/lib/config";
 
 /**
  * Ciclo de vida (PROJECT §2 estágio 5 / §10): rotina diária que aplica a
@@ -16,9 +21,6 @@ import {
  * Roda com service_role ISOLADO. A leitura já respeita a expiração via RLS
  * (is_edition_published checa content_expires_at > now) — aqui fazemos a limpeza.
  */
-const RAW_SIGNAL_RETENTION_DAYS = 7;
-const LOG_RETENTION_DAYS = 180; // LGPD: retenção limitada de logs (§10)
-const ACCEPTED_INVITE_RETENTION_DAYS = 30; // convite cumpriu a finalidade → expurga
 
 export interface LifecycleResult {
   archived: number;

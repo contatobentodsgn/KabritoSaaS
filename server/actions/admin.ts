@@ -23,10 +23,11 @@ import {
   templateSchema,
   EDITABLE_ITEM_TABLES,
 } from "@/lib/validations/admin";
+import { UNAUTHORIZED } from "@/lib/messages";
 import type { FormState } from "@/server/actions/types";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
-const forbidden = (): ActionResult => ({ ok: false, error: "Não autorizado." });
+const forbidden = (): ActionResult => ({ ok: false, error: UNAUTHORIZED });
 const csv = (s: string) =>
   s
     .split(",")
@@ -212,7 +213,7 @@ export async function createSource(
   _p: FormState,
   fd: FormData,
 ): Promise<FormState> {
-  if (!(await canManagePipeline())) return { error: "Não autorizado." };
+  if (!(await canManagePipeline())) return { error: UNAUTHORIZED };
   const parsed = sourceSchema.safeParse({
     name: fd.get("name"),
     type: fd.get("type"),
@@ -323,7 +324,7 @@ export async function createPlatform(
   _p: FormState,
   fd: FormData,
 ): Promise<FormState> {
-  if (!(await canReviewContent())) return { error: "Não autorizado." };
+  if (!(await canReviewContent())) return { error: UNAUTHORIZED };
   const parsed = platformSchema.safeParse({
     name: fd.get("name"),
     slug: fd.get("slug"),
@@ -346,7 +347,7 @@ export async function createNiche(
   _p: FormState,
   fd: FormData,
 ): Promise<FormState> {
-  if (!(await canReviewContent())) return { error: "Não autorizado." };
+  if (!(await canReviewContent())) return { error: UNAUTHORIZED };
   const parsed = nicheSchema.safeParse({
     name: fd.get("name"),
     slug: fd.get("slug"),
@@ -369,7 +370,7 @@ export async function createTag(
   _p: FormState,
   fd: FormData,
 ): Promise<FormState> {
-  if (!(await canReviewContent())) return { error: "Não autorizado." };
+  if (!(await canReviewContent())) return { error: UNAUTHORIZED };
   const parsed = tagSchema.safeParse({
     name: fd.get("name"),
     slug: fd.get("slug"),
@@ -389,7 +390,7 @@ export async function createCategory(
   _p: FormState,
   fd: FormData,
 ): Promise<FormState> {
-  if (!(await canReviewContent())) return { error: "Não autorizado." };
+  if (!(await canReviewContent())) return { error: UNAUTHORIZED };
   const parsed = categorySchema.safeParse({
     name: fd.get("name"),
     slug: fd.get("slug"),
@@ -412,7 +413,7 @@ export async function createTemplate(
   _p: FormState,
   fd: FormData,
 ): Promise<FormState> {
-  if (!(await canReviewContent())) return { error: "Não autorizado." };
+  if (!(await canReviewContent())) return { error: UNAUTHORIZED };
   const parsed = templateSchema.safeParse({
     categoryId: fd.get("categoryId"),
     title: fd.get("title"),

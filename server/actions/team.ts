@@ -27,6 +27,7 @@ import { sendInviteEmail } from "@/server/admin/notify";
 import { recordAudit } from "@/server/audit/log";
 import { consume } from "@/server/rate-limit";
 import { AUDIT_ACTIONS } from "@/lib/constants";
+import { RATE_LIMIT_GENERIC } from "@/lib/messages";
 
 /**
  * Server Actions do workspace de agência. Cada ação:
@@ -132,10 +133,7 @@ export async function acceptInviteAction(
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Entre para aceitar o convite." };
   if (!(await consume("invite_accept", user.id)).success) {
-    return {
-      ok: false,
-      error: "Muitas tentativas. Aguarde um minuto e tente de novo.",
-    };
+    return { ok: false, error: RATE_LIMIT_GENERIC };
   }
 
   const res = await acceptInviteByToken(parsed.data, user.id);

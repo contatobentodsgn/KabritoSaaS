@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -25,25 +24,13 @@ import { recordAudit } from "@/server/audit/log";
 import { consume, type RateLimitAction } from "@/server/rate-limit";
 import { serverEnv } from "@/server/env";
 import { AUDIT_ACTIONS, DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
+import { getClientMeta } from "@/lib/request";
+import { RATE_LIMIT_GENERIC } from "@/lib/messages";
 import type { FormState } from "@/server/actions/types";
 
-async function clientMeta(): Promise<{ ip: string; userAgent: string | null }> {
-  const h = await headers();
-  return {
-    ip:
-      h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      h.get("x-real-ip") ??
-      "unknown",
-    userAgent: h.get("user-agent"),
-  };
-}
-
-async function clientIp(): Promise<string> {
-  return (await clientMeta()).ip;
-}
-
 async function limited(action: RateLimitAction): Promise<boolean> {
-  const { success } = await consume(action, await clientIp());
+  const ip = (await getClientMeta()).ip ?? "unknown";
+  const { success } = await consume(action, ip);
   return !success;
 }
 
@@ -57,7 +44,7 @@ export async function signInAction(
   formData: FormData,
 ): Promise<FormState> {
   if (await limited("login")) {
-    return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+    return { error: RATE_LIMIT_GENERIC };
   }
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
@@ -79,10 +66,10 @@ export async function signInAction(
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
-    const meta = await clientMeta();
+    const meta = await getClientMeta();
     await recordFailedLogin({
       email: parsed.data.email,
-      ip: meta.ip,
+      ip: meta.ip ?? "unknown",
       userAgent: meta.userAgent,
     });
     return { error: "E-mail ou senha inválidos." };
@@ -98,10 +85,10 @@ export async function signInAction(
       .maybeSingle();
     if (prof?.deleted_at) {
       await supabase.auth.signOut();
-      const meta = await clientMeta();
+      const meta = await getClientMeta();
       await recordFailedLogin({
         email: parsed.data.email,
-        ip: meta.ip,
+        ip: meta.ip ?? "unknown",
         userAgent: meta.userAgent,
         reason: "account_deleted",
       });
@@ -119,7 +106,7 @@ export async function signUpAction(
   formData: FormData,
 ): Promise<FormState> {
   if (await limited("register")) {
-    return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+    return { error: RATE_LIMIT_GENERIC };
   }
   const parsed = registerSchema.safeParse({
     name: formData.get("name"),
@@ -194,7 +181,7 @@ export async function resendConfirmationAction(
   email: string,
 ): Promise<FormState> {
   if (await limited("register")) {
-    return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+    return { error: RATE_LIMIT_GENERIC };
   }
   if (!z.string().email().safeParse(email).success) {
     return { error: "E-mail inválido." };
@@ -218,7 +205,7 @@ export async function requestPasswordResetAction(
   formData: FormData,
 ): Promise<FormState> {
   if (await limited("password_reset")) {
-    return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+    return { error: RATE_LIMIT_GENERIC };
   }
   const parsed = resetRequestSchema.safeParse({ email: formData.get("email") });
   if (!parsed.success) {
@@ -244,7 +231,7 @@ export async function updatePasswordAction(
   formData: FormData,
 ): Promise<FormState> {
   if (await limited("password_reset")) {
-    return { error: "Muitas tentativas. Aguarde um minuto e tente de novo." };
+    return { error: RATE_LIMIT_GENERIC };
   }
   const parsed = newPasswordSchema.safeParse({
     password: formData.get("password"),
