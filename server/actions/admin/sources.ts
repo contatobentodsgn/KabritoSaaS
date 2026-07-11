@@ -8,6 +8,7 @@ import { sourceSchema } from "@/lib/validations/admin";
 import type { FormState } from "@/server/actions/types";
 import type { Json } from "@/types/supabase";
 import { type ActionResult, forbidden } from "./shared";
+import { UNAUTHORIZED } from "@/lib/messages";
 
 /* ===========================================================================
  * CRUD — fontes de ingestão (superadmin: canManagePipeline)
@@ -17,7 +18,7 @@ export async function createSource(
   _p: FormState,
   fd: FormData,
 ): Promise<FormState> {
-  if (!(await canManagePipeline())) return { error: "Não autorizado." };
+  if (!(await canManagePipeline())) return { error: UNAUTHORIZED };
   const parsed = sourceSchema.safeParse({
     name: fd.get("name"),
     type: fd.get("type"),
