@@ -27,9 +27,6 @@ export const AUTH_ROUTES = ["/login", "/register"] as const;
 export const DEFAULT_REDIRECT = "/dashboard";
 export const LOGIN_ROUTE = "/login";
 
-/** Limite de dispositivos ativos por usuário (seção 11). Configurável via env. */
-export const DEFAULT_DEVICE_LIMIT = 2;
-
 /** Cookie httpOnly que identifica o dispositivo (controle de sessão). */
 export const DEVICE_COOKIE_NAME = "device_id";
 

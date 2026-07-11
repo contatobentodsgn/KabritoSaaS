@@ -1,9 +1,11 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { createHash, randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { recordAudit } from "@/server/audit/log";
 import { AUDIT_ACTIONS, DEVICE_COOKIE_NAME } from "@/lib/constants";
+import { getClientMeta } from "@/lib/request";
+import { DEFAULT_DEVICE_LIMIT } from "@/lib/config";
 import { serverEnv } from "@/server/env";
 import { pickSessionsToRevoke } from "@/server/services/device-limit";
 import { acceptPendingInvites } from "@/server/admin/team/invites";
@@ -15,17 +17,6 @@ import { acceptPendingInvites } from "@/server/admin/team/invites";
  * Login no dispositivo N+1 revoga o mais antigo. Cada login/revogação → access_logs.
  */
 export const DEVICE_COOKIE = DEVICE_COOKIE_NAME;
-
-async function requestMeta() {
-  const h = await headers();
-  return {
-    userAgent: h.get("user-agent") ?? null,
-    ip:
-      h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      h.get("x-real-ip") ??
-      null,
-  };
-}
 
 export async function getOrCreateDeviceId(): Promise<string> {
   const store = await cookies();
@@ -49,7 +40,8 @@ async function enforceDeviceLimit(
   userId: string,
   supabase: SupabaseClient,
 ): Promise<void> {
-  const limit = serverEnv.DEVICE_LIMIT > 0 ? serverEnv.DEVICE_LIMIT : 2;
+  const limit =
+    serverEnv.DEVICE_LIMIT > 0 ? serverEnv.DEVICE_LIMIT : DEFAULT_DEVICE_LIMIT;
   const { data: active } = await supabase
     .from("user_sessions")
     .select("id, last_seen_at")
@@ -86,7 +78,7 @@ export async function recordLogin(userId: string): Promise<void> {
   try {
     const supabase = await createClient();
     const deviceId = await getOrCreateDeviceId();
-    const { userAgent, ip } = await requestMeta();
+    const { userAgent, ip } = await getClientMeta();
     const tokenHash = hashToken(`${userId}:${deviceId}`);
 
     const { data: existing } = await supabase
@@ -147,7 +139,7 @@ export async function recordLogout(userId: string): Promise<void> {
     const supabase = await createClient();
     const store = await cookies();
     const deviceId = store.get(DEVICE_COOKIE)?.value;
-    const { userAgent, ip } = await requestMeta();
+    const { userAgent, ip } = await getClientMeta();
     if (deviceId) {
       await supabase
         .from("user_sessions")
@@ -169,7 +161,8 @@ export async function recordLogout(userId: string): Promise<void> {
 /** Quantidade de dispositivos ativos do usuário está dentro do limite? */
 export async function withinDeviceLimit(userId: string): Promise<boolean> {
   const supabase = await createClient();
-  const limit = serverEnv.DEVICE_LIMIT > 0 ? serverEnv.DEVICE_LIMIT : 2;
+  const limit =
+    serverEnv.DEVICE_LIMIT > 0 ? serverEnv.DEVICE_LIMIT : DEFAULT_DEVICE_LIMIT;
   const { count } = await supabase
     .from("user_sessions")
     .select("id", { count: "exact", head: true })

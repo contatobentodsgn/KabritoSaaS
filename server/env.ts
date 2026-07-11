@@ -1,5 +1,6 @@
 import "server-only";
 import { numEnv } from "@/lib/parse-num";
+import { DEFAULT_DEVICE_LIMIT } from "@/lib/config";
 
 /**
  * Acesso centralizado aos SEGREDOS DE SERVIDOR.
@@ -35,7 +36,7 @@ export const serverEnv = {
   EMAIL_FROM:
     process.env.EMAIL_FROM ?? "Inteligência Criativa <digest@example.com>",
   SENTRY_DSN: process.env.SENTRY_DSN,
-  DEVICE_LIMIT: numEnv(process.env.DEVICE_LIMIT, 2),
+  DEVICE_LIMIT: numEnv(process.env.DEVICE_LIMIT, DEFAULT_DEVICE_LIMIT),
   APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   // Stripe (MVP 3) — billing real. Vazio = billing desligado (concessão manual).
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
