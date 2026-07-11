@@ -2,19 +2,16 @@ import { listRuns } from "@/server/services/admin";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/content/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge, type StatusMapEntry } from "@/components/ui/status-badge";
 
 export const metadata = { title: "Runs & custo · Admin" };
 
-const RUN_VARIANT: Record<
-  string,
-  "success" | "warning" | "destructive" | "secondary"
-> = {
-  completed: "success",
-  failed: "destructive",
-  generating: "warning",
-  ingesting: "warning",
-  started: "secondary",
+const RUN_STATUS: Record<string, StatusMapEntry> = {
+  completed: { label: "completed", variant: "success" },
+  failed: { label: "failed", variant: "destructive" },
+  generating: { label: "generating", variant: "warning" },
+  ingesting: { label: "ingesting", variant: "warning" },
+  started: { label: "started", variant: "secondary" },
 };
 
 export default async function RunsPage() {
@@ -58,9 +55,7 @@ export default async function RunsPage() {
                     >
                       <td className="p-3">{r.edition_date}</td>
                       <td className="p-3">
-                        <Badge variant={RUN_VARIANT[r.status] ?? "secondary"}>
-                          {r.status}
-                        </Badge>
+                        <StatusBadge status={r.status} map={RUN_STATUS} />
                       </td>
                       <td className="p-3 text-muted-foreground">
                         {r.model_used ?? "—"}{" "}
