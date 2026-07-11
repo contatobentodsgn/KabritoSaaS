@@ -6,7 +6,7 @@ import { recordAudit } from "@/server/audit/log";
 import { AUDIT_ACTIONS, DEVICE_COOKIE_NAME } from "@/lib/constants";
 import { serverEnv } from "@/server/env";
 import { pickSessionsToRevoke } from "@/server/services/device-limit";
-import { acceptPendingInvites } from "@/server/admin/team";
+import { acceptPendingInvites } from "@/server/admin/team/invites";
 
 /**
  * Controle de SESSÃO por LIMITE DE DISPOSITIVOS (PROJECT §11, SECURITY_GUIDE §8).

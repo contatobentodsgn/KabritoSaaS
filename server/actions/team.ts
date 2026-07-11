@@ -17,12 +17,14 @@ import {
 import {
   findUserIdByEmail,
   addMemberById,
+  setMemberRole,
+  removeMember,
+} from "@/server/admin/team/members";
+import {
   createInvite,
   cancelInvite,
   acceptInviteByToken,
-  setMemberRole,
-  removeMember,
-} from "@/server/admin/team";
+} from "@/server/admin/team/invites";
 import { sendInviteEmail } from "@/server/admin/notify";
 import { recordAudit } from "@/server/audit/log";
 import { consume } from "@/server/rate-limit";
