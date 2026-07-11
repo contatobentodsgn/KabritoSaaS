@@ -6,9 +6,8 @@ import {
   getCurrentUser,
   getCurrentProfile,
   getCurrentOrganization,
-  getCurrentOrgRole,
 } from "@/server/auth/session";
-import { requireAal2 } from "@/server/auth/mfa";
+import { requireManager } from "@/server/permissions";
 import {
   addMemberSchema,
   setRoleSchema,
@@ -39,30 +38,6 @@ import { AUDIT_ACTIONS } from "@/lib/constants";
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
 const TEAM_PATH = "/settings/equipe";
-
-/** Garante owner|admin (+ AAL2 se aplicável) e devolve o orgId do contexto. */
-async function requireManager(): Promise<
-  { ok: true; orgId: string; userId: string } | { ok: false; error: string }
-> {
-  const user = await getCurrentUser();
-  if (!user) return { ok: false, error: "Não autenticado." };
-
-  const aal2 = await requireAal2();
-  if (!aal2.ok) return aal2;
-
-  const org = await getCurrentOrganization();
-  if (!org) return { ok: false, error: "Nenhum workspace ativo." };
-
-  const role = await getCurrentOrgRole();
-  if (role !== "owner" && role !== "admin") {
-    return {
-      ok: false,
-      error: "Você não tem permissão para gerenciar a equipe.",
-    };
-  }
-
-  return { ok: true, orgId: org.id, userId: user.id };
-}
 
 export type InviteResult =
   { ok: true; status: "added" | "invited" } | { ok: false; error: string };

@@ -4,7 +4,9 @@ import {
   getCurrentUser,
   getCurrentProfile,
   getCurrentOrganization,
+  getCurrentOrgRole,
 } from "@/server/auth/session";
+import { requireAal2 } from "@/server/auth/mfa";
 import { DEFAULT_REDIRECT } from "@/lib/constants";
 import type { ContentEdition, Subscription, StaffRole } from "@/types";
 
@@ -74,6 +76,24 @@ export function canReadEdition(
 }
 
 /* --------------------------------------------------------------------------
+ * Guard genérico (gerente/staff): um resolver de contexto vira, de graça,
+ * uma versão boolean ("check") e uma versão "require" (early-return com erro
+ * padronizado `{ok:false; error}`). Unifica os dois padrões que existiam
+ * soltos em arquivos diferentes (canReviewContent / requireManager).
+ * ------------------------------------------------------------------------ */
+type GuardFailure = { ok: false; error: string };
+type GuardResolution<T> = ({ ok: true } & T) | GuardFailure;
+
+function defineGuard<T>(resolve: () => Promise<GuardResolution<T>>) {
+  return {
+    require: resolve,
+    async check(): Promise<boolean> {
+      return (await resolve()).ok;
+    },
+  };
+}
+
+/* --------------------------------------------------------------------------
  * Staff (equipe interna) — editor / superadmin
  * ------------------------------------------------------------------------ */
 export async function getStaffRole(): Promise<StaffRole | null> {
@@ -85,10 +105,16 @@ export async function isStaff(): Promise<boolean> {
   return (await getStaffRole()) !== null;
 }
 
-export async function canReviewContent(): Promise<boolean> {
+const reviewerGuard = defineGuard<{ role: StaffRole }>(async () => {
   const role = await getStaffRole();
-  return role === "editor" || role === "superadmin";
-}
+  if (role !== "editor" && role !== "superadmin") {
+    return { ok: false, error: "Não autorizado." };
+  }
+  return { ok: true, role };
+});
+
+/** Papel pode revisar conteúdo (editor/superadmin) — versão boolean. */
+export const canReviewContent = reviewerGuard.check;
 
 export async function canManagePipeline(): Promise<boolean> {
   return (await getStaffRole()) === "superadmin";
@@ -115,3 +141,32 @@ export async function requireSuperadmin(): Promise<void> {
   const role = await requireStaff();
   if (role !== "superadmin") redirect(DEFAULT_REDIRECT);
 }
+
+/* --------------------------------------------------------------------------
+ * Gerente de organização (owner/admin) — workspace de agência
+ * ------------------------------------------------------------------------ */
+const managerGuard = defineGuard<{ orgId: string; userId: string }>(
+  async () => {
+    const user = await getCurrentUser();
+    if (!user) return { ok: false, error: "Não autenticado." };
+
+    const aal2 = await requireAal2();
+    if (!aal2.ok) return aal2;
+
+    const org = await getCurrentOrganization();
+    if (!org) return { ok: false, error: "Nenhum workspace ativo." };
+
+    const role = await getCurrentOrgRole();
+    if (role !== "owner" && role !== "admin") {
+      return {
+        ok: false,
+        error: "Você não tem permissão para gerenciar a equipe.",
+      };
+    }
+
+    return { ok: true, orgId: org.id, userId: user.id };
+  },
+);
+
+/** Exige owner|admin (+ AAL2) na org do ator; devolve o orgId/userId do contexto. */
+export const requireManager = managerGuard.require;
