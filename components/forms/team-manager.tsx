@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -48,6 +48,16 @@ export function TeamManager({
   const [pending, start] = useTransition();
   const [email, setEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"admin" | "member">("member");
+  const [memberQuery, setMemberQuery] = useState("");
+  const filteredMembers = useMemo(() => {
+    const q = memberQuery.trim().toLowerCase();
+    if (!q) return members;
+    return members.filter(
+      (m) =>
+        (m.name ?? "").toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q),
+    );
+  }, [members, memberQuery]);
 
   function onInvite(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -119,63 +129,85 @@ export function TeamManager({
         <CardHeader>
           <CardTitle className="text-base">Membros</CardTitle>
         </CardHeader>
+        {members.length > 5 && (
+          <CardContent className="pb-0 pt-0">
+            <Input
+              value={memberQuery}
+              onChange={(e) => setMemberQuery(e.target.value)}
+              placeholder="Buscar por nome ou e-mail..."
+              aria-label="Buscar membros"
+            />
+          </CardContent>
+        )}
         <CardContent className="p-0">
-          <ul className="divide-y">
-            {members.map((m) => {
-              const isOwner = m.role === "owner";
-              return (
-                <li
-                  key={m.userId}
-                  className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {m.name ?? "—"}
-                    </p>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {m.email}
-                    </p>
-                  </div>
+          {filteredMembers.length === 0 && members.length > 0 ? (
+            <p className="px-6 py-6 text-center text-sm text-muted-foreground">
+              Nenhum membro corresponde a "{memberQuery}".
+            </p>
+          ) : (
+            <ul className="divide-y">
+              {filteredMembers.map((m) => {
+                const isOwner = m.role === "owner";
+                return (
+                  <li
+                    key={m.userId}
+                    className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {m.name ?? "—"}
+                      </p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        {m.email}
+                      </p>
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    {canManage && !isOwner ? (
-                      <>
-                        <Label htmlFor={`role-${m.userId}`} className="sr-only">
-                          Papel
-                        </Label>
-                        <select
-                          id={`role-${m.userId}`}
-                          className={selectCls}
-                          value={m.role}
-                          disabled={pending}
-                          onChange={(e) =>
-                            onChangeRole(m.userId, e.target.value as MemberRole)
-                          }
-                        >
-                          <option value="admin">Administrador</option>
-                          <option value="member">Membro</option>
-                        </select>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          type="button"
-                          disabled={pending}
-                          aria-label={`Remover ${m.email}`}
-                          onClick={() => onRemove(m)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </>
-                    ) : (
-                      <Badge variant={ROLE_BADGE[m.role]}>
-                        {ROLE_LABEL[m.role]}
-                      </Badge>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                    <div className="flex items-center gap-2">
+                      {canManage && !isOwner ? (
+                        <>
+                          <Label
+                            htmlFor={`role-${m.userId}`}
+                            className="sr-only"
+                          >
+                            Papel
+                          </Label>
+                          <select
+                            id={`role-${m.userId}`}
+                            className={selectCls}
+                            value={m.role}
+                            disabled={pending}
+                            onChange={(e) =>
+                              onChangeRole(
+                                m.userId,
+                                e.target.value as MemberRole,
+                              )
+                            }
+                          >
+                            <option value="admin">Administrador</option>
+                            <option value="member">Membro</option>
+                          </select>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            type="button"
+                            disabled={pending}
+                            aria-label={`Remover ${m.email}`}
+                            onClick={() => onRemove(m)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <Badge variant={ROLE_BADGE[m.role]}>
+                          {ROLE_LABEL[m.role]}
+                        </Badge>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </CardContent>
       </Card>
 
