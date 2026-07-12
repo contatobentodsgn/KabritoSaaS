@@ -15,7 +15,11 @@ export const CALENDAR_GOAL_OPTIONS = [
 ] as const;
 
 export const calendarInputSchema = z.object({
-  niche: z.string().trim().min(2, "Informe seu nicho").max(60),
+  niche: z
+    .string()
+    .trim()
+    .min(2, "Informe seu nicho")
+    .max(60, "Máximo de 60 caracteres"),
   platform: z.enum(CALENDAR_PLATFORM_OPTIONS),
   days: z.coerce.number().int().min(3).max(7).default(5),
   goal: z.enum(CALENDAR_GOAL_OPTIONS).default("engajar"),

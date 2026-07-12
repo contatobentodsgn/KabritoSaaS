@@ -17,7 +17,11 @@ export const FORMAT_OPTIONS = [
 ] as const;
 
 export const adaptInputSchema = z.object({
-  niche: z.string().trim().min(2, "Informe seu nicho").max(60),
+  niche: z
+    .string()
+    .trim()
+    .min(2, "Informe seu nicho")
+    .max(60, "Máximo de 60 caracteres"),
   source: z
     .string()
     .trim()

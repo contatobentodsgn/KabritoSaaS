@@ -7,6 +7,7 @@ import {
   favoriteSchema,
   favoriteCollectionSchema,
 } from "@/lib/validations/content";
+import { zodErrorMessage } from "@/server/actions/zod-error";
 import { recordAudit } from "@/server/audit/log";
 import { AUDIT_ACTIONS } from "@/lib/constants";
 import type { ActionResult } from "@/server/actions/types";
@@ -21,7 +22,8 @@ export type SetCollectionResult = ActionResult;
  */
 export async function toggleFavorite(input: unknown): Promise<ToggleResult> {
   const parsed = favoriteSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
@@ -77,7 +79,8 @@ export async function setFavoriteCollection(
   input: unknown,
 ): Promise<SetCollectionResult> {
   const parsed = favoriteCollectionSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };

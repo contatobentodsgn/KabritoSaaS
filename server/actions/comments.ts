@@ -7,6 +7,7 @@ import {
   commentInputSchema,
   deleteCommentSchema,
 } from "@/lib/validations/comments";
+import { zodErrorMessage } from "@/server/actions/zod-error";
 import { notifyCommentParticipants } from "@/server/admin/notify";
 import { consume } from "@/server/rate-limit";
 import type { ActionResult } from "@/server/actions/types";
@@ -20,7 +21,8 @@ export type CommentResult = ActionResult;
  */
 export async function addComment(input: unknown): Promise<CommentResult> {
   const parsed = commentInputSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
@@ -58,7 +60,8 @@ export async function addComment(input: unknown): Promise<CommentResult> {
  */
 export async function deleteComment(input: unknown): Promise<CommentResult> {
   const parsed = deleteCommentSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };

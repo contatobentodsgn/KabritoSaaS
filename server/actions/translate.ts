@@ -5,6 +5,7 @@ import { hasActiveSubscription } from "@/server/permissions";
 import { consume } from "@/server/rate-limit";
 import { recordAudit } from "@/server/audit/log";
 import { adaptInputSchema } from "@/lib/validations/translate";
+import { zodErrorMessage } from "@/server/actions/zod-error";
 import { adaptToNiche, type AdaptResult } from "@/server/services/translate";
 import { AUDIT_ACTIONS } from "@/lib/constants";
 
@@ -32,7 +33,8 @@ export async function adaptAction(input: unknown): Promise<AdaptResult> {
   }
 
   const parsed = adaptInputSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const result = await adaptToNiche(parsed.data);
   if (result.ok) {
