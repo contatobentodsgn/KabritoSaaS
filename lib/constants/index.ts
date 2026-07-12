@@ -61,6 +61,7 @@ export const AUDIT_ACTIONS = {
   CONTENT_EDITED: "content.edited",
   CONTENT_PUBLISHED: "content.published",
   CONTENT_REJECTED: "content.rejected",
+  CONTENT_REJECTION_UNDONE: "content.rejection_undone",
   CONTENT_ARCHIVED: "content.archived",
   CONTENT_DELETED: "content.deleted",
   FAVORITE_ADDED: "favorite.added",
