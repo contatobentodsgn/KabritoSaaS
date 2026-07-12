@@ -153,7 +153,11 @@ export function QuickAccess({
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((c) => (
-        <Link key={c.cardKey} href={c.href} className="group">
+        <Link
+          key={c.cardKey}
+          href={c.href}
+          className="group rounded-lg k-focus"
+        >
           <Card className="h-full transition-shadow duration-150 hover:shadow-k-1">
             <CardContent className="flex h-full flex-col gap-3 py-md">
               <span className="flex size-10 items-center justify-center rounded-full bg-forest-50 dark:bg-forest-900 text-forest-700 dark:text-forest-200">

@@ -51,7 +51,7 @@ export function PlatformSwitcher({
             aria-selected={active}
             onClick={() => select(slug)}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              "rounded-full px-4 py-1.5 text-sm font-medium k-transition k-focus",
               active
                 ? "bg-forest-700 text-white"
                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
