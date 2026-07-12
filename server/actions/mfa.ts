@@ -12,7 +12,7 @@ import {
 import { resetUserMfaById } from "@/server/admin/supabase-admin";
 import { consume } from "@/server/rate-limit";
 import { DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
-import { RATE_LIMIT_GENERIC } from "@/lib/messages";
+import { rateLimitMessage } from "@/lib/messages";
 import type { ActionResult } from "@/server/actions/types";
 
 export type EnrollResult = ActionResult<{
@@ -68,8 +68,9 @@ export async function confirmEnrollAction(
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
   // Anti brute-force do código de 6 dígitos (não depende só do throttle do provedor).
-  if (!(await consume("mfa_verify", user.id)).success) {
-    return { ok: false, error: RATE_LIMIT_GENERIC };
+  const rl = await consume("mfa_verify", user.id);
+  if (!rl.success) {
+    return { ok: false, error: rateLimitMessage(rl.resetAt) };
   }
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({
@@ -115,8 +116,9 @@ export async function verifyLoginMfaAction(
 ): Promise<MfaResult> {
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_ROUTE);
-  if (!(await consume("mfa_verify", user.id)).success) {
-    return { ok: false, error: RATE_LIMIT_GENERIC };
+  const rl = await consume("mfa_verify", user.id);
+  if (!rl.success) {
+    return { ok: false, error: rateLimitMessage(rl.resetAt) };
   }
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({
@@ -145,8 +147,9 @@ export async function verifyRecoveryCodeAction(
 ): Promise<MfaResult> {
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_ROUTE);
-  if (!(await consume("mfa_verify", user.id)).success) {
-    return { ok: false, error: RATE_LIMIT_GENERIC };
+  const rl = await consume("mfa_verify", user.id);
+  if (!rl.success) {
+    return { ok: false, error: rateLimitMessage(rl.resetAt) };
   }
   const valid = await verifyRecoveryCode(user.id, code);
   if (!valid) {

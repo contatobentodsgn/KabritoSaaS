@@ -25,13 +25,14 @@ import { consume, type RateLimitAction } from "@/server/rate-limit";
 import { serverEnv } from "@/server/env";
 import { AUDIT_ACTIONS, DEFAULT_REDIRECT, LOGIN_ROUTE } from "@/lib/constants";
 import { getClientMeta } from "@/lib/request";
-import { RATE_LIMIT_GENERIC } from "@/lib/messages";
+import { rateLimitMessage } from "@/lib/messages";
 import type { FormState } from "@/server/actions/types";
 
-async function limited(action: RateLimitAction): Promise<boolean> {
+/** Null se dentro do limite; senão o `resetAt` (epoch ms) do bucket estourado. */
+async function limited(action: RateLimitAction): Promise<number | null> {
   const ip = (await getClientMeta()).ip ?? "unknown";
-  const { success } = await consume(action, ip);
-  return !success;
+  const { success, resetAt } = await consume(action, ip);
+  return success ? null : resetAt;
 }
 
 /**
@@ -43,8 +44,9 @@ export async function signInAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  if (await limited("login")) {
-    return { error: RATE_LIMIT_GENERIC };
+  const loginResetAt = await limited("login");
+  if (loginResetAt) {
+    return { error: rateLimitMessage(loginResetAt) };
   }
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
@@ -105,8 +107,9 @@ export async function signUpAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  if (await limited("register")) {
-    return { error: RATE_LIMIT_GENERIC };
+  const registerResetAt = await limited("register");
+  if (registerResetAt) {
+    return { error: rateLimitMessage(registerResetAt) };
   }
   const parsed = registerSchema.safeParse({
     name: formData.get("name"),
@@ -174,23 +177,30 @@ export async function signUpAction(
 }
 
 /**
- * Reenvia o e-mail de confirmação de cadastro. Rate-limited; anti-enumeração
- * (resposta sempre igual). Usado no estado de sucesso do cadastro.
+ * Reenvia o e-mail de confirmação de cadastro. Rate-limited em bucket PRÓPRIO
+ * (UX-1) — separado do "register" para o botão de reenvio ter um cooldown
+ * previsível (1/60s) em vez de brigar pela cota de tentativas de cadastro.
+ * Devolve `resetAt` em sucesso E falha para o formulário renderizar o
+ * contador. Anti-enumeração: resposta sempre igual.
  */
 export async function resendConfirmationAction(
   email: string,
 ): Promise<FormState> {
-  if (await limited("register")) {
-    return { error: RATE_LIMIT_GENERIC };
-  }
   if (!z.string().email().safeParse(email).success) {
     return { error: "E-mail inválido." };
+  }
+  const ip = (await getClientMeta()).ip ?? "unknown";
+  const rl = await consume("resend_confirmation", ip);
+  if (!rl.success) {
+    return { error: rateLimitMessage(rl.resetAt), email, resetAt: rl.resetAt };
   }
   const supabase = await createClient();
   // Erros silenciados de propósito (não vazar existência/estado da conta).
   await supabase.auth.resend({ type: "signup", email });
   return {
     ok: true,
+    email,
+    resetAt: rl.resetAt,
     message: "Link reenviado. Confira sua caixa de entrada (e o spam).",
   };
 }
@@ -204,8 +214,9 @@ export async function requestPasswordResetAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  if (await limited("password_reset")) {
-    return { error: RATE_LIMIT_GENERIC };
+  const resetRequestResetAt = await limited("password_reset");
+  if (resetRequestResetAt) {
+    return { error: rateLimitMessage(resetRequestResetAt) };
   }
   const parsed = resetRequestSchema.safeParse({ email: formData.get("email") });
   if (!parsed.success) {
@@ -230,8 +241,9 @@ export async function updatePasswordAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  if (await limited("password_reset")) {
-    return { error: RATE_LIMIT_GENERIC };
+  const updatePasswordResetAt = await limited("password_reset");
+  if (updatePasswordResetAt) {
+    return { error: rateLimitMessage(updatePasswordResetAt) };
   }
   const parsed = newPasswordSchema.safeParse({
     password: formData.get("password"),
