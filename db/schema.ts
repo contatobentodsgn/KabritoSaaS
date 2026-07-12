@@ -350,6 +350,12 @@ export const rawSignals = pgTable("raw_signals", {
  * C) DADOS DE USUÁRIO / CONTA — ESCOPADO
  * =========================================================================== */
 
+/** Preferências de UI do usuário — tudo opcional, cliente decide os defaults. */
+export interface UserPreferences {
+  theme?: "light" | "dark" | "system";
+  onboardingSteps?: string[]; // ids dos passos do checklist já completados
+}
+
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().unique(), // -> auth.users (sem FK gerenciada)
@@ -358,6 +364,10 @@ export const profiles = pgTable("profiles", {
   avatarUrl: text("avatar_url"),
   staffRole: staffRole("staff_role"), // null = assinante comum
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  preferences: jsonb("preferences")
+    .$type<UserPreferences>()
+    .notNull()
+    .default({}),
   ...ts,
 });
 
