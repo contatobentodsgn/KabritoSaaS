@@ -5,6 +5,7 @@ import { hasActiveSubscription } from "@/server/permissions";
 import { consume } from "@/server/rate-limit";
 import { recordAudit } from "@/server/audit/log";
 import { calendarInputSchema } from "@/lib/validations/calendar";
+import { zodErrorMessage } from "@/server/actions/zod-error";
 import {
   gerarCalendario,
   type CalendarResult,
@@ -40,7 +41,8 @@ export async function generateCalendarAction(
   }
 
   const parsed = calendarInputSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const result = await gerarCalendario(parsed.data);
   if (result.ok) {

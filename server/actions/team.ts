@@ -13,6 +13,7 @@ import {
   setRoleSchema,
   removeSchema,
 } from "@/lib/validations/team";
+import { zodErrorMessage } from "@/server/actions/zod-error";
 import {
   findUserIdByEmail,
   addMemberById,
@@ -53,7 +54,8 @@ export type InviteResult = ActionResult<{ status: "added" | "invited" }>;
  */
 export async function addMemberAction(input: unknown): Promise<InviteResult> {
   const parsed = addMemberSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
@@ -133,7 +135,8 @@ export async function cancelInviteAction(
   input: unknown,
 ): Promise<ActionResult> {
   const parsed = z.object({ inviteId: z.string().uuid() }).safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
@@ -155,7 +158,8 @@ export async function setMemberRoleAction(
   input: unknown,
 ): Promise<ActionResult> {
   const parsed = setRoleSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
@@ -189,7 +193,8 @@ export async function removeMemberAction(
   input: unknown,
 ): Promise<ActionResult> {
   const parsed = removeSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
 
   const ctx = await requireManager();
   if (!ctx.ok) return ctx;
