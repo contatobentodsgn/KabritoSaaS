@@ -51,6 +51,7 @@ export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
     avatarUrl: r.avatar_url,
     staffRole: r.staff_role ?? null,
     deletedAt: r.deleted_at ?? null,
+    preferences: r.preferences ?? {},
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   } as Profile;

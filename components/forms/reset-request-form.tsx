@@ -54,7 +54,7 @@ export function ResetRequestForm() {
         Lembrou a senha?{" "}
         <Link
           href="/login"
-          className="font-medium text-foreground underline-offset-4 transition-colors duration-150 hover:text-forest-800 dark:hover:text-forest-100 hover:underline"
+          className="font-medium text-foreground underline-offset-4 k-transition hover:text-forest-800 dark:hover:text-forest-100 hover:underline k-focus"
         >
           Voltar ao login
         </Link>

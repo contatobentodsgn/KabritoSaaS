@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Heart } from "lucide-react";
 import { requireActiveSubscription } from "@/server/permissions";
 import {
   getFavoritedContent,
@@ -51,6 +52,7 @@ export default async function FavoritesPage({
           description="Seus itens salvos, só seus."
         />
         <EmptyState
+          icon={Heart}
           title="Nada salvo ainda"
           description="Toque no coração em qualquer pauta, headline, copy ou prompt para salvar aqui."
         />

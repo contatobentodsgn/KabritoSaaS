@@ -1,45 +1,73 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Sparkles, X } from "lucide-react";
+import { Sparkles, X, CheckCircle2, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { dismissOnboardingAction } from "@/server/actions/profile";
 
-const ONBOARDED_KEY = "kabrito-onboarded";
+interface Step {
+  id: string;
+  label: string;
+  done: boolean;
+  href: string;
+  cta: string;
+}
 
 /**
- * Boas-vindas do primeiro acesso. O assinante recém-pago cai num dashboard que
- * pode parecer "à espera" — aqui explicamos o ritmo (automation-first, revisão
- * humana) e damos 2 atalhos calmos. Dispensável (flag em localStorage), dep-free.
+ * Checklist do primeiro acesso (UX-3) — 2FA e avatar são DERIVADOS de dados
+ * reais (não persistidos por conta própria); "visualizar a 1ª edição" ficou
+ * fora de propósito (exigiria inventar um tracking novo só pra isso). Some
+ * sozinho quando os 2 passos estão completos; "Entendi"/X dispensa manualmente
+ * mesmo com passos pendentes (persistido em preferences.onboardingDismissed).
  */
-export function OnboardingWelcome({ name }: { name: string }) {
-  const [show, setShow] = useState(false);
+export function OnboardingWelcome({
+  name,
+  mfaEnrolled,
+  hasAvatar,
+  dismissedInitially,
+}: {
+  name: string;
+  mfaEnrolled: boolean;
+  hasAvatar: boolean;
+  dismissedInitially: boolean;
+}) {
+  const [dismissed, setDismissed] = useState(dismissedInitially);
+  const [, startTransition] = useTransition();
 
-  useEffect(() => {
-    try {
-      if (!localStorage.getItem(ONBOARDED_KEY)) setShow(true);
-    } catch {
-      /* localStorage indisponível — não mostra */
-    }
-  }, []);
+  const steps: Step[] = [
+    {
+      id: "avatar",
+      label: "Adicionar uma foto de perfil",
+      done: hasAvatar,
+      href: "/settings#perfil",
+      cta: "Adicionar foto",
+    },
+    {
+      id: "mfa",
+      label: "Ativar verificação em duas etapas",
+      done: mfaEnrolled,
+      href: "/settings#seguranca",
+      cta: "Ativar 2FA",
+    },
+  ];
+  const allDone = steps.every((s) => s.done);
 
-  if (!show) return null;
+  if (dismissed || allDone) return null;
 
-  const done = () => {
-    try {
-      localStorage.setItem(ONBOARDED_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-    setShow(false);
+  const dismiss = () => {
+    setDismissed(true);
+    startTransition(() => {
+      void dismissOnboardingAction();
+    });
   };
 
   return (
-    <section className="relative overflow-hidden rounded-xl border border-mint-200 bg-mint-50/70 p-6 dark:border-forest-800 dark:bg-forest-950/40 sm:p-8">
+    <section className="relative overflow-hidden rounded-xl border border-mint-200 bg-mint-50/70 p-lg dark:border-forest-800 dark:bg-forest-950/40 sm:p-xl">
       <button
-        onClick={done}
+        onClick={dismiss}
         aria-label="Fechar boas-vindas"
-        className="absolute right-3 top-3 inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-mint-100 hover:text-foreground dark:hover:bg-forest-900"
+        className="absolute right-3 top-3 inline-flex size-8 items-center justify-center rounded-md text-muted-foreground k-transition hover:bg-mint-100 hover:text-foreground dark:hover:bg-forest-900 k-focus"
       >
         <X className="size-4" />
       </button>
@@ -48,7 +76,7 @@ export function OnboardingWelcome({ name }: { name: string }) {
         <Sparkles className="size-3.5" /> Bem-vindo
       </span>
       <h2 className="mt-2 max-w-xl font-serif text-2xl font-medium leading-tight text-foreground">
-        Olá, {name} — é assim que o Kabrito trabalha por você
+        Olá, {name} — vamos deixar sua conta pronta
       </h2>
       <p className="mt-2 max-w-xl text-muted-foreground">
         Toda manhã sua edição chega{" "}
@@ -58,15 +86,41 @@ export function OnboardingWelcome({ name }: { name: string }) {
         — você só adapta ao seu nicho e publica. Nada vai ao ar no automático.
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button asChild size="sm">
-          <Link href="/prompts">Conhecer os prompts</Link>
-        </Button>
-        <Button asChild size="sm" variant="outline">
-          <Link href="/adaptar">Adaptar ao meu nicho</Link>
-        </Button>
-        <Button size="sm" variant="ghost" onClick={done}>
-          Entendi
+      <ul className="mt-4 space-y-2">
+        {steps.map((s) => (
+          <li key={s.id} className="flex items-center gap-3">
+            {s.done ? (
+              <CheckCircle2
+                className="size-5 shrink-0 text-forest-600 dark:text-forest-300"
+                aria-hidden
+              />
+            ) : (
+              <Circle
+                className="size-5 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
+            )}
+            <span
+              className={
+                s.done
+                  ? "text-sm text-muted-foreground line-through"
+                  : "text-sm text-foreground"
+              }
+            >
+              {s.label}
+            </span>
+            {!s.done && (
+              <Button asChild size="sm" variant="outline" className="ml-auto">
+                <Link href={s.href}>{s.cta}</Link>
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-4">
+        <Button size="sm" variant="ghost" onClick={dismiss}>
+          Agora não
         </Button>
       </div>
     </section>

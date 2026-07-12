@@ -45,7 +45,7 @@ export function LoginForm() {
         <div className="text-right">
           <Link
             href="/recuperar-senha"
-            className="text-sm text-muted-foreground underline-offset-4 transition-colors duration-150 hover:text-foreground hover:underline"
+            className="text-sm text-muted-foreground underline-offset-4 k-transition hover:text-foreground hover:underline k-focus"
           >
             Esqueceu a senha?
           </Link>
@@ -66,7 +66,7 @@ export function LoginForm() {
         Não tem conta?{" "}
         <Link
           href="/register"
-          className="font-medium text-foreground underline-offset-4 transition-colors duration-150 hover:text-forest-800 dark:hover:text-forest-200 hover:underline"
+          className="font-medium text-foreground underline-offset-4 k-transition hover:text-forest-800 dark:hover:text-forest-200 hover:underline k-focus"
         >
           Criar conta
         </Link>

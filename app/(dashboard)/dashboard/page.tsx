@@ -1,6 +1,13 @@
 import Link from "next/link";
-import { Flame, Type, Image as ImageIcon, Lightbulb } from "lucide-react";
+import {
+  Flame,
+  Type,
+  Image as ImageIcon,
+  Lightbulb,
+  Newspaper,
+} from "lucide-react";
 import { getCurrentProfile } from "@/server/auth/session";
+import { getMfaStatus } from "@/server/auth/mfa";
 import { hasActiveSubscription } from "@/server/permissions";
 import {
   getLatestEdition,
@@ -47,11 +54,12 @@ export default async function DashboardPage({
     formato?: string;
   }>;
 }) {
-  const [{ platform: platformParam, nicho, formato }, profile, active] =
+  const [{ platform: platformParam, nicho, formato }, profile, active, mfa] =
     await Promise.all([
       searchParams,
       getCurrentProfile(),
       hasActiveSubscription(),
+      getMfaStatus(),
     ]);
 
   const [platforms, niches, enabledCardKeys] = active
@@ -80,7 +88,14 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-6">
-      {active && <OnboardingWelcome name={name} />}
+      {active && (
+        <OnboardingWelcome
+          name={name}
+          mfaEnrolled={mfa.enrolled}
+          hasAvatar={!!profile?.avatarUrl}
+          dismissedInitially={!!profile?.preferences?.onboardingDismissed}
+        />
+      )}
 
       <DashboardHero
         name={name}
@@ -101,7 +116,7 @@ export default async function DashboardPage({
 
       {!active && (
         <Card className="border-rose-200 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/15">
-          <CardContent className="flex flex-col items-start gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <CardContent className="flex flex-col items-start gap-3 py-md sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-rose-900 dark:text-blush-200">
               Sua assinatura não está ativa — o conteúdo editorial fica
               disponível com a assinatura ativa.
@@ -116,6 +131,7 @@ export default async function DashboardPage({
       {active && !data && (
         <>
           <EmptyState
+            icon={Newspaper}
             title="Nenhuma edição publicada ainda"
             description="Assim que a equipe revisar e publicar a edição do dia, o resumo aparece aqui. Enquanto isso, estes recursos não dependem da edição:"
           />

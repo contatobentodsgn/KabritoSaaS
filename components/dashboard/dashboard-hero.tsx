@@ -66,7 +66,7 @@ export function DashboardHero({
       : "Assim que a equipe publicar a edição do dia, ela aparece aqui.";
 
   return (
-    <section className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-mint-100 dark:from-forest-900 via-mint-50 dark:via-forest-950 to-card px-6 py-8 sm:px-8">
+    <section className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-mint-100 dark:from-forest-900 via-mint-50 dark:via-forest-950 to-card px-lg py-xl sm:px-xl">
       <DecorMotif />
       <div className="relative max-w-2xl space-y-3">
         <p className="k-eyebrow">Hoje</p>

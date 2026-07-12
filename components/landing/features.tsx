@@ -56,7 +56,7 @@ const FEATURES = [
 export function Features() {
   return (
     <section className="border-y border-border bg-mint-50/50 dark:bg-forest-950/30">
-      <div className="mx-auto w-full max-w-[1120px] px-6 py-20 sm:px-8 sm:py-28">
+      <div className="mx-auto w-full max-w-landing px-6 py-20 sm:px-8 sm:py-28">
         <div data-reveal className="max-w-2xl">
           <span className="k-eyebrow">A entrega</span>
           <h2 className="mt-3 font-serif text-3xl font-medium tracking-tight text-foreground sm:text-4xl">

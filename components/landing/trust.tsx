@@ -26,7 +26,7 @@ const TRUST = [
 
 export function Trust() {
   return (
-    <section className="mx-auto w-full max-w-[1120px] px-6 py-20 sm:px-8 sm:py-28">
+    <section className="mx-auto w-full max-w-landing px-6 py-20 sm:px-8 sm:py-28">
       <div data-reveal className="max-w-2xl">
         <span className="k-eyebrow">Confiança</span>
         <h2 className="mt-3 font-serif text-3xl font-medium tracking-tight text-foreground sm:text-4xl">

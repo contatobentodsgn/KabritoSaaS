@@ -36,32 +36,79 @@ export function ItemEditor({
     [fields],
   );
   const [values, setValues] = useState<Record<string, string>>(initial);
+  // Última versão CONFIRMADA pelo servidor de cada campo — separado de
+  // `initial` pra sobreviver a um salvamento parcial (alguns campos salvam,
+  // outros falham): só os que falharam continuam "sujos" depois.
+  const [savedValues, setSavedValues] =
+    useState<Record<string, string>>(initial);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [confirmRemove, setConfirmRemove] = useState(false);
 
   // Só os campos realmente alterados são salvos — um único "Salvar alterações".
   const dirty = fields.filter(
-    (f) => (values[f.name] ?? "") !== initial[f.name],
+    (f) => (values[f.name] ?? "") !== savedValues[f.name],
   );
 
   function saveAll() {
-    if (dirty.length === 0) return;
+    const toSave = dirty;
+    if (toSave.length === 0) return;
     start(async () => {
-      for (const f of dirty) {
-        const res = await updateItemField({
-          table,
-          id,
-          field: f.name,
-          value: values[f.name] ?? "",
-        });
-        if (!res.ok) {
-          toast.error(res.error);
-          return;
-        }
-      }
-      toast.success(
-        dirty.length === 1 ? "Campo salvo." : `${dirty.length} campos salvos.`,
+      // Campos independentes (colunas distintas) — salvam em paralelo, e cada
+      // um reporta o próprio resultado (UX-6): uma falha não trava os demais
+      // nem os deixa marcados como "salvos" incorretamente.
+      const results = await Promise.all(
+        toSave.map(async (f) => {
+          const value = values[f.name] ?? "";
+          const res = await updateItemField({
+            table,
+            id,
+            field: f.name,
+            value,
+          });
+          return {
+            name: f.name,
+            value,
+            ok: res.ok,
+            error: res.ok ? undefined : res.error,
+          };
+        }),
       );
-      router.refresh();
+      const okOnes = results.filter((r) => r.ok);
+      const failedOnes = results.filter((r) => !r.ok);
+
+      if (okOnes.length > 0) {
+        setSavedValues((sv) => {
+          const next = { ...sv };
+          for (const r of okOnes) next[r.name] = r.value;
+          return next;
+        });
+      }
+      setFieldErrors((fe) => {
+        const next = { ...fe };
+        for (const r of okOnes) delete next[r.name];
+        for (const r of failedOnes)
+          next[r.name] = r.error ?? "Falha ao salvar.";
+        return next;
+      });
+
+      if (failedOnes.length === 0) {
+        toast.success(
+          okOnes.length === 1
+            ? "Campo salvo."
+            : `${okOnes.length} campos salvos.`,
+        );
+      } else if (okOnes.length === 0) {
+        toast.error(
+          failedOnes.length === 1
+            ? (failedOnes[0]?.error ?? "Falha ao salvar.")
+            : `Falha ao salvar ${failedOnes.length} campos.`,
+        );
+      } else {
+        toast.warning(
+          `${okOnes.length} de ${results.length} campos salvos — confira os campos destacados.`,
+        );
+      }
+      if (okOnes.length > 0) router.refresh();
     });
   }
 
@@ -93,18 +140,34 @@ export function ItemEditor({
         </Button>
       </div>
       <div className="space-y-3">
-        {fields.map((f) => (
-          <div key={f.name} className="space-y-1">
-            <Label className="k-eyebrow">{f.label}</Label>
-            <Textarea
-              value={values[f.name] ?? ""}
-              onChange={(e) =>
-                setValues((v) => ({ ...v, [f.name]: e.target.value }))
-              }
-              rows={f.value.length > 120 ? 4 : 2}
-            />
-          </div>
-        ))}
+        {fields.map((f) => {
+          const fieldError = fieldErrors[f.name];
+          return (
+            <div key={f.name} className="space-y-1">
+              <Label className="k-eyebrow">{f.label}</Label>
+              <Textarea
+                value={values[f.name] ?? ""}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setValues((v) => ({ ...v, [f.name]: next }));
+                  if (fieldError) {
+                    setFieldErrors((fe) => {
+                      const rest = { ...fe };
+                      delete rest[f.name];
+                      return rest;
+                    });
+                  }
+                }}
+                aria-invalid={!!fieldError}
+                className={fieldError ? "border-destructive" : undefined}
+                rows={f.value.length > 120 ? 4 : 2}
+              />
+              {fieldError && (
+                <p className="text-xs text-destructive">{fieldError}</p>
+              )}
+            </div>
+          );
+        })}
       </div>
       <div className="mt-3 flex items-center gap-3">
         <Button
@@ -112,7 +175,7 @@ export function ItemEditor({
           onClick={saveAll}
           disabled={pending || dirty.length === 0}
         >
-          Salvar alterações
+          {pending ? "Salvando..." : "Salvar alterações"}
         </Button>
         {dirty.length > 0 && (
           <span className="text-xs text-muted-foreground">

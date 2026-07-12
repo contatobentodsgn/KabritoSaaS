@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Newspaper, Filter } from "lucide-react";
 import { requireActiveSubscription, isStaff } from "@/server/permissions";
 import { getCurrentUser } from "@/server/auth/session";
 import { getEditionWithModules, listNiches } from "@/server/services/content";
@@ -186,11 +186,12 @@ export default async function EditionDetailPage({
         data.trend_items.length === 0 &&
         data.headlines.length === 0 &&
         data.content_suggestions.length === 0 && (
-          <EmptyState title="Edição sem itens" />
+          <EmptyState icon={Newspaper} title="Edição sem itens" />
         )}
 
       {noNicheItems && (
         <EmptyState
+          icon={Filter}
           title="Nenhuma pauta, headline ou sugestão nesse nicho"
           description="Ajuste o nicho ou limpe o filtro."
         />

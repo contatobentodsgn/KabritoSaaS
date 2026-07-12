@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { MessageCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { addComment, deleteComment } from "@/server/actions/comments";
 import { Button } from "@/components/ui/button";
@@ -101,6 +101,7 @@ export function Comments({
     <div className="grid gap-4">
       {initial.length === 0 ? (
         <EmptyState
+          icon={MessageCircle}
           title="Ainda sem comentários"
           description="Seja a primeira pessoa a comentar nesta edição."
         />

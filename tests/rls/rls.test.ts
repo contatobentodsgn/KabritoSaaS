@@ -732,3 +732,35 @@ describe("6.14 Atribuição de owner restrita ao owner (anti-escalada)", () => {
     );
   });
 });
+
+/* ===========================================================================
+ * 6.15 PREFERÊNCIAS DE UI — profiles.preferences (migration 0018)
+ * Mesmo padrão de column-grant da 0009 (deleted_at) — RLS sozinha não bastava.
+ * =========================================================================== */
+describe("6.15 profiles.preferences — grant por coluna (UX-10)", () => {
+  it("A atualiza as PRÓPRIAS preferências", async () => {
+    const res = await asUser(
+      f.userA,
+      (tx) =>
+        tx`update profiles set preferences = '{"theme":"dark"}'::jsonb where user_id = ${f.userA}`,
+    );
+    expect(res.count).toBe(1);
+  });
+
+  it("A lê as próprias preferências de volta", async () => {
+    const rows = await asUser(
+      f.userA,
+      (tx) => tx`select preferences from profiles where user_id = ${f.userA}`,
+    );
+    expect(rows[0]?.preferences).toEqual({ theme: "dark" });
+  });
+
+  it("B NÃO atualiza as preferências de A (RLS own-row, 0 linhas)", async () => {
+    const res = await asUser(
+      f.userB,
+      (tx) =>
+        tx`update profiles set preferences = '{"theme":"light"}'::jsonb where user_id = ${f.userA}`,
+    );
+    expect(res.count).toBe(0);
+  });
+});

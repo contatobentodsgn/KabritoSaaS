@@ -10,6 +10,7 @@ export const DEFAULT_DEVICE_LIMIT = 2;
 export const RATE_LIMITS = {
   login: { limit: 10, windowMs: 60_000 },
   register: { limit: 5, windowMs: 60_000 },
+  resend_confirmation: { limit: 1, windowMs: 60_000 }, // reenvio de e-mail de confirmação — bucket próprio (UX-1), separado do "register" p/ o botão ter um cooldown previsível
   password_reset: { limit: 5, windowMs: 60_000 },
   generation: { limit: 30, windowMs: 60_000 }, // MVP2 — geração sob demanda
   comment: { limit: 20, windowMs: 60_000 }, // anti-spam de comentários (por usuário)

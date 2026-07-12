@@ -1,3 +1,4 @@
+import { Sparkles } from "lucide-react";
 import { requireActiveSubscription } from "@/server/permissions";
 import { listPrompts } from "@/server/services/content";
 import { getFavoriteKeySet } from "@/server/services/favorites";
@@ -22,7 +23,7 @@ export default async function PromptsPage() {
           title="Prompts"
           description="Biblioteca de prompts prontos para usar."
         />
-        <EmptyState title="Sem prompts cadastrados ainda" />
+        <EmptyState icon={Sparkles} title="Sem prompts cadastrados ainda" />
       </>
     );
   }

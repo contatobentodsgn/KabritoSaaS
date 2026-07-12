@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Users } from "lucide-react";
 import {
   getCurrentUser,
   getCurrentOrganization,
@@ -44,6 +45,7 @@ export default async function EquipePage() {
         <Card>
           <CardContent className="py-10">
             <EmptyState
+              icon={Users}
               title="Nenhum membro ainda"
               description={
                 canManage

@@ -1,3 +1,4 @@
+import { Type } from "lucide-react";
 import { requireActiveSubscription } from "@/server/permissions";
 import { listHeadlines, listNiches } from "@/server/services/content";
 import { getFavoriteKeySet } from "@/server/services/favorites";
@@ -39,6 +40,7 @@ export default async function HeadlinesPage({
       </div>
       {headlines.length === 0 ? (
         <EmptyState
+          icon={Type}
           title={
             filtering
               ? "Nenhuma headline nesse nicho"

@@ -25,6 +25,75 @@ const config: Config = {
         serif: ["var(--font-serif)", "Newsreader", "Georgia", "serif"],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
+      // Escala 8px do Kabrito Design System (tokens/spacing.css) — soma-se à
+      // escala numérica padrão do Tailwind, não substitui (p-4 continua igual;
+      // p-md passa a existir também).
+      spacing: {
+        xxs: "4px",
+        xs: "8px",
+        sm: "12px",
+        md: "16px",
+        lg: "24px",
+        xl: "32px",
+        "2xl": "48px",
+        "3xl": "64px",
+        "4xl": "96px",
+      },
+      // Type scale do KDS (tokens/typography.css) — nomes semânticos, não
+      // colidem com a escala xs/sm/lg/2xl.. padrão do Tailwind. Família
+      // (serif/sans) continua uma classe à parte (font-serif/font-sans),
+      // como já é usado no app.
+      fontSize: {
+        "display-1": [
+          "64px",
+          { lineHeight: "1.04", letterSpacing: "-1.5px", fontWeight: "500" },
+        ],
+        "display-2": [
+          "52px",
+          { lineHeight: "1.06", letterSpacing: "-1.2px", fontWeight: "500" },
+        ],
+        "heading-1": [
+          "40px",
+          { lineHeight: "1.1", letterSpacing: "-0.8px", fontWeight: "500" },
+        ],
+        "heading-2": [
+          "28px",
+          { lineHeight: "1.22", letterSpacing: "-0.4px", fontWeight: "500" },
+        ],
+        "heading-3": [
+          "22px",
+          { lineHeight: "1.27", letterSpacing: "-0.25px", fontWeight: "600" },
+        ],
+        title: [
+          "20px",
+          { lineHeight: "1.4", letterSpacing: "-0.1px", fontWeight: "600" },
+        ],
+        "body-md": [
+          "16px",
+          { lineHeight: "1.55", letterSpacing: "0", fontWeight: "400" },
+        ],
+        "body-sm": [
+          "15px",
+          { lineHeight: "1.45", letterSpacing: "0", fontWeight: "400" },
+        ],
+        button: [
+          "15px",
+          { lineHeight: "1.4", letterSpacing: "0", fontWeight: "500" },
+        ],
+        caption: [
+          "14px",
+          { lineHeight: "1.43", letterSpacing: "0", fontWeight: "400" },
+        ],
+        eyebrow: [
+          "12px",
+          { lineHeight: "1.33", letterSpacing: "1px", fontWeight: "600" },
+        ],
+      },
+      maxWidth: {
+        // Largura de conteúdo da landing (header/seções/footer) — era
+        // max-w-[1120px] repetido em 6 arquivos sem token compartilhado.
+        landing: "1120px",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
