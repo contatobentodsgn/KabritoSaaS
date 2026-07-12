@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
 import { listReviewQueue } from "@/server/services/admin";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/content/empty-state";
@@ -25,6 +26,7 @@ export default async function ReviewQueuePage() {
       />
       {editions.length === 0 ? (
         <EmptyState
+          icon={CheckCircle2}
           title="Nada para revisar agora"
           description="As edições geradas automaticamente aparecem aqui como rascunho, prontas para a sua leitura — nada é publicado sem a sua aprovação."
         />

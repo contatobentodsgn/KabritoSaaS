@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { Flame, Type, Image as ImageIcon, Lightbulb } from "lucide-react";
+import {
+  Flame,
+  Type,
+  Image as ImageIcon,
+  Lightbulb,
+  Newspaper,
+} from "lucide-react";
 import { getCurrentProfile } from "@/server/auth/session";
 import { hasActiveSubscription } from "@/server/permissions";
 import {
@@ -116,6 +122,7 @@ export default async function DashboardPage({
       {active && !data && (
         <>
           <EmptyState
+            icon={Newspaper}
             title="Nenhuma edição publicada ainda"
             description="Assim que a equipe revisar e publicar a edição do dia, o resumo aparece aqui. Enquanto isso, estes recursos não dependem da edição:"
           />

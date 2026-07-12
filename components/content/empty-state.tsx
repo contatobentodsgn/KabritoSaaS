@@ -1,20 +1,22 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, type LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function EmptyState({
   title,
   description,
   action,
+  icon: Icon = Sparkles,
 }: {
   title: string;
   description?: string;
   action?: React.ReactNode;
+  icon?: LucideIcon;
 }) {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
         <span className="flex size-12 items-center justify-center rounded-full bg-mint-100 text-forest-600 dark:bg-forest-900 dark:text-forest-300">
-          <Sparkles className="size-6" strokeWidth={1.5} />
+          <Icon className="size-6" strokeWidth={1.5} />
         </span>
         <p className="font-serif text-lg text-foreground">{title}</p>
         {description && (

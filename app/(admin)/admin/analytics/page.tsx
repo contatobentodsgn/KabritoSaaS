@@ -1,3 +1,4 @@
+import { BarChart3, Zap, CheckCircle2, Heart } from "lucide-react";
 import {
   runsByPromptVersion,
   reviewOutcomes,
@@ -58,6 +59,7 @@ export default async function AnalyticsPage() {
 
       {!hasData ? (
         <EmptyState
+          icon={BarChart3}
           title="Ainda sem sinais de uso"
           description="Assim que a primeira edição for gerada e os assinantes salvarem favoritos, os números aparecem aqui."
         />
@@ -87,7 +89,7 @@ export default async function AnalyticsPage() {
               ajustar os prompts.
             </p>
             {byVersion.length === 0 ? (
-              <EmptyState title="Sem runs registrados" />
+              <EmptyState icon={Zap} title="Sem runs registrados" />
             ) : (
               <Card className="overflow-hidden">
                 <CardContent className="p-0">
@@ -200,7 +202,10 @@ export default async function AnalyticsPage() {
           <section>
             <SectionTitle>Resultado da revisão</SectionTitle>
             {reviews.length === 0 ? (
-              <EmptyState title="Sem edições para revisar" />
+              <EmptyState
+                icon={CheckCircle2}
+                title="Sem edições para revisar"
+              />
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {reviews.map((r) => (
@@ -227,7 +232,7 @@ export default async function AnalyticsPage() {
               público.
             </p>
             {favorites.length === 0 ? (
-              <EmptyState title="Nenhum favorito ainda" />
+              <EmptyState icon={Heart} title="Nenhum favorito ainda" />
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {favorites.map((f) => (
