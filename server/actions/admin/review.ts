@@ -16,6 +16,7 @@ import {
   itemDeleteSchema,
   EDITABLE_ITEM_TABLES,
 } from "@/lib/validations/admin";
+import { zodErrorMessage } from "@/server/actions/zod-error";
 import { type ActionResult, forbidden } from "./shared";
 
 /* ===========================================================================
@@ -126,10 +127,48 @@ export async function rejectEdition(input: unknown): Promise<ActionResult> {
   return { ok: true };
 }
 
+/**
+ * Desfaz uma rejeição recente (UX-5) — volta a edição para 'pending', como se
+ * a rejeição não tivesse acontecido. Gated em `review_status = 'rejected'`
+ * (concorrência otimista, mesmo padrão do `approveEdition` legado): se o
+ * estado já mudou por outra via, o "Desfazer" falha em vez de sobrescrever.
+ */
+export async function undoRejectEdition(
+  editionId: string,
+): Promise<ActionResult> {
+  if (!(await canReviewContent())) return forbidden();
+  if (!z.string().uuid().safeParse(editionId).success)
+    return { ok: false, error: "ID inválido." };
+
+  const supabase = await createClient();
+  const { data: updated, error } = await supabase
+    .from("content_editions")
+    .update({ review_status: "pending", reviewed_by: null, reviewed_at: null })
+    .eq("id", editionId)
+    .eq("review_status", "rejected")
+    .select("id");
+  if (error) return { ok: false, error: "Falha ao desfazer." };
+  if (!updated || updated.length === 0) {
+    return {
+      ok: false,
+      error: "Não foi mais possível desfazer — a edição já mudou de estado.",
+    };
+  }
+
+  await recordAudit({
+    action: AUDIT_ACTIONS.CONTENT_REJECTION_UNDONE,
+    entityType: "content_edition",
+    entityId: editionId,
+  });
+  revalidatePath("/admin/review");
+  return { ok: true };
+}
+
 export async function updateEditionMeta(input: unknown): Promise<ActionResult> {
   if (!(await canReviewContent())) return forbidden();
   const parsed = editionEditSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
   const supabase = await createClient();
   const { error } = await supabase
     .from("content_editions")
@@ -148,7 +187,8 @@ export async function updateEditionMeta(input: unknown): Promise<ActionResult> {
 export async function updateItemField(input: unknown): Promise<ActionResult> {
   if (!(await canReviewContent())) return forbidden();
   const parsed = itemEditSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
   const { table, id, field, value } = parsed.data;
   // whitelist de campo por tabela (defesa contra update arbitrário)
   const allowed = EDITABLE_ITEM_TABLES[table] as readonly string[];
@@ -177,7 +217,8 @@ export async function updateItemField(input: unknown): Promise<ActionResult> {
 export async function deleteItem(input: unknown): Promise<ActionResult> {
   if (!(await canReviewContent())) return forbidden();
   const parsed = itemDeleteSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Entrada inválida." };
+  if (!parsed.success)
+    return { ok: false, error: zodErrorMessage(parsed.error) };
   const supabase = await createClient();
   const { error } = await supabase
     .from(parsed.data.table)
