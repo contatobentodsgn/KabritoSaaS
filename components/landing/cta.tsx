@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export function Cta() {
   return (
-    <section className="mx-auto w-full max-w-[1120px] px-6 py-20 sm:px-8 sm:py-28">
+    <section className="mx-auto w-full max-w-landing px-6 py-20 sm:px-8 sm:py-28">
       <div
         data-reveal
         className="overflow-hidden rounded-3xl bg-gradient-to-br from-forest-700 to-forest-800 px-6 py-12 text-center sm:px-8 sm:py-16"

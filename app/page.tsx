@@ -80,7 +80,7 @@ export default async function HomePage() {
 
       {/* Topo fixo — CTA sempre ao alcance */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-6 py-4 sm:px-8">
+        <div className="mx-auto flex w-full max-w-landing items-center justify-between px-6 py-4 sm:px-8">
           <Link
             href="/"
             aria-label="Kabrito · página inicial"
@@ -116,7 +116,7 @@ export default async function HomePage() {
 
       {/* Rodapé calmo */}
       <footer className="border-t border-border">
-        <div className="mx-auto flex w-full max-w-[1120px] flex-col items-center justify-between gap-3 px-6 py-6 text-sm text-muted-foreground sm:flex-row sm:px-8">
+        <div className="mx-auto flex w-full max-w-landing flex-col items-center justify-between gap-3 px-6 py-6 text-sm text-muted-foreground sm:flex-row sm:px-8">
           <span>© 2026 Kabrito · feito com cuidado no Brasil</span>
           <div className="flex items-center gap-4">
             <Link
