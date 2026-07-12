@@ -8,6 +8,7 @@ import {
 import { listMembers } from "@/server/admin/team/members";
 import { listPendingInvites } from "@/server/admin/team/invites";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/content/empty-state";
 import { TeamManager } from "@/components/forms/team-manager";
@@ -29,8 +30,13 @@ export default async function EquipePage() {
 
   return (
     <>
+      <Breadcrumbs
+        items={[
+          { label: "Configurações", href: "/settings" },
+          { label: "Equipe" },
+        ]}
+      />
       <PageHeader
-        eyebrow="Workspace"
         title="Equipe"
         description={`Membros e papéis de ${org.name}.`}
       />

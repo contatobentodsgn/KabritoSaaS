@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditionWithModules } from "@/server/services/content";
 import { getLatestRejectionReason } from "@/server/services/admin";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { SectionTitle } from "@/components/content/empty-state";
 import { ReviewActions } from "@/components/admin/review-actions";
 import { ItemEditor } from "@/components/admin/item-editor";
@@ -37,6 +37,13 @@ export default async function ReviewDetailPage({
 
   return (
     <>
+      <Breadcrumbs
+        items={[
+          { label: "Admin", href: "/admin/review" },
+          { label: "Fila de revisão", href: "/admin/review" },
+          { label: data.edition.title },
+        ]}
+      />
       <PageHeader
         title={data.edition.title}
         description={`${data.edition.edition_date}`}
@@ -216,12 +223,6 @@ export default async function ReviewDetailPage({
           </div>
         </>
       )}
-
-      <p className="mt-8 text-sm">
-        <Link href="/admin/review" className="text-primary hover:underline">
-          ← Voltar à fila
-        </Link>
-      </p>
     </>
   );
 }
