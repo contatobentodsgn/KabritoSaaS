@@ -7,6 +7,25 @@ import { uploadAvatar } from "@/server/admin/storage";
 import { consume } from "@/server/rate-limit";
 import { RATE_LIMIT_GENERIC } from "@/lib/messages";
 import type { ActionResult } from "@/server/actions/types";
+import type { UserPreferences } from "@/db/schema";
+
+/** Lê as preferências atuais e grava o merge — evita um update pisar nas outras chaves. */
+async function mergePreferences(
+  userId: string,
+  patch: Partial<UserPreferences>,
+): Promise<void> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("preferences")
+    .eq("user_id", userId)
+    .maybeSingle();
+  const current = (data?.preferences as UserPreferences) ?? {};
+  await supabase
+    .from("profiles")
+    .update({ preferences: { ...current, ...patch } })
+    .eq("user_id", userId);
+}
 
 export type AvatarResult = ActionResult<{ url: string }>;
 
@@ -58,18 +77,24 @@ export async function saveThemePreferenceAction(
   const user = await getCurrentUser();
   if (!user) return;
   try {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("profiles")
-      .select("preferences")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    const current = (data?.preferences as Record<string, unknown>) ?? {};
-    await supabase
-      .from("profiles")
-      .update({ preferences: { ...current, theme } })
-      .eq("user_id", user.id);
+    await mergePreferences(user.id, { theme });
   } catch (err) {
     console.error("[profile] saveThemePreferenceAction:", err);
+  }
+}
+
+/**
+ * Dispensa o checklist de onboarding (UX-3) — a pessoa decidiu pular, mesmo
+ * com passos incompletos. Sem sessão: no-op (o componente já não chamaria
+ * sem profile, mas mantém o mesmo contrato fire-and-forget do tema).
+ */
+export async function dismissOnboardingAction(): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) return;
+  try {
+    await mergePreferences(user.id, { onboardingDismissed: true });
+    revalidatePath("/dashboard");
+  } catch (err) {
+    console.error("[profile] dismissOnboardingAction:", err);
   }
 }

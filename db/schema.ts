@@ -353,7 +353,10 @@ export const rawSignals = pgTable("raw_signals", {
 /** Preferências de UI do usuário — tudo opcional, cliente decide os defaults. */
 export interface UserPreferences {
   theme?: "light" | "dark" | "system";
-  onboardingSteps?: string[]; // ids dos passos do checklist já completados
+  // Passos do checklist de onboarding (2FA, avatar) são DERIVADOS de dados
+  // reais (getMfaStatus/profile.avatarUrl), não persistidos — só a decisão de
+  // dispensar o checklist manualmente precisa de estado próprio.
+  onboardingDismissed?: boolean;
 }
 
 export const profiles = pgTable("profiles", {
