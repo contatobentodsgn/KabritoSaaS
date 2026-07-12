@@ -121,13 +121,13 @@ export default async function HomePage() {
           <div className="flex items-center gap-4">
             <Link
               href="/termos"
-              className="rounded-sm transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="rounded-sm k-transition hover:text-foreground k-focus"
             >
               Termos
             </Link>
             <Link
               href="/privacy"
-              className="rounded-sm transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="rounded-sm k-transition hover:text-foreground k-focus"
             >
               Privacidade
             </Link>

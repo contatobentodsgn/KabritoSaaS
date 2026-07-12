@@ -47,7 +47,7 @@ export function Faq() {
               data-reveal
               className="group rounded-xl border border-border bg-card p-5 [&_summary]:list-none"
             >
-              <summary className="flex cursor-pointer items-center justify-between gap-4 font-medium text-foreground">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 rounded-sm font-medium text-foreground k-focus">
                 {item.q}
                 <ChevronDown
                   className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180"
