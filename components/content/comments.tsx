@@ -1,13 +1,7 @@
-"use client";
-
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { MessageCircle, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { addComment, deleteComment } from "@/server/actions/comments";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { MessageCircle } from "lucide-react";
+import { CommentForm } from "@/components/content/comment-form";
+import { DeleteCommentButton } from "@/components/content/delete-comment-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/content/empty-state";
 
@@ -53,6 +47,9 @@ function CommentAvatar({ name, src }: { name: string; src: string | null }) {
  * profiles impede ler nomes de terceiros), formulário de novo comentário e botão
  * de excluir nos próprios (ou em todos, se canModerate). Toda mutação passa pela
  * Server Action (RLS valida assinatura/autoria) e dá refresh no servidor.
+ *
+ * Server Component (PERF-5): a lista é puramente display — só o form de novo
+ * comentário e o botão de excluir de cada card precisam de client (leafs).
  */
 export function Comments({
   editionId,
@@ -65,38 +62,6 @@ export function Comments({
   currentUserId?: string;
   canModerate: boolean;
 }) {
-  const [body, setBody] = useState("");
-  const [pending, start] = useTransition();
-  const router = useRouter();
-
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const text = body.trim();
-    if (!text) return;
-    start(async () => {
-      const res = await addComment({ editionId, body: text });
-      if (res.ok) {
-        setBody("");
-        toast.success("Comentário publicado");
-        router.refresh();
-      } else {
-        toast.error(res.error);
-      }
-    });
-  }
-
-  function onDelete(id: string) {
-    start(async () => {
-      const res = await deleteComment({ id });
-      if (res.ok) {
-        toast.success("Comentário excluído");
-        router.refresh();
-      } else {
-        toast.error(res.error);
-      }
-    });
-  }
-
   return (
     <div className="grid gap-4">
       {initial.length === 0 ? (
@@ -130,18 +95,7 @@ export function Comments({
                         {c.body}
                       </p>
                     </div>
-                    {canDelete && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete(c.id)}
-                        disabled={pending}
-                        aria-label="Excluir comentário"
-                        title="Excluir comentário"
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    )}
+                    {canDelete && <DeleteCommentButton id={c.id} />}
                   </CardContent>
                 </Card>
               </li>
@@ -150,27 +104,7 @@ export function Comments({
         </ul>
       )}
 
-      {currentUserId && (
-        <form onSubmit={onSubmit} className="grid gap-2">
-          <Textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            maxLength={1000}
-            rows={3}
-            placeholder="Compartilhe sua leitura desta edição"
-            disabled={pending}
-            aria-label="Novo comentário"
-          />
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={pending || body.trim().length === 0}
-            >
-              Comentar
-            </Button>
-          </div>
-        </form>
-      )}
+      {currentUserId && <CommentForm editionId={editionId} />}
     </div>
   );
 }
