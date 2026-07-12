@@ -19,6 +19,10 @@ const ALLOWLIST = new Set([
   // QR (SVG) de ativação do MFA: vem do Supabase Auth (server-only, gated por
   // sessão autenticada), não de input de usuário. Ver components/forms/mfa-settings.tsx.
   "components/forms/mfa-settings.tsx",
+  // Hidrata o tema salvo no perfil (UX-10) num aparelho novo: o valor vem de
+  // preferences (jsonb), mas só passa por uma whitelist estrita ("dark"/
+  // "light" exatos) antes de chegar aqui — nunca interpola o dado cru.
+  "app/(dashboard)/layout.tsx",
 ]);
 
 /** @type {import("eslint").Rule.RuleModule} */

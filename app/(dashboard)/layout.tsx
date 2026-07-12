@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireAuth, getCurrentProfile } from "@/server/auth/session";
 import { getMfaStatus } from "@/server/auth/mfa";
@@ -27,9 +28,28 @@ export default async function DashboardLayout({
     if (mfa.pendingAal2) redirect("/verificar");
   }
   const [profile, staff] = await Promise.all([getCurrentProfile(), isStaff()]);
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  // Whitelist estrita: preferences é jsonb (sem validação de shape no banco) e
+  // este valor vai interpolado num <script> — só 2 literais exatos passam,
+  // qualquer outra coisa (incluindo uma tentativa de injeção) vira undefined.
+  const rawTheme = profile?.preferences?.theme;
+  const serverTheme =
+    rawTheme === "dark" || rawTheme === "light" ? rawTheme : undefined;
 
   return (
     <div className="flex h-dvh overflow-hidden bg-background">
+      {/* Hidrata o tema salvo no perfil SÓ se este aparelho ainda não tem
+          nenhum (localStorage vazio = dispositivo novo/storage limpo) — o
+          anti-flash do root layout já cobre o caso comum (localStorage já
+          setado), isto é só o "primeiro login num aparelho novo". */}
+      {serverTheme && (
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(!localStorage.getItem('theme')){localStorage.setItem('theme','${serverTheme}');document.documentElement.classList.toggle('dark','${serverTheme}'==='dark');}}catch(e){}})();`,
+          }}
+        />
+      )}
       <aside className="hidden w-[248px] shrink-0 flex-col border-r border-border bg-mint-50 dark:bg-forest-950/40 md:flex">
         <div className="px-5 pb-3 pt-5">
           <Link href="/dashboard" aria-label="Kabrito">

@@ -25,6 +25,7 @@ export type FormState = {
   message?: string;
   email?: string; // ecoa o e-mail no sucesso de cadastro (para o "reenviar link")
   fieldErrors?: Record<string, string[]>;
+  resetAt?: number; // epoch ms: quando o rate-limit da ação libera de novo (UX-1/4)
 };
 
 export const emptyFormState: FormState = {};

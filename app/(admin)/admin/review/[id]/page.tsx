@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEditionWithModules } from "@/server/services/content";
 import { getLatestRejectionReason } from "@/server/services/admin";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { SectionTitle } from "@/components/content/empty-state";
 import { ReviewActions } from "@/components/admin/review-actions";
 import { ItemEditor } from "@/components/admin/item-editor";
@@ -37,6 +37,13 @@ export default async function ReviewDetailPage({
 
   return (
     <>
+      <Breadcrumbs
+        items={[
+          { label: "Admin", href: "/admin/review" },
+          { label: "Fila de revisão", href: "/admin/review" },
+          { label: data.edition.title },
+        ]}
+      />
       <PageHeader
         title={data.edition.title}
         description={`${data.edition.edition_date}`}
@@ -69,7 +76,11 @@ export default async function ReviewDetailPage({
 
       <Card className="mb-6 border-rose-200 dark:border-rose-500/40 bg-rose-50/60 shadow-k-1">
         <CardHeader className="pb-3">
-          <span className="k-eyebrow text-rose-900 dark:text-blush-200">
+          {/* Este Card não tem dark:bg (fica bg-rose-50/60 claro também no dark)
+              — blush-200 falhava AA (2.0:1); blush-950 é o tom mais escuro da
+              escala e chega a 4.39:1 (melhor possível sem tocar o bg, fora do
+              escopo desta auditoria). */}
+          <span className="k-eyebrow text-rose-900 dark:text-blush-950">
             Decisão
           </span>
           <CardTitle className="text-lg">
@@ -212,12 +223,6 @@ export default async function ReviewDetailPage({
           </div>
         </>
       )}
-
-      <p className="mt-8 text-sm">
-        <Link href="/admin/review" className="text-primary hover:underline">
-          ← Voltar à fila
-        </Link>
-      </p>
     </>
   );
 }

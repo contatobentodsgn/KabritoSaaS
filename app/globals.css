@@ -99,6 +99,16 @@
     font-style: italic;
     font-weight: 400;
   }
+  /* Foco visível (UI-5) — mesmo anel do Button, pra elementos interativos
+     custom fora de components/ui/* (nav links, <summary>, cards clicáveis). */
+  .k-focus {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+  /* Micro-transição padrão de hover/press (UI-7) — era "transition-colors
+     duration-150" repetido copiado-colado em ~9 lugares. */
+  .k-transition {
+    @apply transition-colors duration-150;
+  }
 }
 
 /* Barra de progresso indeterminada (loading.tsx) — CSS puro, sem JS. */

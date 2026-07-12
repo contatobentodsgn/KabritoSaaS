@@ -93,7 +93,7 @@ export default async function SettingsPage({
       )}
 
       <div className="grid gap-5">
-        <Card>
+        <Card id="perfil">
           <CardHeader>
             <CardTitle className="text-base">Perfil</CardTitle>
           </CardHeader>
@@ -144,7 +144,7 @@ export default async function SettingsPage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card id="seguranca">
           <CardHeader>
             <CardTitle className="text-base">Sessões e segurança</CardTitle>
           </CardHeader>

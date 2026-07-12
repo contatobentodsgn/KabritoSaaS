@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight, CalendarDays, Newspaper } from "lucide-react";
 import { requireActiveSubscription } from "@/server/permissions";
 import {
   listEditions,
@@ -61,6 +61,7 @@ export default async function DailyBriefingHistoryPage({
 
       {editions.length === 0 ? (
         <EmptyState
+          icon={Newspaper}
           title="Nenhuma edição ainda"
           description="As edições publicadas aparecem aqui como histórico."
         />

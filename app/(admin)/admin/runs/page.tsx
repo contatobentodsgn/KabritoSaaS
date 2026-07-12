@@ -1,3 +1,4 @@
+import { Zap } from "lucide-react";
 import { listRuns } from "@/server/services/admin";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/content/empty-state";
@@ -30,13 +31,45 @@ export default async function RunsPage() {
       />
       {runs.length === 0 ? (
         <EmptyState
+          icon={Zap}
           title="Nenhuma geração ainda"
           description="Quando uma edição for gerada, o custo e o histórico de execuções aparecem aqui."
         />
       ) : (
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            <div className="space-y-3 p-3 sm:hidden">
+              {runs.map((r) => (
+                <div key={r.id} className="space-y-2 rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-medium">{r.edition_date}</span>
+                    <StatusBadge status={r.status} map={RUN_STATUS} />
+                  </div>
+                  <div className="flex justify-between gap-3 text-sm">
+                    <span className="text-muted-foreground">
+                      Modelo / prompt
+                    </span>
+                    <span className="text-right text-muted-foreground">
+                      {r.model_used ?? "—"}{" "}
+                      {r.prompt_version ? `· ${r.prompt_version}` : ""}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Tokens (in/out)
+                    </span>
+                    <span className="text-muted-foreground">
+                      {r.input_tokens ?? 0} / {r.output_tokens ?? 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Custo (US$)</span>
+                    <span>{Number(r.cost_estimate ?? 0).toFixed(4)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden overflow-x-auto sm:block">
               <table className="w-full min-w-[560px] text-sm">
                 <thead className="border-b bg-mint-50 dark:bg-forest-950/40 text-left">
                   <tr className="[&>th]:k-eyebrow [&>th]:p-3 [&>th]:font-semibold">

@@ -9,8 +9,17 @@ export const rejectionSchema = z.object({
 
 export const editionEditSchema = z.object({
   editionId: z.string().uuid(),
-  title: z.string().trim().min(3).max(200),
-  summary: z.string().trim().max(2000).optional().or(z.literal("")),
+  title: z
+    .string()
+    .trim()
+    .min(3, "Título muito curto (mínimo 3 caracteres)")
+    .max(200, "Título muito longo (máximo 200 caracteres)"),
+  summary: z
+    .string()
+    .trim()
+    .max(2000, "Resumo muito longo (máximo 2000 caracteres)")
+    .optional()
+    .or(z.literal("")),
 });
 
 /** Tabelas de itens editáveis na fila de revisão e os campos de texto liberados. */
@@ -44,7 +53,11 @@ export const itemEditSchema = z.object({
   ),
   id: z.string().uuid(),
   field: z.string().min(1).max(60),
-  value: z.string().trim().min(1).max(2000),
+  value: z
+    .string()
+    .trim()
+    .min(1, "Campo não pode ficar vazio")
+    .max(2000, "Texto muito longo (máximo 2000 caracteres)"),
 });
 
 export const itemDeleteSchema = z.object({

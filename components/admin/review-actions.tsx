@@ -3,7 +3,11 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { approveEdition, rejectEdition } from "@/server/actions/admin/review";
+import {
+  approveEdition,
+  rejectEdition,
+  undoRejectEdition,
+} from "@/server/actions/admin/review";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -32,8 +36,28 @@ export function ReviewActions({ editionId }: { editionId: string }) {
     start(async () => {
       const res = await rejectEdition({ editionId, reason });
       if (res.ok) {
-        toast.success("Edição rejeitada. Motivo registrado.");
         router.push("/admin/review");
+        // Desfazer (UX-5): a Toaster vive no layout raiz, então a ação
+        // sobrevive à navegação acima — undoRejectEdition roda mesmo depois
+        // deste componente desmontar.
+        toast.success("Edição rejeitada. Motivo registrado.", {
+          duration: 8000,
+          action: {
+            label: "Desfazer",
+            onClick: () => {
+              void undoRejectEdition(editionId).then((undo) => {
+                if (undo.ok) {
+                  toast.success(
+                    "Rejeição desfeita — a edição voltou para a fila.",
+                  );
+                  router.refresh();
+                } else {
+                  toast.error(undo.error);
+                }
+              });
+            },
+          },
+        });
       } else toast.error(res.error);
     });
   }

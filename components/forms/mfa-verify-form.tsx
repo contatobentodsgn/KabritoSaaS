@@ -77,6 +77,18 @@ export function MfaVerifyForm({ factorId }: { factorId: string }) {
           ? "Tenho o app autenticador, usar o código de 6 dígitos"
           : "Perdi o acesso ao autenticador, usar um código de recuperação"}
       </button>
+      {useRecovery && (
+        <p className="text-sm text-muted-foreground">
+          Também não tem mais o código de recuperação?{" "}
+          <a
+            href="mailto:contato@kabritodigital.com"
+            className="text-foreground underline-offset-2 hover:underline"
+          >
+            Fale com o suporte
+          </a>
+          .
+        </p>
+      )}
     </div>
   );
 }
