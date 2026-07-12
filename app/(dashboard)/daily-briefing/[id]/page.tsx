@@ -31,7 +31,9 @@ export default async function EditionDetailPage({
   await requireActiveSubscription();
   const [{ id }, { nicho }] = await Promise.all([params, searchParams]);
 
-  const data = await getEditionWithModules(id);
+  // { cached: true }: página de assinante lendo edição já publicada — ver
+  // doc de getEditionWithModules em server/services/content.ts (PERF-2).
+  const data = await getEditionWithModules(id, { cached: true });
   if (!data) notFound();
 
   const [favs, comments, user, canModerate, niches] = await Promise.all([

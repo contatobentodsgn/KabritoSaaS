@@ -75,8 +75,13 @@ export default async function DashboardPage({
 
   const latest = active ? await getLatestEdition(slug) : null;
   // Favoritos são buscados sempre que ativo (úteis mesmo sem edição do dia).
+  // { cached: true }: latest.id só é uma edição JÁ PUBLICADA (getLatestEdition
+  // filtra status) — ver doc de getEditionWithModules em
+  // server/services/content.ts (PERF-2).
   const [data, favorites] = await Promise.all([
-    latest ? getEditionWithModules(latest.id) : Promise.resolve(null),
+    latest
+      ? getEditionWithModules(latest.id, { cached: true })
+      : Promise.resolve(null),
     active ? listFavorites() : Promise.resolve([]),
   ]);
   const name = profile?.name ?? "criador";
