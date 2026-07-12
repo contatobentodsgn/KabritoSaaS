@@ -44,6 +44,12 @@ export function ItemEditor({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [confirmRemove, setConfirmRemove] = useState(false);
 
+  // PERF-10 (auditado): `values` atualiza a cada tecla via onChange no
+  // Textarea abaixo — de propósito sem debounce, já que é só isso que
+  // mantém o campo controlado; debounçar atrasaria a letra aparecendo na
+  // tela. Não há useEffect nem chamada de rede dependendo de `values` neste
+  // componente — `dirty` é o único cálculo derivado, e é barato (filter
+  // sobre poucos campos). Nada aqui precisa de debounce.
   // Só os campos realmente alterados são salvos — um único "Salvar alterações".
   const dirty = fields.filter(
     (f) => (values[f.name] ?? "") !== savedValues[f.name],
