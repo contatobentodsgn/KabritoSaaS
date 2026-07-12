@@ -44,3 +44,32 @@ export async function updateAvatarAction(
   revalidatePath("/daily-briefing", "layout");
   return { ok: true, url: up.url };
 }
+
+/**
+ * Sincroniza o tema escolhido pro perfil (UX-10) — sobrevive troca de
+ * dispositivo/limpar localStorage, que continua sendo a fonte RÁPIDA (anti-
+ * flash no root layout lê de lá, não daqui). Fire-and-forget: sem sessão,
+ * no-op silencioso (chamado também nas páginas públicas via ThemeToggle);
+ * falha de rede não deve virar toast de erro pra uma troca de tema.
+ */
+export async function saveThemePreferenceAction(
+  theme: "light" | "dark",
+): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) return;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("profiles")
+      .select("preferences")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const current = (data?.preferences as Record<string, unknown>) ?? {};
+    await supabase
+      .from("profiles")
+      .update({ preferences: { ...current, theme } })
+      .eq("user_id", user.id);
+  } catch (err) {
+    console.error("[profile] saveThemePreferenceAction:", err);
+  }
+}

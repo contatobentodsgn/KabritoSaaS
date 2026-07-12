@@ -1,9 +1,10 @@
 // GERADO por `npm run db:gen-types` (supabase gen types typescript --linked).
-// NÃO editar à mão, EXCETO `mfa_recovery_codes`: a migration 0017 ainda não
-// rodou no banco remoto (REF-5, jul/2026) — a tabela existe no código/migrations
-// mas não no schema ao vivo, então o gerador não a inclui. Assim que
-// `npm run db:migrate` rodar contra produção, regere este arquivo (o bloco
-// manual vira redundante, mas não quebra nada se ficar — mesma estrutura).
+// NÃO editar à mão, EXCETO onde a migration ainda não rodou no banco remoto
+// (código/migrations já tem, schema ao vivo ainda não, gerador não inclui):
+// - `mfa_recovery_codes` (migration 0017, REF-5, jul/2026)
+// - `profiles.preferences` (migration 0018, UX-10, jul/2026)
+// Assim que `npm run db:migrate` rodar contra produção, regere este arquivo
+// (os blocos manuais viram redundantes, mas não quebram nada se ficarem).
 export type Json =
   | string
   | number
@@ -791,6 +792,7 @@ export type Database = {
           email: string;
           id: string;
           name: string | null;
+          preferences: Json;
           staff_role: Database["public"]["Enums"]["staff_role"] | null;
           updated_at: string;
           user_id: string;
@@ -802,6 +804,7 @@ export type Database = {
           email: string;
           id?: string;
           name?: string | null;
+          preferences?: Json;
           staff_role?: Database["public"]["Enums"]["staff_role"] | null;
           updated_at?: string;
           user_id: string;
@@ -813,6 +816,7 @@ export type Database = {
           email?: string;
           id?: string;
           name?: string | null;
+          preferences?: Json;
           staff_role?: Database["public"]["Enums"]["staff_role"] | null;
           updated_at?: string;
           user_id?: string;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
+import { saveThemePreferenceAction } from "@/server/actions/profile";
 
 /**
  * Alterna claro/escuro adicionando/removendo `.dark` no <html> e persistindo em
@@ -26,6 +27,9 @@ export function ThemeToggle() {
       /* ignore */
     }
     setIsDark(next);
+    // Sincroniza com o perfil (sem sessão = no-op no server) — localStorage
+    // já é a fonte rápida, isto é só o backup que sobrevive troca de aparelho.
+    void saveThemePreferenceAction(next ? "dark" : "light");
   };
 
   return (
