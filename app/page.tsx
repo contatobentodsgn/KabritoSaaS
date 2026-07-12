@@ -2,7 +2,11 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { LandingReveal } from "@/components/landing/landing-reveal";
+// Code-split (PERF-9): importa via wrapper "use client" que usa next/dynamic
+// com ssr:false — precisa desse indireto porque este arquivo é um Server
+// Component (lê headers() abaixo) e o Next não permite ssr:false num
+// dynamic() chamado direto daqui. Motivo completo em landing-reveal-lazy.tsx.
+import { LandingReveal } from "@/components/landing/landing-reveal-lazy";
 import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Features } from "@/components/landing/features";
@@ -10,6 +14,13 @@ import { Trust } from "@/components/landing/trust";
 import { Faq, FAQS } from "@/components/landing/faq";
 import { Cta } from "@/components/landing/cta";
 import { Logo } from "@/components/layout/logo";
+
+// ISR (PERF-8): o headers() logo abaixo (nonce da CSP) força renderização
+// dinâmica por requisição, então isto não ativa cache HTTP da página hoje —
+// Next.js ignora `revalidate` quando uma Dynamic API é lida (só definiria a
+// janela padrão de fetch()s, e não há fetch aqui). Mantido como intenção
+// correta: passa a valer se esta rota deixar de ler headers(). Detalhes no PR.
+export const revalidate = 3600;
 
 // Mesmo fallback de produção do metadataBase em app/layout.tsx.
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://kabrito.vercel.app";
