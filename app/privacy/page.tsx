@@ -1,5 +1,14 @@
 import Link from "next/link";
 
+// ISR (PERF-8): a rota já sai "ƒ" (dinâmica) no build não por nada nesta
+// página, mas porque o layout raiz (app/layout.tsx) lê headers() para o nonce
+// da CSP do seu próprio script anti-flash de tema — isso força renderização
+// dinâmica em toda rota do app (mesmo caso do app/page.tsx, ver PR).
+// `revalidate` não ativa cache HTTP aqui hoje por esse motivo, mas documenta
+// a intenção: conteúdo legal muda raramente, 24h é uma janela segura assim
+// que a rota deixar de depender de uma Dynamic API.
+export const revalidate = 86400;
+
 export const metadata = {
   title: "Política de Privacidade · Inteligência Criativa",
 };

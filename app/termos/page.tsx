@@ -1,5 +1,11 @@
 import Link from "next/link";
 
+// ISR (PERF-8): mesmo motivo do app/privacy/page.tsx (par legal) — a rota é
+// dinâmica por causa do headers() no layout raiz (nonce da CSP), não por
+// nada nesta página. `revalidate` não ativa cache HTTP hoje por isso, mas
+// documenta a intenção para quando a rota deixar de depender de headers().
+export const revalidate = 86400;
+
 export const metadata = { title: "Termos de Uso · Inteligência Criativa" };
 
 /** Termos de uso públicos do serviço (par da Política de Privacidade). */

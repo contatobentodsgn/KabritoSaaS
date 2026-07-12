@@ -142,14 +142,18 @@ async function upsertOrgSubscription(input: {
     );
     return;
   }
-  const plan = await ensureSinglePlan();
-
-  const [existing] = await db
-    .select({ id: subscriptions.id })
-    .from(subscriptions)
-    .where(eq(subscriptions.organizationId, input.organizationId))
-    .orderBy(desc(subscriptions.createdAt))
-    .limit(1);
+  // ensureSinglePlan() já rodava incondicionalmente aqui — mesmo no ramo de
+  // update abaixo, que nem usa `plan` — então paralelizar com a leitura da
+  // assinatura existente não desperdiça nada a mais e corta uma ida ao banco.
+  const [plan, [existing]] = await Promise.all([
+    ensureSinglePlan(),
+    db
+      .select({ id: subscriptions.id })
+      .from(subscriptions)
+      .where(eq(subscriptions.organizationId, input.organizationId))
+      .orderBy(desc(subscriptions.createdAt))
+      .limit(1),
+  ]);
 
   if (existing) {
     await db

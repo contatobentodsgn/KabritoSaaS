@@ -51,14 +51,24 @@ export async function moveDashboardCard(
   const a = rows[idx]!;
   const b = rows[swapIdx]!;
   // Troca os sort_order (sem unique constraint, não há colisão). RLS exige staff.
-  const r1 = await supabase
-    .from("dashboard_cards")
-    .update({ sort_order: b.sort_order, updated_at: new Date().toISOString() })
-    .eq("key", a.key);
-  const r2 = await supabase
-    .from("dashboard_cards")
-    .update({ sort_order: a.sort_order, updated_at: new Date().toISOString() })
-    .eq("key", b.key);
+  // Os dois updates são independentes (linhas e valores já resolvidos acima,
+  // nenhum lê o resultado do outro) — em paralelo em vez de em série.
+  const [r1, r2] = await Promise.all([
+    supabase
+      .from("dashboard_cards")
+      .update({
+        sort_order: b.sort_order,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("key", a.key),
+    supabase
+      .from("dashboard_cards")
+      .update({
+        sort_order: a.sort_order,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("key", b.key),
+  ]);
   if (r1.error || r2.error) return { ok: false, error: "Falha ao reordenar." };
   revalidatePath("/dashboard");
   revalidatePath("/admin/cards");
