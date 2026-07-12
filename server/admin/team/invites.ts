@@ -161,22 +161,32 @@ export async function acceptInviteByToken(
     };
   }
 
-  await db
-    .insert(organizationMembers)
-    .values({
-      organizationId: invite.organizationId,
-      userId,
-      role: invite.role,
-    })
-    .onConflictDoNothing({
-      target: [organizationMembers.organizationId, organizationMembers.userId],
-    });
+  // Insere a membership e marca o convite como aceito em paralelo: tabelas
+  // diferentes, nenhuma das duas escritas lê o resultado da outra.
+  const writes: Promise<unknown>[] = [
+    db
+      .insert(organizationMembers)
+      .values({
+        organizationId: invite.organizationId,
+        userId,
+        role: invite.role,
+      })
+      .onConflictDoNothing({
+        target: [
+          organizationMembers.organizationId,
+          organizationMembers.userId,
+        ],
+      }),
+  ];
   if (!invite.acceptedAt) {
-    await db
-      .update(orgInvites)
-      .set({ acceptedAt: new Date() })
-      .where(eq(orgInvites.id, invite.id));
+    writes.push(
+      db
+        .update(orgInvites)
+        .set({ acceptedAt: new Date() })
+        .where(eq(orgInvites.id, invite.id)),
+    );
   }
+  await Promise.all(writes);
   return { ok: true, orgName: invite.orgName };
 }
 

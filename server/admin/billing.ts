@@ -71,13 +71,17 @@ export async function grantAccessByEmail(
   days = 365,
 ): Promise<GrantResult> {
   const db = getServiceDbClient();
-  const plan = await ensureSinglePlan();
-
-  const [profile] = await db
-    .select({ userId: profiles.userId })
-    .from(profiles)
-    .where(eq(profiles.email, email))
-    .limit(1);
+  // Mesmo raciocínio do upsertOrgSubscription (server/admin/stripe.ts):
+  // ensureSinglePlan() já rodava incondicionalmente antes de saber se o
+  // profile existe — paralelizar com essa leitura não desperdiça nada a mais.
+  const [plan, [profile]] = await Promise.all([
+    ensureSinglePlan(),
+    db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(eq(profiles.email, email))
+      .limit(1),
+  ]);
   if (!profile)
     return { ok: false, message: `Usuário não encontrado: ${email}` };
 

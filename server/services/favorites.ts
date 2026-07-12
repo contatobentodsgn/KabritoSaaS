@@ -104,29 +104,38 @@ export async function getFavoritedContent(): Promise<FavoritedContent> {
     return (data as T[]) ?? [];
   }
 
-  return {
-    total: favs.length,
-    trend_item: await fetchIn<TrendItemRow>("trend_items", byType.trend_item),
-    explore_report: await fetchIn<ExploreReportRow>(
-      "explore_reports",
-      byType.explore_report,
-    ),
-    copy_pattern: await fetchIn<CopyPatternRow>(
-      "copy_patterns",
-      byType.copy_pattern,
-    ),
-    visual_pattern: await fetchIn<VisualPatternRow>(
-      "visual_patterns",
-      byType.visual_pattern,
-    ),
-    headline: await fetchIn<HeadlineRow>("headlines", byType.headline),
-    content_suggestion: await fetchIn<ContentSuggestionRow>(
+  // 7 leituras independentes (uma por tipo de entidade) — nenhuma depende do
+  // resultado da outra, então rodam em paralelo em vez de em série (até 7 idas
+  // ao banco viram 1 rodada concorrente).
+  const [
+    trend_item,
+    explore_report,
+    copy_pattern,
+    visual_pattern,
+    headline,
+    content_suggestion,
+    prompt_template,
+  ] = await Promise.all([
+    fetchIn<TrendItemRow>("trend_items", byType.trend_item),
+    fetchIn<ExploreReportRow>("explore_reports", byType.explore_report),
+    fetchIn<CopyPatternRow>("copy_patterns", byType.copy_pattern),
+    fetchIn<VisualPatternRow>("visual_patterns", byType.visual_pattern),
+    fetchIn<HeadlineRow>("headlines", byType.headline),
+    fetchIn<ContentSuggestionRow>(
       "content_suggestions",
       byType.content_suggestion,
     ),
-    prompt_template: await fetchIn<PromptTemplateRow>(
-      "prompt_templates",
-      byType.prompt_template,
-    ),
+    fetchIn<PromptTemplateRow>("prompt_templates", byType.prompt_template),
+  ]);
+
+  return {
+    total: favs.length,
+    trend_item,
+    explore_report,
+    copy_pattern,
+    visual_pattern,
+    headline,
+    content_suggestion,
+    prompt_template,
   };
 }

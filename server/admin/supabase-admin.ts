@@ -31,6 +31,22 @@ export async function deleteAuthUser(userId: string): Promise<boolean> {
 }
 
 /**
+ * Roda uma purga best-effort isolada: falha vira log, nunca propaga. Usado para
+ * que as 4 purgas de purgeAccountAccess possam rodar em paralelo sem que uma
+ * falhando derrube as outras (mesmo isolamento que cada try/catch tinha antes).
+ */
+async function purgeStep(
+  label: string,
+  p: PromiseLike<unknown>,
+): Promise<void> {
+  try {
+    await p;
+  } catch (err) {
+    console.error(`[account] purgeAccountAccess ${label}:`, err);
+  }
+}
+
+/**
  * Revoga o ACESSO da conta no lado servidor (service role, isolado em admin) e
  * deleta o usuário em auth.users. Usado na exclusão de conta (LGPD).
  *
@@ -47,42 +63,45 @@ export async function purgeAccountAccess(
 ): Promise<{ authDeleted: boolean }> {
   if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) return { authDeleted: false };
   const admin = createAdminSupabase();
-  try {
+  // 4 purgas independentes (tabelas distintas, mesmo userId, nenhuma lê o
+  // resultado da outra) — cada uma já era isolada em seu próprio try/catch;
+  // rodá-las em paralelo preserva esse isolamento e troca 4 idas sequenciais
+  // ao banco por 1 rodada concorrente. A deleção em auth.users continua depois
+  // e sozinha (é o passo que pode falhar sem desfazer o resto, por design).
+  await Promise.all([
     // Soft-delete + anonimização do perfil. Via service role porque `deleted_at`
     // saiu do grant de UPDATE de `authenticated` (migration 0009) — o usuário não
     // pode escrever a própria flag de exclusão (anti auto-ressurreição).
-    await admin
-      .from("profiles")
-      .update({
-        deleted_at: new Date().toISOString(),
-        name: null,
-        email: `deleted+${userId}@example.invalid`,
-      })
-      .eq("user_id", userId);
-  } catch (err) {
-    console.error("[account] purgeAccountAccess profile:", err);
-  }
-  try {
-    await admin.from("organization_members").delete().eq("user_id", userId);
-  } catch (err) {
-    console.error("[account] purgeAccountAccess memberships:", err);
-  }
-  try {
+    purgeStep(
+      "profile",
+      admin
+        .from("profiles")
+        .update({
+          deleted_at: new Date().toISOString(),
+          name: null,
+          email: `deleted+${userId}@example.invalid`,
+        })
+        .eq("user_id", userId),
+    ),
+    purgeStep(
+      "memberships",
+      admin.from("organization_members").delete().eq("user_id", userId),
+    ),
     // LGPD: anonimiza os comentários do titular (nome real denormalizado + corpo).
     // edition_comments não tem FK para auth.users → deletar o usuário não cascateia.
-    await admin
-      .from("edition_comments")
-      .update({ author_name: null, body: "[comentário removido]" })
-      .eq("user_id", userId);
-  } catch (err) {
-    console.error("[account] purgeAccountAccess comments:", err);
-  }
-  try {
+    purgeStep(
+      "comments",
+      admin
+        .from("edition_comments")
+        .update({ author_name: null, body: "[comentário removido]" })
+        .eq("user_id", userId),
+    ),
     // LGPD: remove as sessões do titular (IP/user-agent) — não basta desativar.
-    await admin.from("user_sessions").delete().eq("user_id", userId);
-  } catch (err) {
-    console.error("[account] purgeAccountAccess sessions:", err);
-  }
+    purgeStep(
+      "sessions",
+      admin.from("user_sessions").delete().eq("user_id", userId),
+    ),
+  ]);
   try {
     const { error } = await admin.auth.admin.deleteUser(userId);
     return { authDeleted: !error };
