@@ -91,7 +91,56 @@ export default async function AnalyticsPage() {
             ) : (
               <Card className="overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="overflow-x-auto">
+                  <div className="space-y-3 p-3 md:hidden">
+                    {byVersion.map((r) => (
+                      <div
+                        key={r.version}
+                        className="space-y-2 rounded-lg border p-4"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-medium">{r.version}</span>
+                          <Badge variant={r.failed > 0 ? "warning" : "success"}>
+                            {pct(r.failed, r.total)} falha
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Total</span>
+                          <span className="text-muted-foreground">
+                            {int(r.total)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Completos
+                          </span>
+                          <span className="text-muted-foreground">
+                            {int(r.completed)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Falhas</span>
+                          {r.failed > 0 ? (
+                            <Badge variant="destructive">{int(r.failed)}</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">0</span>
+                          )}
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Custo médio
+                          </span>
+                          <span>{usd(r.avgCostUsd)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Tokens</span>
+                          <span className="text-muted-foreground">
+                            {int(r.totalTokens)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="hidden overflow-x-auto md:block">
                     <table className="w-full min-w-[680px] text-sm">
                       <thead className="border-b bg-mint-50 dark:bg-forest-950/40 text-left">
                         <tr className="[&>th]:k-eyebrow [&>th]:p-3 [&>th]:font-semibold">
