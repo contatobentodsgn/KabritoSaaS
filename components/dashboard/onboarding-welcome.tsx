@@ -35,7 +35,7 @@ export function OnboardingWelcome({ name }: { name: string }) {
   };
 
   return (
-    <section className="relative overflow-hidden rounded-xl border border-mint-200 bg-mint-50/70 p-6 dark:border-forest-800 dark:bg-forest-950/40 sm:p-8">
+    <section className="relative overflow-hidden rounded-xl border border-mint-200 bg-mint-50/70 p-lg dark:border-forest-800 dark:bg-forest-950/40 sm:p-xl">
       <button
         onClick={done}
         aria-label="Fechar boas-vindas"

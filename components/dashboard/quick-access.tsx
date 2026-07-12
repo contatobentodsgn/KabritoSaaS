@@ -155,7 +155,7 @@ export function QuickAccess({
       {cards.map((c) => (
         <Link key={c.cardKey} href={c.href} className="group">
           <Card className="h-full transition-shadow duration-150 hover:shadow-k-1">
-            <CardContent className="flex h-full flex-col gap-3 py-5">
+            <CardContent className="flex h-full flex-col gap-3 py-md">
               <span className="flex size-10 items-center justify-center rounded-full bg-forest-50 dark:bg-forest-900 text-forest-700 dark:text-forest-200">
                 <c.icon className="size-5" strokeWidth={1.75} />
               </span>
