@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Flame, Type, Image as ImageIcon, Lightbulb } from "lucide-react";
 import { getCurrentProfile } from "@/server/auth/session";
+import { getMfaStatus } from "@/server/auth/mfa";
 import { hasActiveSubscription } from "@/server/permissions";
 import {
   getLatestEdition,
@@ -47,11 +48,12 @@ export default async function DashboardPage({
     formato?: string;
   }>;
 }) {
-  const [{ platform: platformParam, nicho, formato }, profile, active] =
+  const [{ platform: platformParam, nicho, formato }, profile, active, mfa] =
     await Promise.all([
       searchParams,
       getCurrentProfile(),
       hasActiveSubscription(),
+      getMfaStatus(),
     ]);
 
   const [platforms, niches, enabledCardKeys] = active
@@ -80,7 +82,14 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-6">
-      {active && <OnboardingWelcome name={name} />}
+      {active && (
+        <OnboardingWelcome
+          name={name}
+          mfaEnrolled={mfa.enrolled}
+          hasAvatar={!!profile?.avatarUrl}
+          dismissedInitially={!!profile?.preferences?.onboardingDismissed}
+        />
+      )}
 
       <DashboardHero
         name={name}
