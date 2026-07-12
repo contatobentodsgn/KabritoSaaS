@@ -79,11 +79,15 @@ export async function deleteAccountAction(): Promise<void> {
   // 1) Purga dados próprios que a RLS permite ao usuário (favoritos + sessões).
   //    O soft-delete/anonimização do PERFIL (deleted_at) não está mais ao alcance
   //    do usuário (migration 0009) — vai junto da rotina admin abaixo.
-  await supabase.from("user_favorites").delete().eq("user_id", user.id);
-  await supabase
-    .from("user_sessions")
-    .update({ is_active: false, revoked_at: new Date().toISOString() })
-    .eq("user_id", user.id);
+  //    As duas purgas são independentes (tabelas distintas, nenhuma lê o
+  //    resultado da outra) — em paralelo em vez de em série.
+  await Promise.all([
+    supabase.from("user_favorites").delete().eq("user_id", user.id),
+    supabase
+      .from("user_sessions")
+      .update({ is_active: false, revoked_at: new Date().toISOString() })
+      .eq("user_id", user.id),
+  ]);
 
   await recordAudit({
     action: AUDIT_ACTIONS.ACCOUNT_DELETED,

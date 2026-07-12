@@ -279,16 +279,21 @@ export async function updatePasswordAction(
   // todas as OUTRAS sessões (scope "others" — mantém a atual, o próprio
   // dispositivo onde a troca acabou de acontecer, sem deslogar quem trocou).
   const deviceId = await getOrCreateDeviceId();
-  await supabase
-    .from("user_sessions")
-    .update({ is_active: false, revoked_at: new Date().toISOString() })
-    .eq("user_id", user.id)
-    .neq("device_id", deviceId);
-  await supabase.auth.signOut({ scope: "others" });
-  await recordAudit({
-    action: AUDIT_ACTIONS.PASSWORD_CHANGED,
-    entityType: "profile",
-  });
+  // 3 efeitos colaterais independentes de "revogar as outras sessões": nenhum
+  // lê o resultado do outro (deviceId já foi resolvido acima) — em paralelo em
+  // vez de em série.
+  await Promise.all([
+    supabase
+      .from("user_sessions")
+      .update({ is_active: false, revoked_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .neq("device_id", deviceId),
+    supabase.auth.signOut({ scope: "others" }),
+    recordAudit({
+      action: AUDIT_ACTIONS.PASSWORD_CHANGED,
+      entityType: "profile",
+    }),
+  ]);
 
   redirect(DEFAULT_REDIRECT);
 }
