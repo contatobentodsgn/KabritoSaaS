@@ -29,7 +29,7 @@ import { sendInviteEmail } from "@/server/admin/notify";
 import { recordAudit } from "@/server/audit/log";
 import { consume } from "@/server/rate-limit";
 import { AUDIT_ACTIONS } from "@/lib/constants";
-import { RATE_LIMIT_GENERIC } from "@/lib/messages";
+import { rateLimitMessage } from "@/lib/messages";
 import type { ActionResult } from "@/server/actions/types";
 
 /**
@@ -110,8 +110,9 @@ export async function acceptInviteAction(
 
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Entre para aceitar o convite." };
-  if (!(await consume("invite_accept", user.id)).success) {
-    return { ok: false, error: RATE_LIMIT_GENERIC };
+  const rl = await consume("invite_accept", user.id);
+  if (!rl.success) {
+    return { ok: false, error: rateLimitMessage(rl.resetAt) };
   }
 
   const res = await acceptInviteByToken(parsed.data, user.id);

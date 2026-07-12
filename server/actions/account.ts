@@ -8,7 +8,7 @@ import { recordAudit } from "@/server/audit/log";
 import { purgeAccountAccess } from "@/server/admin/supabase-admin";
 import { consume } from "@/server/rate-limit";
 import { AUDIT_ACTIONS } from "@/lib/constants";
-import { RATE_LIMIT_GENERIC } from "@/lib/messages";
+import { rateLimitMessage } from "@/lib/messages";
 import type { ActionResult } from "@/server/actions/types";
 
 export type DataExport = ActionResult<{ data: Record<string, unknown> }>;
@@ -21,8 +21,9 @@ export type DataExport = ActionResult<{ data: Record<string, unknown> }>;
 export async function exportMyDataAction(): Promise<DataExport> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Não autenticado." };
-  if (!(await consume("data_export", user.id)).success) {
-    return { ok: false, error: RATE_LIMIT_GENERIC };
+  const rl = await consume("data_export", user.id);
+  if (!rl.success) {
+    return { ok: false, error: rateLimitMessage(rl.resetAt) };
   }
 
   const supabase = await createClient();
