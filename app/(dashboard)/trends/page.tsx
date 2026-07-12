@@ -1,3 +1,4 @@
+import { Flame } from "lucide-react";
 import { requireActiveSubscription } from "@/server/permissions";
 import { listTrends, listNiches } from "@/server/services/content";
 import { getFavoriteKeySet } from "@/server/services/favorites";
@@ -40,6 +41,7 @@ export default async function TrendsPage({
       </div>
       {trends.length === 0 ? (
         <EmptyState
+          icon={Flame}
           title={
             filtering
               ? "Nenhuma pauta com esses filtros"

@@ -1,3 +1,4 @@
+import { Zap } from "lucide-react";
 import { listRuns } from "@/server/services/admin";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/content/empty-state";
@@ -30,6 +31,7 @@ export default async function RunsPage() {
       />
       {runs.length === 0 ? (
         <EmptyState
+          icon={Zap}
           title="Nenhuma geração ainda"
           description="Quando uma edição for gerada, o custo e o histórico de execuções aparecem aqui."
         />
