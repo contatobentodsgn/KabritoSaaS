@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { canManagePipeline } from "@/server/permissions";
 import { DASHBOARD_CARD_KEYS } from "@/lib/dashboard-cards";
@@ -23,6 +23,9 @@ export async function toggleDashboardCard(
   if (error) return { ok: false, error: "Falha ao atualizar o card." };
   revalidatePath("/dashboard");
   revalidatePath("/admin/cards");
+  // getEnabledCardKeys() é cacheado (PERF-2, unstable_cache 5min) — invalida
+  // na hora em vez de esperar o TTL, pra o toggle refletir de imediato.
+  revalidateTag("dashboard-cards");
   return { ok: true };
 }
 
@@ -69,5 +72,7 @@ export async function moveDashboardCard(
   if (r1.error || r2.error) return { ok: false, error: "Falha ao reordenar." };
   revalidatePath("/dashboard");
   revalidatePath("/admin/cards");
+  // Mesma razão do toggle acima: invalida o cache de getEnabledCardKeys().
+  revalidateTag("dashboard-cards");
   return { ok: true };
 }

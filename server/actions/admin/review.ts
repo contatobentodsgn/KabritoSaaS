@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { requireAal2 } from "@/server/auth/mfa";
@@ -96,6 +96,10 @@ export async function approveEdition(editionId: string): Promise<ActionResult> {
   revalidatePath("/admin/review");
   revalidatePath("/daily-briefing");
   revalidatePath("/dashboard");
+  // getLatestEdition() é cacheado (PERF-2, unstable_cache 5min, tag
+  // "editions") — invalida na hora pra a edição recém-publicada virar a
+  // "atual" imediatamente, em vez de esperar o TTL.
+  revalidateTag("editions");
   return { ok: true };
 }
 
@@ -181,6 +185,10 @@ export async function updateEditionMeta(input: unknown): Promise<ActionResult> {
     entityId: parsed.data.editionId,
   });
   revalidatePath("/admin/review");
+  // getEditionWithModules(id, { cached: true }) é cacheado (PERF-2) — cobre
+  // o caso raro de correção pós-publicação (edição já publicada sendo
+  // editada aqui) refletir pro assinante sem esperar o TTL.
+  revalidateTag("edition-content");
   return { ok: true };
 }
 
@@ -211,6 +219,9 @@ export async function updateItemField(input: unknown): Promise<ActionResult> {
     entityId: id,
   });
   revalidatePath("/admin/review");
+  // Mesma razão do updateEditionMeta acima: invalida o cache de
+  // getEditionWithModules(id, { cached: true }) (PERF-2).
+  revalidateTag("edition-content");
   return { ok: true };
 }
 
@@ -231,5 +242,8 @@ export async function deleteItem(input: unknown): Promise<ActionResult> {
     entityId: parsed.data.id,
   });
   revalidatePath("/admin/review");
+  // Mesma razão do updateEditionMeta acima: invalida o cache de
+  // getEditionWithModules(id, { cached: true }) (PERF-2).
+  revalidateTag("edition-content");
   return { ok: true };
 }

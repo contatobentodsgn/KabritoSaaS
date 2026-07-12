@@ -35,9 +35,10 @@ export default async function EditionDetailPage({
 
   // Gate estrutural: define o 404 e alimenta o header (título/eyebrow) e a
   // sub-nav, então precisa resolver antes de qualquer HTML sair — igual ao
-  // requireActiveSubscription() acima. Não é uma "ilha" (PERF-2 cuida de
-  // cachear esta função em server/services/content.ts, não mexemos nela aqui).
-  const data = await getEditionWithModules(id);
+  // requireActiveSubscription() acima, não é uma "ilha" (PERF-3). { cached:
+  // true }: página de assinante lendo edição já publicada — ver doc de
+  // getEditionWithModules em server/services/content.ts (PERF-2).
+  const data = await getEditionWithModules(id, { cached: true });
   if (!data) notFound();
   // TS não propaga o narrowing de `data` para dentro dos fechos aninhados
   // abaixo (EditionContent) — `edition` fixa o tipo já não-nulo no ponto da
