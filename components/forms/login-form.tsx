@@ -23,7 +23,7 @@ export function LoginForm() {
           required
         />
         {state.fieldErrors?.email && (
-          <p className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive">
             {state.fieldErrors.email[0]}
           </p>
         )}
@@ -38,7 +38,7 @@ export function LoginForm() {
           required
         />
         {state.fieldErrors?.password && (
-          <p className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive">
             {state.fieldErrors.password[0]}
           </p>
         )}

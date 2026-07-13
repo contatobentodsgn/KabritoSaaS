@@ -158,6 +158,7 @@ export function MfaSettings({
             placeholder="000000"
             maxLength={6}
             className="w-32 font-mono tracking-widest"
+            aria-label="Código de verificação"
           />
           <Button
             size="sm"

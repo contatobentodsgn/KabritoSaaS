@@ -26,7 +26,7 @@ export function ResetRequestForm() {
           required
         />
         {state.fieldErrors?.email && (
-          <p className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive">
             {state.fieldErrors.email[0]}
           </p>
         )}

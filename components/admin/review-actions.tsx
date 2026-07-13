@@ -113,6 +113,7 @@ export function ReviewActions({ editionId }: { editionId: string }) {
         <div className="space-y-2 rounded-md border border-rose-200 dark:border-rose-500/40 bg-rose-50/50 dark:bg-rose-500/15 p-3">
           <Textarea
             placeholder="Motivo da rejeição (vira feedback para ajustar o prompt)"
+            aria-label="Motivo da rejeição (vira feedback para ajustar o prompt)"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
