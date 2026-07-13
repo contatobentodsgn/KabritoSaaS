@@ -7,7 +7,11 @@ import {
 } from "@/components/ui/card";
 import { LoginForm } from "@/components/forms/login-form";
 
-export const metadata = { title: "Entrar · Kabrito" };
+export const metadata = {
+  title: "Entrar · Kabrito",
+  description:
+    "Acesse sua conta Kabrito para ver as pautas, copy, headlines e prompts gerados por IA e revisados por humanos hoje.",
+};
 
 export default async function LoginPage({
   searchParams,

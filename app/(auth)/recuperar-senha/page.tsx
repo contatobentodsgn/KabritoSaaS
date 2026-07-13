@@ -7,7 +7,11 @@ import {
 } from "@/components/ui/card";
 import { ResetRequestForm } from "@/components/forms/reset-request-form";
 
-export const metadata = { title: "Recuperar senha · Kabrito" };
+export const metadata = {
+  title: "Recuperar senha · Kabrito",
+  description:
+    "Solicite um e-mail para redefinir a senha da sua conta Kabrito.",
+};
 
 export default function RecuperarSenhaPage() {
   return (

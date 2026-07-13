@@ -7,7 +7,11 @@ import {
 } from "@/components/ui/card";
 import { RegisterForm } from "@/components/forms/register-form";
 
-export const metadata = { title: "Criar conta · Kabrito" };
+export const metadata = {
+  title: "Criar conta · Kabrito",
+  description:
+    "Crie sua conta na Kabrito e comece a receber inteligência criativa diária: pautas, copy, headlines e prompts para social media.",
+};
 
 export default function RegisterPage() {
   return (

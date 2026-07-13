@@ -11,6 +11,8 @@ export const revalidate = 86400;
 
 export const metadata = {
   title: "Política de Privacidade · Inteligência Criativa",
+  description:
+    "Política de privacidade da Kabrito: como coletamos, usamos e protegemos os dados dos usuários, em conformidade com a LGPD.",
 };
 
 /** Política de privacidade pública (LGPD — SECURITY_GUIDE §10). */

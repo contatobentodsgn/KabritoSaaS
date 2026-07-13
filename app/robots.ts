@@ -20,6 +20,7 @@ export default function robots(): MetadataRoute.Robots {
         "/settings",
         "/admin",
         "/redefinir-senha",
+        "/verificar",
         "/convite",
         "/api/",
       ],
