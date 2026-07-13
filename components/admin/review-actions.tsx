@@ -90,7 +90,14 @@ export function ReviewActions({ editionId }: { editionId: string }) {
           <p className="font-serif text-base text-foreground">
             Publicar e enviar o digest?
           </p>
-          <p className="text-sm text-muted-foreground">
+          {/* A11Y-4: esta caixa herda o Card pai de
+              admin/review/[id]/page.tsx, que fica claro (bg-rose-50/60) mesmo
+              no dark mode (decisão intencional do UI-9, ver comentário lá).
+              dark:bg-forest-950/40 sobre esse fundo claro produz um tom médio
+              (~93,116,89) onde --muted-foreground dark (calibrado p/ fundos
+              bem escuros) cai pra 2.61:1 — abaixo de AA. dark:text-mint-50
+              mede 4.87:1 nesse fundo específico. */}
+          <p className="text-sm text-muted-foreground dark:text-mint-50">
             A edição vai ao ar e o e-mail é enviado a todos os assinantes
             ativos. Isso não pode ser desfeito.
           </p>

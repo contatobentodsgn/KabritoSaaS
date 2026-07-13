@@ -88,7 +88,13 @@ export default async function ReviewDetailPage({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4 text-sm text-muted-foreground">
+          {/* A11Y-4: este Card fica bg-rose-50/60 claro mesmo no dark mode
+              (sem dark:bg — decisão intencional do UI-9, ver comentário
+              acima). --muted-foreground dark (calibrado p/ fundos bem
+              escuros) cai pra 1.33:1 nesse fundo claro — bem abaixo de AA.
+              dark:text-rose-950 mede 5.50:1 aqui (e 12.96:1 no fundo claro
+              equivalente do light mode, que já passava). */}
+          <p className="mb-4 text-sm text-muted-foreground dark:text-rose-950">
             Aprovar publica a edição (status → published), calcula a expiração e
             dispara o e-mail digest. Rejeitar registra o motivo como feedback.
           </p>
