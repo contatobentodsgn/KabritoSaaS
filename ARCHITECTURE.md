@@ -99,3 +99,20 @@ IA só grava `draft`; falha em qualquer módulo não derruba os outros nem publi
   emula roles/`auth.uid()` do Supabase) ou o Postgres efêmero do CI.
 - `tests/unit/*` — lógica pura (rate-limit, lockout, validações).
 - `tests/manual/*` — fluxos caros de automatizar (provisionamento, pipeline, billing).
+
+## Decisões arquiteturais (ADR)
+
+O "porquê" por trás de escolhas não-óbvias e difíceis de reverter, quando o
+código sozinho só mostra o "o quê" — ver `docs/adr/`:
+
+- [ADR-0001](docs/adr/0001-rls-como-camada-primaria-de-acesso.md) — RLS como
+  camada primária de controle de acesso, com service-role isolado por diretório.
+- [ADR-0002](docs/adr/0002-conteudo-editorial-global-sem-organization-id.md) —
+  conteúdo editorial é global (sem `organization_id`), apesar do modelo
+  multi-tenant.
+- [ADR-0003](docs/adr/0003-cache-opt-in-em-getEditionWithModules.md) — cache de
+  `getEditionWithModules` é opt-in, não o padrão.
+- [ADR-0004](docs/adr/0004-migrations-sql-manuais-sequenciais.md) — migrations
+  são SQL sequencial escrito à mão, não geradas integralmente pelo Drizzle Kit.
+- [ADR-0005](docs/adr/0005-confirmdialog-sem-dependencia.md) — `ConfirmDialog` é
+  hand-rolled, sem dependência de biblioteca de Dialog.
