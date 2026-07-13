@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Sparkles, X, CheckCircle2, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GlossaryTerm } from "@/components/ui/glossary-term";
 import { dismissOnboardingAction } from "@/server/actions/profile";
 
 interface Step {
@@ -79,7 +80,13 @@ export function OnboardingWelcome({
         Olá, {name} — vamos deixar sua conta pronta
       </h2>
       <p className="mt-2 max-w-xl text-muted-foreground">
-        Toda manhã sua edição chega{" "}
+        Toda manhã sua edição
+        <GlossaryTerm
+          term="Edição"
+          definition="Edição = o pacote de conteúdo gerado pra você num dia: pautas, headlines e sugestões, revisados por humanos antes de chegar até você."
+          className="mx-1 -mb-0.5 align-middle"
+        />
+        chega{" "}
         <strong className="font-medium text-foreground">
           revisada por humanos
         </strong>{" "}

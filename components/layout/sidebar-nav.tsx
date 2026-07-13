@@ -16,11 +16,22 @@ import {
   Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { GlossaryTerm } from "@/components/ui/glossary-term";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/daily-briefing", label: "Edição diária", icon: Newspaper },
-  { href: "/trends", label: "Pautas quentes", icon: TrendingUp },
+  {
+    href: "/daily-briefing",
+    label: "Edição diária",
+    icon: Newspaper,
+    hint: "Edição = o pacote de conteúdo gerado pra você num dia: pautas, headlines e sugestões, revisados por humanos antes de chegar até você.",
+  },
+  {
+    href: "/trends",
+    label: "Pautas quentes",
+    icon: TrendingUp,
+    hint: "Pauta = uma tendência ou ideia de conteúdo que a IA encontrou, com o porquê ela importa e como adaptar pro seu nicho.",
+  },
   { href: "/headlines", label: "Headlines", icon: Type },
   { href: "/prompts", label: "Prompts", icon: Sparkles },
   { href: "/adaptar", label: "Adaptar ao meu nicho", icon: Wand2 },
@@ -51,18 +62,29 @@ export function SidebarNav({ isStaff = false }: { isStaff?: boolean }) {
   }, null);
   return (
     <nav className="flex flex-1 flex-col gap-0.5 p-3">
-      {NAV.map(({ href, label, icon: Icon }) => {
+      {NAV.map(({ href, label, icon: Icon, hint }) => {
         const active = href === activeHref;
         return (
-          <Link
-            key={href}
-            href={href}
-            aria-current={active ? "page" : undefined}
-            className={cn(itemBase, active ? itemActive : itemIdle)}
-          >
-            <Icon className="size-[19px]" />
-            {label}
-          </Link>
+          // Wrapper à parte do <Link> (em vez de aninhar o gatilho do
+          // glossário dentro dele): <button> dentro de <a> é HTML inválido e
+          // atrapalha a navegação por teclado.
+          <div key={href} className="flex items-center">
+            <Link
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={cn(itemBase, "flex-1", active ? itemActive : itemIdle)}
+            >
+              <Icon className="size-[19px]" />
+              {label}
+            </Link>
+            {hint && (
+              <GlossaryTerm
+                term={label}
+                definition={hint}
+                className="mr-2 shrink-0"
+              />
+            )}
+          </div>
         );
       })}
       {isStaff && (
