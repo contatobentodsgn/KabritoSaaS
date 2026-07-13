@@ -150,8 +150,11 @@ export function ItemEditor({
           const fieldError = fieldErrors[f.name];
           return (
             <div key={f.name} className="space-y-1">
-              <Label className="k-eyebrow">{f.label}</Label>
+              <Label htmlFor={`field-${f.name}`} className="k-eyebrow">
+                {f.label}
+              </Label>
               <Textarea
+                id={`field-${f.name}`}
                 value={values[f.name] ?? ""}
                 onChange={(e) => {
                   const next = e.target.value;
@@ -169,7 +172,9 @@ export function ItemEditor({
                 rows={f.value.length > 120 ? 4 : 2}
               />
               {fieldError && (
-                <p className="text-xs text-destructive">{fieldError}</p>
+                <p role="alert" className="text-xs text-destructive">
+                  {fieldError}
+                </p>
               )}
             </div>
           );

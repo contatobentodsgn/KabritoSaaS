@@ -23,7 +23,7 @@ export function NewPasswordForm() {
           required
         />
         {state.fieldErrors?.password ? (
-          <p className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive">
             {state.fieldErrors.password[0]}
           </p>
         ) : (
@@ -40,7 +40,7 @@ export function NewPasswordForm() {
           required
         />
         {state.fieldErrors?.confirmPassword && (
-          <p className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive">
             {state.fieldErrors.confirmPassword[0]}
           </p>
         )}

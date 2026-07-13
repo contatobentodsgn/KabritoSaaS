@@ -115,7 +115,7 @@ export function RegisterForm() {
         <Label htmlFor="name">Nome</Label>
         <Input id="name" name="name" type="text" autoComplete="name" required />
         {state.fieldErrors?.name && (
-          <p className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive">
             {state.fieldErrors.name[0]}
           </p>
         )}
@@ -130,7 +130,7 @@ export function RegisterForm() {
           required
         />
         {state.fieldErrors?.email && (
-          <p className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive">
             {state.fieldErrors.email[0]}
           </p>
         )}
@@ -145,7 +145,7 @@ export function RegisterForm() {
           required
         />
         {state.fieldErrors?.password ? (
-          <p className="text-sm text-destructive">
+          <p role="alert" className="text-sm text-destructive">
             {state.fieldErrors.password[0]}
           </p>
         ) : (

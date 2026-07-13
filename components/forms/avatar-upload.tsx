@@ -63,6 +63,7 @@ export function AvatarUpload({
           accept="image/png,image/jpeg,image/webp"
           className="hidden"
           onChange={onChange}
+          aria-label="Trocar avatar"
         />
         <Button
           type="button"
