@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 /**
  * Diálogo de confirmação on-brand (substitui o confirm() nativo do SO).
  * Dep-free — estado controlado pelo consumidor; ESC e clique-fora cancelam;
- * trava o scroll do body e foca o painel. Marca "conteúdo que cuida".
+ * trava o scroll do body, foca o painel e prende o foco (Tab/Shift+Tab não
+ * escapa para trás do overlay) enquanto aberto; devolve o foco a quem abriu
+ * o diálogo ao fechar. Marca "conteúdo que cuida".
  */
 export function ConfirmDialog({
   open,
@@ -30,11 +32,38 @@ export function ConfirmDialog({
   onCancel: () => void;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
+  // Enquanto aberto: ESC cancela, Tab/Shift+Tab prende o foco dentro do
+  // painel, trava o scroll do body e foca o painel; ao fechar devolve o
+  // foco ao elemento que estava focado antes de abrir (tipicamente o
+  // gatilho que disparou o diálogo).
   useEffect(() => {
     if (!open) return;
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCancel();
+      if (e.key === "Escape") {
+        onCancel();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const focusable = panelRef.current?.querySelectorAll<HTMLElement>(
+        'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable || focusable.length === 0) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     document.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
@@ -43,6 +72,7 @@ export function ConfirmDialog({
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
+      previouslyFocusedRef.current?.focus();
     };
   }, [open, onCancel]);
 
