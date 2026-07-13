@@ -6,7 +6,11 @@ import Link from "next/link";
 // documenta a intenção para quando a rota deixar de depender de headers().
 export const revalidate = 86400;
 
-export const metadata = { title: "Termos de Uso · Inteligência Criativa" };
+export const metadata = {
+  title: "Termos de Uso · Inteligência Criativa",
+  description:
+    "Termos de uso da Kabrito: condições de acesso e utilização da plataforma de inteligência criativa.",
+};
 
 /** Termos de uso públicos do serviço (par da Política de Privacidade). */
 export default function TermsPage() {
