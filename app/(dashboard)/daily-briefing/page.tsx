@@ -7,6 +7,7 @@ import {
   resolvePlatformSlug,
 } from "@/server/services/content";
 import { PageHeader } from "@/components/layout/page-header";
+import { GlossaryTerm } from "@/components/ui/glossary-term";
 import { PlatformSwitcher } from "@/components/dashboard/platform-switcher";
 import { NextBestAction } from "@/components/dashboard/next-best-action";
 import { EmptyState } from "@/components/content/empty-state";
@@ -40,6 +41,12 @@ export default async function DailyBriefingHistoryPage({
       <PageHeader
         eyebrow="Histórico"
         title="Edição diária"
+        titleHint={
+          <GlossaryTerm
+            term="Edição"
+            definition="Edição = o pacote de conteúdo gerado pra você num dia: pautas, headlines e sugestões, revisados por humanos antes de chegar até você."
+          />
+        }
         description="Suas edições anteriores. O conteúdo de hoje fica no Dashboard."
       />
 

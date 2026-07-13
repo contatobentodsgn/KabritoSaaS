@@ -3,6 +3,7 @@ import { requireActiveSubscription } from "@/server/permissions";
 import { listTrends, listNiches } from "@/server/services/content";
 import { getFavoriteKeySet } from "@/server/services/favorites";
 import { PageHeader } from "@/components/layout/page-header";
+import { GlossaryTerm } from "@/components/ui/glossary-term";
 import { EmptyState } from "@/components/content/empty-state";
 import { ContentFilters } from "@/components/dashboard/content-filters";
 import { TrendCard } from "@/components/content/trend-card";
@@ -34,6 +35,12 @@ export default async function TrendsPage({
       <PageHeader
         eyebrow="No radar"
         title="Pautas quentes"
+        titleHint={
+          <GlossaryTerm
+            term="Pauta"
+            definition="Pauta = uma tendência ou ideia de conteúdo que a IA encontrou, com o porquê ela importa e como adaptar pro seu nicho."
+          />
+        }
         description="As tendências acionáveis do momento, prontas para virar conteúdo."
       />
       <div className="mb-4">
