@@ -19,7 +19,7 @@ export function SectionNav({
           <li key={s.id}>
             <a
               href={`#${s.id}`}
-              className="inline-flex whitespace-nowrap rounded-full border border-mint-200 bg-card px-3 py-1 text-sm text-muted-foreground transition-colors hover:border-forest-300 hover:text-foreground dark:border-forest-800 dark:hover:border-forest-600"
+              className="inline-flex whitespace-nowrap rounded-full border border-mint-200 bg-card px-3 py-1 text-sm text-muted-foreground transition-colors hover:border-forest-300 hover:text-foreground dark:border-forest-800 dark:hover:border-forest-600 k-focus"
             >
               {s.label}
             </a>
