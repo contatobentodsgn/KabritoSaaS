@@ -53,6 +53,31 @@ jobs:
       - run: npm run format:check
       # Inclui os 39 testes de RLS (defesa multi-tenant) — nunca regride sem barrar.
       - run: npm test
+      # Cobertura como SINAL (IMPROVEMENTS-PLAN.md DX-6), não gate: roda depois
+      # do `npm test` (que já barra regressão) e nunca falha o job por
+      # percentual — continue-on-error cobre até um crash do runner de coverage.
+      - name: Cobertura de testes (sinal, não bloqueia)
+        continue-on-error: true
+        run: npm run test:coverage
+      - name: Resumo de cobertura no job summary
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            {
+              echo "### Cobertura de testes (sinal — não bloqueia o merge)"
+              echo
+              echo "| Arquivo | % Statements | % Branch | % Functions | % Lines |"
+              echo "|---|---|---|---|---|"
+              node -e '
+                const s = require("./coverage/coverage-summary.json").total;
+                const row = (n) => `${n.pct}%`;
+                console.log(`| total | ${row(s.statements)} | ${row(s.branches)} | ${row(s.functions)} | ${row(s.lines)} |`);
+              '
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Relatório de cobertura não encontrado — passo anterior falhou." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   secrets-scan:
     name: scan de segredos (gitleaks)
