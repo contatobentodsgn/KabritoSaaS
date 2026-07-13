@@ -30,7 +30,7 @@ export function Trust() {
       <div data-reveal className="max-w-2xl">
         <span className="k-eyebrow">Confiança</span>
         <h2 className="mt-3 font-serif text-3xl font-medium tracking-tight text-foreground sm:text-4xl">
-          Feito com responsabilidade.
+          Você aprova. Sempre.
         </h2>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
           Sem atalhos que colocam sua marca em risco. Cada escolha protege quem

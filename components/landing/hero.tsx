@@ -25,8 +25,9 @@ export function Hero() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-xl text-lg leading-[1.6] text-muted-foreground">
-          Pautas quentes, análises de copy e visual, headlines e prompts prontos
-          — gerados por IA e revisados por humanos antes de publicar.
+          Cada edição, pronta para usar: pautas quentes, análises de copy e
+          visual, headlines e prompts — gerados por IA e revisados por humanos
+          antes de publicar.
         </p>
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
