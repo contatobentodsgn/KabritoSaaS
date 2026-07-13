@@ -45,7 +45,7 @@ export function AvatarUpload({
       {preview ? (
         <Image
           src={preview}
-          alt="Avatar"
+          alt="Sua foto de perfil"
           width={64}
           height={64}
           unoptimized={preview.startsWith("blob:")}

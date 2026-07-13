@@ -27,7 +27,7 @@ function CommentAvatar({ name, src }: { name: string; src: string | null }) {
     return (
       <Image
         src={src}
-        alt=""
+        alt={`Foto de perfil de ${name}`}
         width={32}
         height={32}
         className="size-8 shrink-0 rounded-full object-cover"
