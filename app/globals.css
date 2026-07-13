@@ -136,3 +136,22 @@
     opacity: 0;
   }
 }
+
+/* A11Y-7: prefers-reduced-motion global — cobre toda animação/transição
+   CSS pura do projeto (Tailwind animate-in/fade-in/zoom-in-95/animate-pulse,
+   .k-transition, .k-progress-bar, tailwindcss-animate accordion, etc.).
+   A landing (components/landing/landing-reveal.tsx, GSAP) já respeita a
+   preferência via matchMedia em JS — este bloco é o equivalente para tudo
+   que anima só por CSS. Zera duração/iteração em vez de usar `display: none`
+   pra não esconder informação: o estado final (ex.: skeleton some, spinner
+   fica parado) continua comunicando a mesma coisa sem movimento. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
