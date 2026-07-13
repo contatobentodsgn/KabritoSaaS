@@ -19,7 +19,7 @@ const FEATURES = [
   {
     icon: PenLine,
     title: "Análise de copy",
-    desc: "Padrões de texto que convertem, explicados.",
+    desc: "Padrões de copy que estão funcionando agora, explicados.",
   },
   {
     icon: ImageIcon,
@@ -60,7 +60,7 @@ export function Features() {
         <div data-reveal className="max-w-2xl">
           <span className="k-eyebrow">A entrega</span>
           <h2 className="mt-3 font-serif text-3xl font-medium tracking-tight text-foreground sm:text-4xl">
-            Tudo pronto, todo dia.
+            Você nunca começa do zero.
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Uma edição completa, do gancho ao prompt — só revisar, adaptar e
