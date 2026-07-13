@@ -36,6 +36,12 @@ npm-debug.log*
 # test
 /coverage
 
+# playwright (e2e) — relatórios/artefatos de execução, não versionar
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # binários/artefatos que não devem ir ao repo
 /dist
 *.dmg
