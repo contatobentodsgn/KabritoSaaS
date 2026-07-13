@@ -6,6 +6,8 @@ A IA **gera**; a equipe humana só **revisa/aprova**. Falha no pipeline **nunca 
 > Documentação espelhada ao **código real** (ROADMAP Fase 9). Fonte da visão:
 > `PROJECT_MASTER_DOCUMENT.md`. Arquitetura atual: `ARCHITECTURE.md`. Segurança:
 > `SECURITY_GUIDE.md` + `SECURITY_CHECKLIST.md`. Contribuindo: `CONTRIBUTING.md`.
+> Histórico de mudanças: `CHANGELOG.md`. Decisões arquiteturais: `docs/adr/`
+> (linkadas em `ARCHITECTURE.md`).
 
 ## Stack
 
