@@ -30,9 +30,13 @@ export async function middleware(request: NextRequest) {
   // já chama notFound() (app/dev/ui/page.tsx); isso bloqueia mais cedo, no
   // edge, sem nem montar sessão/CSP. O matcher abaixo já cobre `/dev/*`
   // (só exclui _next/static, _next/image, favicon, assets e api/cron|webhooks).
+  // Match por segmento (== "/dev" ou prefixo "/dev/"), não startsWith("/dev")
+  // puro — mesmo padrão de sidebar-nav.tsx/admin-nav.tsx, evita capturar por
+  // engano uma rota futura tipo "/devices".
+  const { pathname } = request.nextUrl;
   if (
     process.env.NODE_ENV === "production" &&
-    request.nextUrl.pathname.startsWith("/dev")
+    (pathname === "/dev" || pathname.startsWith("/dev/"))
   ) {
     return new NextResponse(null, { status: 404 });
   }
