@@ -49,11 +49,13 @@ Requisitos: Node 20+ e PostgreSQL 16 (`brew install postgresql@16`).
 npm install
 cp .env.example .env.local        # preencha Supabase/AI/Resend para produção
 bash scripts/setup-local-db.sh    # sobe Postgres local + bootstrap (emula Supabase) + migrations
-npm run db:seed                   # plano único + plataforma + nichos + 1 prompt + fonte seed
+npm run db:seed                   # plano único + plataformas + nichos + tags + prompt + fontes + dados de demo
 npm run dev
 ```
 
 > O `setup-local-db.sh` cria um Postgres local que **emula o Supabase** (roles `anon`/`authenticated`/`service_role` + `auth.uid()`), para os testes de RLS rodarem de verdade. Em produção use o Supabase real (esses objetos já existem) — rode só as migrations `0000`→`0003`.
+
+Com o servidor local rodando, `/dev/ui` mostra uma vitrine dos componentes de UI mais usados (botões, badges, cards, campos, glossário/tooltip, confirm dialog...) isolados — alternativa leve a Storybook. **Só existe em dev**: a rota chama `notFound()` (e o `middleware.ts` já bloqueia `/dev/*` com 404 no edge) sempre que `NODE_ENV=production`.
 
 ### Pipeline (gerar edição draft)
 
@@ -71,6 +73,8 @@ npm run grant -- usuario@email.com 365
 
 ## Scripts
 
+`npm run help` lista todos os scripts abaixo, categorizados, direto no terminal.
+
 ```bash
 # Dev / build
 npm run dev              # servidor local
@@ -87,9 +91,10 @@ npm run deadcode           # knip — exports/arquivos/deps sem uso (sinal não-
 
 # Banco de dados
 npm run db:generate       # gera migration a partir de db/schema.ts (Drizzle Kit)
+npm run db:gen-types       # gera types TS do schema do Supabase (types/supabase.ts)
 npm run db:migrate         # aplica migrations pendentes
-npm run db:seed              # plano único + plataforma + nichos + 1 prompt + fonte seed
-npm run seed:editions      # edições de exemplo (dev/demo)
+npm run db:seed              # plano único + plataformas + nichos + tags + prompt + fontes + dados de demo
+npm run seed:editions      # edições de exemplo via pipeline real (dev/demo)
 npm run seed:test-user    # usuário de teste (dev)
 npm run setup:storage      # cria os buckets do Supabase Storage (avatares)
 npm run db:backup           # dump do banco
