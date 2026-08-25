@@ -25,6 +25,22 @@ function matches(path: string, routes: readonly string[]) {
  * (TECHNICAL_SPEC §3) — autorização SEMPRE no servidor.
  */
 export async function middleware(request: NextRequest) {
+  // /dev/* (preview de componentes, DX-9) nunca pode ser servido em produção —
+  // não é rota de produto, é debug. Defesa em profundidade: a própria página
+  // já chama notFound() (app/dev/ui/page.tsx); isso bloqueia mais cedo, no
+  // edge, sem nem montar sessão/CSP. O matcher abaixo já cobre `/dev/*`
+  // (só exclui _next/static, _next/image, favicon, assets e api/cron|webhooks).
+  // Match por segmento (== "/dev" ou prefixo "/dev/"), não startsWith("/dev")
+  // puro — mesmo padrão de sidebar-nav.tsx/admin-nav.tsx, evita capturar por
+  // engano uma rota futura tipo "/devices".
+  const { pathname } = request.nextUrl;
+  if (
+    process.env.NODE_ENV === "production" &&
+    (pathname === "/dev" || pathname.startsWith("/dev/"))
+  ) {
+    return new NextResponse(null, { status: 404 });
+  }
+
   // Nonce por requisição para a CSP. É propagado no header do request para o Next
   // aplicar aos seus scripts, e os Server Components o leem via headers()['x-nonce'].
   const nonce = btoa(crypto.randomUUID());

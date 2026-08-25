@@ -31,7 +31,8 @@
     "staff": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx server/admin/staff-cli.ts",
     "mfa:reset": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx server/admin/mfa-reset-cli.ts",
     "seed:test-user": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx server/admin/seed-test-user.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "help": "node scripts/help.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
